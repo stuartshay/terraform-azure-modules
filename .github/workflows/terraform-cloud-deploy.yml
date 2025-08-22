@@ -70,7 +70,7 @@ jobs:
             echo "❌ Invalid major version: ${{ github.event.inputs.major_version }}"
             exit 1
           fi
-
+          
           # Validate minor version
           if [[ ! "${{ github.event.inputs.minor_version }}" =~ ^[0-9]+$ ]]; then
             echo "❌ Invalid minor version: ${{ github.event.inputs.minor_version }}"
@@ -166,21 +166,21 @@ jobs:
 
           TEMP_DIR="/tmp/terraform-module-$MODULE_NAME-$VERSION"
           TARBALL_NAME="terraform-$ORGANIZATION-$MODULE_NAME-$PROVIDER-$VERSION.tar.gz"
-
+          
           echo "📦 Creating module package..."
           echo "📋 Package details:"
           echo "  Module: $MODULE_NAME"
           echo "  Version: $VERSION"
           echo "  Organization: $ORGANIZATION"
           echo "  GitHub Run ID: ${{ github.run_id }}"
-
+          
           # Create tarball
           cd /tmp
           tar -czf "$TARBALL_NAME" -C "terraform-module-$MODULE_NAME-$VERSION" .
-
+          
           # Display package info
           echo "✅ Package created: /tmp/$TARBALL_NAME"
-          echo "📊 Package size: $(du -h /tmp/$TARBALL_NAME | cut -f1)"
+          echo "📊 Package size: $(du -h "/tmp/$TARBALL_NAME" | cut -f1)"
 
           # Store package path for next step
           echo "TARBALL_PATH=/tmp/$TARBALL_NAME" >> $GITHUB_ENV
@@ -297,15 +297,10 @@ jobs:
 
           # Step 4: Upload the tarball
           echo "📤 Uploading module tarball..."
-          echo "📊 Tarball size: $(du -h $TARBALL_PATH | cut -f1)"
+          echo "📊 Tarball size: $(du -h "$TARBALL_PATH" | cut -f1)"
 
-          UPLOAD_RESPONSE=$(curl -s \
-            --request PUT \
-            --upload-file "$TARBALL_PATH" \
-            "$UPLOAD_URL")
-
-          # Check if upload was successful (empty response is success for PUT)
-          if [ $? -eq 0 ]; then
+          # Upload the tarball
+          if curl -s --request PUT --upload-file "$TARBALL_PATH" "$UPLOAD_URL"; then
             echo "✅ Module tarball uploaded successfully"
           else
             echo "❌ Failed to upload module tarball"
