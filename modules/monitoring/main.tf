@@ -53,18 +53,26 @@ resource "azurerm_storage_account" "monitoring" {
   resource_group_name      = var.resource_group_name
   location                 = var.location
   account_tier             = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = "GRS" # Use geo-redundant storage for compliance
   min_tls_version          = "TLS1_2"
 
   # Security configurations
   allow_nested_items_to_be_public = false
-  shared_access_key_enabled       = true
+  shared_access_key_enabled       = false
+  public_network_access_enabled   = false
+  is_hns_enabled                  = true
 
   blob_properties {
     delete_retention_policy {
       days = 7
     }
+    versioning_enabled  = true
+    change_feed_enabled = true
+    container_delete_retention_policy {
+      days = 7
+    }
   }
+
 
   sas_policy {
     expiration_period = "01.00:00:00" # 1 day

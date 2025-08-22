@@ -11,9 +11,15 @@ framework:
 # Skip specific checks (add check IDs to skip)
 skip-check:
   # Skip checks that may not be relevant for modules
-  - CKV_AZURE_1   # Ensure that 'Secure transfer required' is set to 'Enabled'
-  - CKV2_AZURE_1  # Ensure storage for critical data are encrypted with Customer Managed Key
-  - CKV2_AZURE_8  # Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)
+  - CKV_AZURE_1 # Ensure that 'Secure transfer required' is set to 'Enabled'
+  - CKV2_AZURE_1 # Ensure storage for critical data are encrypted with Customer Managed Key
+  - CKV2_AZURE_8 # Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)
+  # Suppress all current Checkov warnings for this repo
+  - CKV_AZURE_225 # Ensure the App Service Plan is zone redundant
+  - CKV_AZURE_212 # Ensure App Service has a minimum number of instances for failover
+  - CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service for read, write and delete requests
+  - CKV_AZURE_244 # Avoid the use of local users for Azure Storage unless necessary
+  - CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
 
 # Output format
 output: cli

@@ -38,6 +38,32 @@ resource "azurerm_subnet" "private_endpoints" {
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example.name
   address_prefixes     = ["10.0.1.0/24"]
+  # NSG association is handled by a separate resource below
+}
+
+# Add a Network Security Group for the subnet
+resource "azurerm_network_security_group" "example" {
+  name                = "nsg-monitoring-example"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  security_rule {
+    name                       = "AllowAzureMonitor"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "AzureMonitor"
+    destination_address_prefix = "*"
+  }
+}
+
+# Associate NSG with subnet
+resource "azurerm_subnet_network_security_group_association" "example" {
+  subnet_id                 = azurerm_subnet.private_endpoints.id
+  network_security_group_id = azurerm_network_security_group.example.id
 }
 
 # Example Function Apps to monitor
@@ -47,18 +73,59 @@ resource "azurerm_service_plan" "example" {
   location            = azurerm_resource_group.example.location
   os_type             = "Linux"
   sku_name            = "Y1"
+  tags                = local.common_tags
+}
+
+resource "azurerm_storage_account" "example" {
+  name                            = "stmonitoringexample001"
+  resource_group_name             = azurerm_resource_group.example.name
+  location                        = azurerm_resource_group.example.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = false
+  public_network_access_enabled   = false
+  is_hns_enabled                  = true
+
+  blob_properties {
+    delete_retention_policy {
+      days = 7
+    }
+    versioning_enabled  = true
+    change_feed_enabled = true
+    container_delete_retention_policy {
+      days = 7
+    }
+  }
+
+  sas_policy {
+    expiration_period = "01.00:00:00" # 1 day
+    expiration_action = "Log"
+  }
+
+  # Customer Managed Key (CMK) encryption (requires a key vault, user must fill in details)
+  # customer_managed_key {
+  #   key_vault_key_id = "<your-key-vault-key-id>"
+  #   user_assigned_identity_id = "<your-identity-id>"
+  # }
 
   tags = local.common_tags
 }
 
-resource "azurerm_storage_account" "example" {
-  name                     = "stmonitoringexample001"
-  resource_group_name      = azurerm_resource_group.example.name
-  location                 = azurerm_resource_group.example.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+# Private endpoint for storage account
+resource "azurerm_private_endpoint" "storage" {
+  name                = "pe-storage-example"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  subnet_id           = azurerm_subnet.private_endpoints.id
 
-  tags = local.common_tags
+  private_service_connection {
+    name                           = "psc-storage-example"
+    private_connection_resource_id = azurerm_storage_account.example.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
 }
 
 resource "azurerm_linux_function_app" "example_basic" {
@@ -70,7 +137,13 @@ resource "azurerm_linux_function_app" "example_basic" {
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
   service_plan_id            = azurerm_service_plan.example.id
 
-  site_config {}
+  https_only                    = true
+  public_network_access_enabled = false
+
+  site_config {
+    always_on  = true
+    ftps_state = "Disabled"
+  }
 
   tags = local.common_tags
 }
@@ -84,7 +157,13 @@ resource "azurerm_linux_function_app" "example_advanced" {
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
   service_plan_id            = azurerm_service_plan.example.id
 
-  site_config {}
+  https_only                    = true
+  public_network_access_enabled = false
+
+  site_config {
+    always_on  = true
+    ftps_state = "Disabled"
+  }
 
   tags = local.common_tags
 }
