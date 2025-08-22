@@ -25,9 +25,9 @@ resource "azurerm_resource_group" "example" {
 
 # Local values for consistent configuration
 locals {
-  workload        = "example"
-  environment     = "dev"
-  location_short  = "eastus"
+  workload       = "example"
+  environment    = "dev"
+  location_short = "eastus"
 
   common_tags = {
     Environment = local.environment
@@ -43,11 +43,11 @@ module "monitoring" {
 
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
-  location           = azurerm_resource_group.example.location
-  workload           = local.workload
-  environment        = local.environment
-  location_short     = local.location_short
-  subscription_id    = data.azurerm_client_config.current.subscription_id
+  location            = azurerm_resource_group.example.location
+  workload            = local.workload
+  environment         = local.environment
+  location_short      = local.location_short
+  subscription_id     = data.azurerm_client_config.current.subscription_id
 
   # Basic notification configuration
   notification_emails = {

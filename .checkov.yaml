@@ -1,0 +1,45 @@
+# Checkov configuration for Terraform Azure Modules
+
+# Directories to scan
+directory:
+  - modules
+
+# File types to scan
+framework:
+  - terraform
+
+# Skip specific checks (add check IDs to skip)
+skip-check:
+  # Skip checks that may not be relevant for modules
+  - CKV_AZURE_1   # Ensure that 'Secure transfer required' is set to 'Enabled'
+  - CKV2_AZURE_1  # Ensure storage for critical data are encrypted with Customer Managed Key
+  - CKV2_AZURE_8  # Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)
+
+# Output format
+output: cli
+
+# Quiet mode (reduce verbosity)
+quiet: false
+
+# Compact output
+compact: true
+
+# Download external modules
+download-external-modules: false
+
+# External checks directory
+external-checks-dir: []
+
+# Baseline file for suppressing known issues
+# baseline: .checkov.baseline
+
+# Soft fail mode (don't exit with error code)
+soft-fail: false
+
+# Hard fail on specific severity levels
+hard-fail-on:
+  - HIGH
+  - CRITICAL
+
+# Skip downloading of external modules
+skip-download: true

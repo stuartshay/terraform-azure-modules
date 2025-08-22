@@ -110,11 +110,11 @@ module "monitoring" {
 
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
-  location           = azurerm_resource_group.example.location
-  workload           = local.workload
-  environment        = local.environment
-  location_short     = local.location_short
-  subscription_id    = data.azurerm_client_config.current.subscription_id
+  location            = azurerm_resource_group.example.location
+  workload            = local.workload
+  environment         = local.environment
+  location_short      = local.location_short
+  subscription_id     = data.azurerm_client_config.current.subscription_id
 
   # Function Apps to monitor
   monitored_function_apps = {
@@ -130,9 +130,9 @@ module "monitoring" {
 
   # Cost optimization settings
   log_retention_days      = 90
-  daily_quota_gb         = 5
+  daily_quota_gb          = 5
   reservation_capacity_gb = 100
-  sampling_percentage    = 75
+  sampling_percentage     = 75
 
   # Enhanced notification configuration
   notification_emails = {
