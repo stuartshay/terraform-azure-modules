@@ -56,9 +56,13 @@ terraform.rc
 .idea/
 *.iml
 
+
+
+
 # Ignore OS generated files
 Thumbs.db
 ehthumbs.db
 
-# Ignore terraform lock files (uncomment if you want to ignore them)
-# .terraform.lock.hcl
+
+# Ignore environment variable files
+.env

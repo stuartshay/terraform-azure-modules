@@ -318,7 +318,7 @@ See the [examples](./examples/) directory for complete usage examples:
 ## License
 
 This module is licensed under the Apache License 2.0 - see the [LICENSE](../../LICENSE) file for details.
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -448,4 +448,4 @@ No modules.
 | <a name="output_smart_detection_rule_ids"></a> [smart\_detection\_rule\_ids](#output\_smart\_detection\_rule\_ids) | List of smart detection rule IDs |
 | <a name="output_update_management_solution_id"></a> [update\_management\_solution\_id](#output\_update\_management\_solution\_id) | ID of the Update Management solution |
 | <a name="output_vm_insights_data_collection_rule_id"></a> [vm\_insights\_data\_collection\_rule\_id](#output\_vm\_insights\_data\_collection\_rule\_id) | ID of the VM Insights data collection rule |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

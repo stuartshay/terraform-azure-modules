@@ -4,7 +4,7 @@
 repos:
   # General file formatting and checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: '\.md$'
@@ -19,7 +19,7 @@ repos:
 
   # Terraform formatting and validation
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.88.4
+    rev: v1.100.0
     hooks:
       - id: terraform_fmt
         args:
@@ -54,7 +54,7 @@ repos:
 
   # Security scanning
   - repo: https://github.com/aquasecurity/tfsec
-    rev: v1.28.6
+    rev: v1.28.14
     hooks:
       - id: tfsec
         args:
@@ -62,11 +62,10 @@ repos:
 
   # Shell script linting
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
         args: ['--severity=warning']
-
 
 # Configuration for specific hooks
 default_language_version:

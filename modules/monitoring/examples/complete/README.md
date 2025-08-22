@@ -252,7 +252,7 @@ After deploying this complete example:
 | Name | Version |
 |------|---------|
 | azurerm | ~> 4.40 |
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -314,4 +314,4 @@ No inputs.
 | <a name="output_resource_names"></a> [resource\_names](#output\_resource\_names) | Names of created monitoring resources |
 | <a name="output_smart_detection_rule_ids"></a> [smart\_detection\_rule\_ids](#output\_smart\_detection\_rule\_ids) | List of smart detection rule IDs |
 | <a name="output_virtual_network_id"></a> [virtual\_network\_id](#output\_virtual\_network\_id) | ID of the created virtual network |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

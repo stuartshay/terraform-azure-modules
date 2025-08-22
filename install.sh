@@ -521,101 +521,12 @@ setup_precommit_hooks() {
   # Navigate to project root
   cd "$(dirname "$0")"
 
-  # Check if .pre-commit-config.yaml exists
+  # Use the existing .pre-commit-config.yaml
   if [ -f .pre-commit-config.yaml ]; then
     echo "* Using existing .pre-commit-config.yaml configuration"
   else
-    echo "Creating .pre-commit-config.yaml for Terraform modules..."
-    cat > .pre-commit-config.yaml << 'EOF'
-# Terraform Azure Modules Pre-commit Configuration
-# This file configures pre-commit hooks for Terraform module development
-
-repos:
-  # General file formatting and checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-      - id: trailing-whitespace
-        exclude: '\.md$'
-      - id: end-of-file-fixer
-      - id: check-yaml
-        args: ['--allow-multiple-documents']
-      - id: check-json
-      - id: check-added-large-files
-        args: ['--maxkb=1000']
-      - id: check-case-conflict
-      - id: check-merge-conflict
-
-  # Terraform formatting and validation
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.88.4
-    hooks:
-      - id: terraform_fmt
-        args:
-          - --args=-recursive
-      - id: terraform_validate
-        args:
-          - --args=-json
-          - --args=-no-color
-      - id: terraform_docs
-        args:
-          - --hook-config=--path-to-file=README.md
-          - --hook-config=--add-to-existing-file=true
-          - --hook-config=--create-file-if-not-exist=true
-      - id: terraform_tflint
-        args:
-          - --args=--only=terraform_deprecated_interpolation
-          - --args=--only=terraform_deprecated_index
-          - --args=--only=terraform_unused_declarations
-          - --args=--only=terraform_comment_syntax
-          - --args=--only=terraform_documented_outputs
-          - --args=--only=terraform_documented_variables
-          - --args=--only=terraform_typed_variables
-          - --args=--only=terraform_module_pinned_source
-          - --args=--only=terraform_naming_convention
-          - --args=--only=terraform_required_version
-          - --args=--only=terraform_required_providers
-          - --args=--only=terraform_standard_module_structure
-      - id: terraform_checkov
-        args:
-          - --args=--framework terraform
-          - --args=--quiet
-
-  # Security scanning
-  - repo: https://github.com/aquasecurity/tfsec
-    rev: v1.28.6
-    hooks:
-      - id: tfsec
-        args:
-          - --soft-fail
-
-  # Shell script linting
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-      - id: shellcheck
-        args: ['--severity=warning']
-
-  # GitHub Actions linting
-  - repo: https://github.com/rhymond/actionlint
-    rev: v1.6.26
-    hooks:
-      - id: actionlint
-
-# Configuration for specific hooks
-default_language_version:
-  python: python3
-
-# Exclude patterns
-exclude: |
-  (?x)^(
-    \.terraform/.*|
-    \.terragrunt-cache/.*|
-    terraform\.tfstate.*|
-    \.terraform\.lock\.hcl
-  )$
-EOF
-    echo "* Created .pre-commit-config.yaml for Terraform module development"
+    echo "ERROR: .pre-commit-config.yaml not found. Please add your configuration file before running this script."
+    return 1
   fi
 
   # Install the git hooks
@@ -639,7 +550,6 @@ EOF
   echo "  - Terraform: formatting, validation, documentation, linting"
   echo "  - Security: tfsec, Checkov scanning"
   echo "  - General: trailing whitespace, file endings, JSON/YAML validation"
-  echo "  - GitHub Actions: workflow validation"
   echo "  - Shell: shellcheck for script validation"
   echo ""
 }
