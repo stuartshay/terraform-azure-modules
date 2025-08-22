@@ -1,5 +1,7 @@
 # Terraform Azure Modules
 
+[![Pre-commit](https://github.com/stuartshay/terraform-azure-modules/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/stuartshay/terraform-azure-modules/actions/workflows/pre-commit.yml)
+
 A collection of reusable Terraform modules for Azure infrastructure components.
 
 ## Available Modules

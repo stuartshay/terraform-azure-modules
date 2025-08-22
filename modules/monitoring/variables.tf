@@ -79,7 +79,10 @@ variable "reservation_capacity_gb" {
   default     = null
 
   validation {
-    condition     = var.reservation_capacity_gb == null || (can(var.reservation_capacity_gb) && var.reservation_capacity_gb >= 100 && var.reservation_capacity_gb <= 5000)
+    condition = (
+      var.reservation_capacity_gb == null ||
+      (var.reservation_capacity_gb >= 100 && var.reservation_capacity_gb <= 5000)
+    )
     error_message = "Reservation capacity must be between 100 and 5000 GB or null."
   }
 }
