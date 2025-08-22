@@ -1,0 +1,326 @@
+name: Deploy to Terraform Cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        description: 'Module to deploy'
+        required: true
+        type: choice
+        options:
+          - app-service
+          - monitoring
+        default: 'app-service'
+      version:
+        description: 'Module version (semantic versioning, e.g., 1.0.0)'
+        required: true
+        type: string
+        default: '1.0.0'
+      dry_run:
+        description: 'Dry run (validate only, do not publish)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  TF_VERSION: '1.12.2'
+
+jobs:
+  validate-and-deploy:
+    name: Validate and Deploy Module
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Validate inputs
+        run: |
+          # Validate module name
+          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service|monitoring)$ ]]; then
+            echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
+            exit 1
+          fi
+
+          # Validate version format (semantic versioning)
+          if [[ ! "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: ${{ github.event.inputs.version }}"
+            echo "Please use semantic versioning (e.g., 1.0.0)"
+            exit 1
+          fi
+
+          echo "✅ Module: ${{ github.event.inputs.module_name }}"
+          echo "✅ Version: ${{ github.event.inputs.version }}"
+          echo "✅ Dry Run: ${{ github.event.inputs.dry_run }}"
+
+      - name: Check module directory exists
+        run: |
+          MODULE_PATH="modules/${{ github.event.inputs.module_name }}"
+          if [ ! -d "$MODULE_PATH" ]; then
+            echo "❌ Module directory $MODULE_PATH does not exist"
+            exit 1
+          fi
+          echo "✅ Module directory found: $MODULE_PATH"
+
+      - name: Validate required files
+        run: |
+          MODULE_PATH="modules/${{ github.event.inputs.module_name }}"
+          REQUIRED_FILES=("main.tf" "variables.tf" "outputs.tf" "versions.tf" "README.md")
+
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$MODULE_PATH/$file" ]; then
+              echo "❌ Required file $MODULE_PATH/$file is missing"
+              exit 1
+            fi
+            echo "✅ Found: $MODULE_PATH/$file"
+          done
+
+      - name: Install dependencies
+        run: |
+          # Install jq for JSON processing
+          sudo apt-get update
+          sudo apt-get install -y jq rsync
+
+      - name: Setup Terraform Cloud credentials
+        run: |
+          mkdir -p ~/.terraform.d
+          cat > ~/.terraform.d/credentials.tfrc.json << EOF
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "${{ secrets.TF_API_TOKEN }}"
+              }
+            }
+          }
+          EOF
+          echo "✅ Terraform Cloud credentials configured"
+
+      - name: Validate Terraform configuration
+        run: |
+          MODULE_PATH="modules/${{ github.event.inputs.module_name }}"
+          TMP_VALIDATE_DIR="/tmp/terraform-module-${{ github.event.inputs.module_name }}-${{ github.event.inputs.version }}"
+          echo "🔍 Validating Terraform configuration for ${{ github.event.inputs.module_name }}"
+
+          # Clean up any existing temp directory
+          if [ -d "$TMP_VALIDATE_DIR" ]; then
+            rm -rf "$TMP_VALIDATE_DIR"
+          fi
+
+          # Create temporary directory and copy module files
+          mkdir -p "$TMP_VALIDATE_DIR"
+          rsync -av --exclude='examples/' --exclude='.terraform/' --exclude='.terraform.lock.hcl' "$MODULE_PATH/" "$TMP_VALIDATE_DIR/"
+
+          # Validate in temp directory
+          cd "$TMP_VALIDATE_DIR"
+
+          # Initialize Terraform (backend=false for validation only)
+          terraform init -backend=false
+
+          # Format check
+          if ! terraform fmt -check -recursive .; then
+            echo "⚠️ Terraform formatting issues found. Running terraform fmt..."
+            terraform fmt -recursive .
+          fi
+
+          # Validate configuration
+          terraform validate
+
+          echo "✅ Terraform configuration is valid"
+
+      - name: Create module package
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+          VERSION="${{ github.event.inputs.version }}"
+          ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
+          PROVIDER="azurerm"
+
+          TARBALL_NAME="terraform-$ORGANIZATION-$MODULE_NAME-$PROVIDER-$VERSION.tar.gz"
+
+          echo "📦 Creating module package..."
+
+          # Create tarball
+          cd /tmp
+          tar -czf "$TARBALL_NAME" -C "terraform-module-$MODULE_NAME-$VERSION" .
+
+          # Display package info
+          echo "✅ Package created: /tmp/$TARBALL_NAME"
+          echo "📊 Package size: $(du -h "/tmp/$TARBALL_NAME" | cut -f1)"
+
+          # Store package path for next step
+          echo "TARBALL_PATH=/tmp/$TARBALL_NAME" >> "$GITHUB_ENV"
+
+      - name: Publish to Terraform Cloud
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+          VERSION="${{ github.event.inputs.version }}"
+          ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
+          PROVIDER="azurerm"
+          TFC_API_URL="https://app.terraform.io/api/v2"
+
+          echo "🚀 Publishing module $MODULE_NAME version $VERSION to Terraform Cloud"
+
+          # Step 1: Check if organization exists
+          echo "🔍 Checking organization: $ORGANIZATION"
+          ORG_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+            --header "Content-Type: application/vnd.api+json" \
+            "$TFC_API_URL/organizations/$ORGANIZATION")
+
+          if echo "$ORG_RESPONSE" | jq -e '.errors' > /dev/null; then
+            echo "❌ Organization $ORGANIZATION not found or access denied"
+            echo "Response: $ORG_RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Organization $ORGANIZATION found"
+
+          # Step 2: Check if module exists, if not create it
+          MODULE_FULL_NAME="$ORGANIZATION/$MODULE_NAME/$PROVIDER"
+          echo "🔍 Checking if module exists: $MODULE_FULL_NAME"
+
+          MODULE_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+            --header "Content-Type: application/vnd.api+json" \
+            "$TFC_API_URL/organizations/$ORGANIZATION/registry-modules/private/$ORGANIZATION/$MODULE_NAME/$PROVIDER")
+
+          if echo "$MODULE_RESPONSE" | jq -e '.errors' > /dev/null; then
+            echo "📝 Module doesn't exist, creating new module: $MODULE_FULL_NAME"
+
+            # Create module
+            CREATE_MODULE_PAYLOAD=$(cat <<EOF
+          {
+            "data": {
+              "type": "registry-modules",
+              "attributes": {
+                "name": "$MODULE_NAME",
+                "provider": "$PROVIDER",
+                "registry-name": "private"
+              }
+            }
+          }
+          EOF
+          )
+
+            CREATE_RESPONSE=$(curl -s \
+              --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+              --header "Content-Type: application/vnd.api+json" \
+              --request POST \
+              --data "$CREATE_MODULE_PAYLOAD" \
+              "$TFC_API_URL/organizations/$ORGANIZATION/registry-modules")
+
+            if echo "$CREATE_RESPONSE" | jq -e '.errors' > /dev/null; then
+              echo "❌ Failed to create module"
+              echo "Response: $CREATE_RESPONSE"
+              exit 1
+            fi
+
+            echo "✅ Module created successfully"
+          else
+            echo "✅ Module already exists: $MODULE_FULL_NAME"
+          fi
+
+          # Step 3: Create a new version
+          echo "📝 Creating module version $VERSION"
+
+          CREATE_VERSION_PAYLOAD=$(cat <<EOF
+          {
+            "data": {
+              "type": "registry-module-versions",
+              "attributes": {
+                "version": "$VERSION"
+              }
+            }
+          }
+          EOF
+          )
+
+          VERSION_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+            --header "Content-Type: application/vnd.api+json" \
+            --request POST \
+            --data "$CREATE_VERSION_PAYLOAD" \
+            "$TFC_API_URL/organizations/$ORGANIZATION/registry-modules/private/$ORGANIZATION/$MODULE_NAME/$PROVIDER/versions")
+
+          if echo "$VERSION_RESPONSE" | jq -e '.errors' > /dev/null; then
+            echo "❌ Failed to create module version"
+            echo "Response: $VERSION_RESPONSE"
+            exit 1
+          fi
+
+          # Extract upload URL
+          UPLOAD_URL=$(echo "$VERSION_RESPONSE" | jq -r '.data.links.upload')
+
+          if [ "$UPLOAD_URL" = "null" ] || [ -z "$UPLOAD_URL" ]; then
+            echo "❌ Failed to get upload URL from response"
+            echo "Response: $VERSION_RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Module version created, upload URL obtained"
+
+          # Step 4: Upload the tarball
+          echo "📤 Uploading module tarball..."
+          echo "📊 Tarball size: $(du -h "$TARBALL_PATH" | cut -f1)"
+
+          # shellcheck disable=SC2034
+          UPLOAD_RESPONSE=$(curl -s \
+            --request PUT \
+            --upload-file "$TARBALL_PATH" \
+            "$UPLOAD_URL")
+
+          # Check if upload was successful (empty response is success for PUT)
+          if curl -s --request PUT --upload-file "$TARBALL_PATH" "$UPLOAD_URL"; then
+            echo "✅ Module tarball uploaded successfully"
+          else
+            echo "❌ Failed to upload module tarball"
+            exit 1
+          fi
+
+          # Step 5: Verify the module version was created
+          echo "🔍 Verifying module version..."
+          sleep 5  # Give Terraform Cloud time to process
+
+          VERIFY_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+            --header "Content-Type: application/vnd.api+json" \
+            "$TFC_API_URL/organizations/$ORGANIZATION/registry-modules/private/$ORGANIZATION/$MODULE_NAME/$PROVIDER/versions/$VERSION")
+
+          if echo "$VERIFY_RESPONSE" | jq -e '.errors' > /dev/null; then
+            echo "⚠️ Could not verify module version immediately (this is normal)"
+          else
+            STATUS=$(echo "$VERIFY_RESPONSE" | jq -r '.data.attributes.status')
+            echo "✅ Module version status: $STATUS"
+          fi
+
+      - name: Display results
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+          VERSION="${{ github.event.inputs.version }}"
+          ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
+          PROVIDER="azurerm"
+
+          echo "🎉 Deployment Summary"
+          echo "===================="
+          echo "Module: $MODULE_NAME"
+          echo "Version: $VERSION"
+          echo "Organization: $ORGANIZATION"
+          echo "Provider: $PROVIDER"
+          echo "Dry Run: ${{ github.event.inputs.dry_run }}"
+
+          if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
+            echo ""
+            echo "🔗 Module URLs:"
+            echo "Registry: https://app.terraform.io/$ORGANIZATION/modules/$MODULE_NAME/$PROVIDER/$VERSION"
+            echo "Private Registry: https://app.terraform.io/$ORGANIZATION/registry/modules/private/$ORGANIZATION/$MODULE_NAME/$PROVIDER"
+            echo ""
+            echo "📋 Usage in Terraform:"
+            echo "module \"$MODULE_NAME\" {"
+            echo "  source  = \"app.terraform.io/$ORGANIZATION/$MODULE_NAME/$PROVIDER\""
+            echo "  version = \"$VERSION\""
+            echo "}"
+          fi

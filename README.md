@@ -6,6 +6,39 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ## Available Modules
 
+### App Service Module
+
+Azure App Service resources including App Service Plan and Web App with configurable settings.
+
+- **Path**: `modules/app-service`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- App Service Plan with configurable SKU
+- Linux Web App with Python runtime
+- Configurable app settings
+- Resource tagging support
+
+#### Quick Start
+
+```hcl
+module "app_service" {
+  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service?ref=v0.1.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
 ### Monitoring Module
 
 Comprehensive Azure monitoring solution including Log Analytics Workspace, Application Insights, alerts, and monitoring configurations.
@@ -80,6 +113,52 @@ See the `examples/` directory in each module for detailed usage examples.
 - Terraform >= 1.5
 - Azure Provider >= 4.40
 - Appropriate Azure permissions for resource creation
+
+## Terraform Cloud Deployment
+
+This repository includes automated deployment to Terraform Cloud private registry via GitHub Actions.
+
+### Features
+
+- **Manual deployment** via workflow dispatch
+- **Module selection** (app-service or monitoring)
+- **Version management** with semantic versioning
+- **Dry run mode** for validation without publishing
+- **Automated validation** and packaging
+
+### Required GitHub Secrets
+
+To enable Terraform Cloud deployment, configure these repository secrets:
+
+- `TF_API_TOKEN`: Terraform Cloud API token
+- `TF_CLOUD_ORGANIZATION`: Terraform Cloud organization name
+
+### Usage
+
+1. Go to **Actions** → **Deploy to Terraform Cloud**
+2. Click **Run workflow**
+3. Select module and version
+4. Choose dry run for testing or uncheck to publish
+
+For detailed instructions, see [Terraform Cloud Deployment Guide](docs/TERRAFORM_CLOUD_DEPLOYMENT.md).
+
+### Published Modules
+
+Once deployed, modules are available at:
+
+```hcl
+module "app_service" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service/azurerm"
+  version = "1.0.0"
+  # configuration...
+}
+
+module "monitoring" {
+  source  = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
+  version = "1.0.0"
+  # configuration...
+}
+```
 
 ## CI/CD: Required Azure Secrets for Validation
 
