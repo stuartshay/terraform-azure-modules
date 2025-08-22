@@ -26,6 +26,11 @@ applyTo: '**'
 ## Context7 Research History
 - No Context7 research performed yet for this project
 
+## Shellcheck Issues and Fixes (Aug 2025)
+- SC2086: Added double quotes to all variable expansions in .github/workflows/terraform-cloud-deploy.yml to prevent globbing and word splitting.
+- SC2034: Removed unused TEMP_DIR assignment in the 'Create module package' step; used the value inline instead.
+- Fixed context access for VERSION in shell scripts: replaced ${{ env.VERSION }} with $VERSION inside run blocks to avoid invalid context access errors.
+
 ## GitHub Actions CI/CD Troubleshooting (Aug 2025)
 - Issue: GitHub Action failed with 'Resource not accessible by integration' and SARIF upload errors.
 - Root cause: Missing explicit permissions for GITHUB_TOKEN (security-events: write) in workflow YAML.
