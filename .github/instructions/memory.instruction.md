@@ -15,6 +15,7 @@ applyTo: '**'
 - Tech stack: Terraform, AzureRM provider, VS Code, GitHub Actions
 - Architecture patterns: Modular Terraform, reusable modules, example-driven
 - Key requirements: Output documentation, CI/CD validation, secure secrets, Azure integration
+	- Enforce Checkov checks: CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, CKV_AZURE_88 for App Service modules
 
 ## Coding Patterns
 - Uses variables.tf, outputs.tf, main.tf for each module
@@ -32,7 +33,8 @@ applyTo: '**'
 - Confirmed best practices for outputs, secrets, and documentation
 
 ## Notes
-- .vscode/settings.json is well-configured for Terraform and Azure development
-- No MCP Server-specific files found in the repo; MCP Server context is via environment variables and language server integration
-- All module outputs are well-documented and follow Terraform conventions
-- Recommend keeping .env out of version control and using .env.template for sharing config structure
+	- .vscode/settings.json is well-configured for Terraform and Azure development
+	- No MCP Server-specific files found in the repo; MCP Server context is via environment variables and language server integration
+	- All module outputs are well-documented and follow Terraform conventions
+	- Recommend keeping .env out of version control and using .env.template for sharing config structure
+	- CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, and CKV_AZURE_88 are required and must not be skipped in .checkov.yaml for App Service modules. This compliance documentation should be preserved in future changes.

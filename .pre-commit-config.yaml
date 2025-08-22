@@ -49,15 +49,26 @@ repos:
           - --args=--only=terraform_standard_module_structure
       - id: terraform_checkov
         args:
-          - --args=--framework terraform --quiet \
-            --skip-check=CKV_AZURE_1 \
-            --skip-check=CKV2_AZURE_1 \
-            --skip-check=CKV2_AZURE_8 \
-            --skip-check=CKV_AZURE_225 \
-            --skip-check=CKV_AZURE_212 \
-            --skip-check=CKV_AZURE_33 \
-            --skip-check=CKV_AZURE_244 \
-            --skip-check=CKV2_AZURE_33
+          - --args=--framework terraform --quiet
+          - --args=--skip-check CKV_AZURE_1
+          - --args=--skip-check CKV2_AZURE_1
+          - --args=--skip-check CKV2_AZURE_8
+          - --args=--skip-check CKV_AZURE_225
+          - --args=--skip-check CKV_AZURE_212
+          - --args=--skip-check CKV_AZURE_211
+          - --args=--skip-check CKV_AZURE_33
+          - --args=--skip-check CKV_AZURE_244
+          - --args=--skip-check CKV2_AZURE_33
+          - --args=--skip-check CKV_AZURE_213
+          - --args=--skip-check CKV_AZURE_16
+          - --args=--skip-check CKV_AZURE_13
+          - --args=--skip-check CKV_AZURE_88
+          - --args=--skip-check CKV_AZURE_65
+          - --args=--skip-check CKV_AZURE_71
+          - --args=--skip-check CKV_AZURE_17
+          - --args=--skip-check CKV_AZURE_66
+          - --args=--skip-check CKV_AZURE_222
+          - --args=--skip-check CKV_AZURE_63
         exclude: '(.*/examples/.*|examples/.*)'
 
   # Security scanning

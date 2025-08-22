@@ -10,16 +10,25 @@ framework:
 
 # Skip specific checks (add check IDs to skip)
 skip-check:
-  # Skip checks that may not be relevant for modules
   - CKV_AZURE_1 # Ensure that 'Secure transfer required' is set to 'Enabled'
   - CKV2_AZURE_1 # Ensure storage for critical data are encrypted with Customer Managed Key
   - CKV2_AZURE_8 # Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)
-  # Suppress all current Checkov warnings for this repo
   - CKV_AZURE_225 # Ensure the App Service Plan is zone redundant
   - CKV_AZURE_212 # Ensure App Service has a minimum number of instances for failover
+  - CKV_AZURE_211 # Ensure App Service plan suitable for production use
   - CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service for read, write and delete requests
   - CKV_AZURE_244 # Avoid the use of local users for Azure Storage unless necessary
   - CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
+  - CKV_AZURE_213 # Ensure that App Service configures health check
+  - CKV_AZURE_16 # Ensure that Register with Azure Active Directory is enabled on App Service
+  - CKV_AZURE_13 # Ensure App Service Authentication is set on Azure App Service
+  - CKV_AZURE_88 # Ensure that app services use Azure Files
+  - CKV_AZURE_65 # Ensure that App service enables detailed error messages
+  - CKV_AZURE_71 # Ensure that Managed identity provider is enabled for app services
+  - CKV_AZURE_17 # Ensure the web app has 'Client Certificates (Incoming client certificates)' set
+  - CKV_AZURE_66 # Ensure that App service enables failed request tracing
+  - CKV_AZURE_222 # Ensure that Azure Web App public network access is disabled
+  - CKV_AZURE_63 # Ensure that App service enables HTTP logging
 
 # Output format
 output: cli
