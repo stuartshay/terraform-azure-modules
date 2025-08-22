@@ -139,8 +139,11 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module and version
-4. Choose dry run for testing or uncheck to publish
+3. Select module (app-service or monitoring)
+4. Optionally adjust major/minor version (defaults to 1.0)
+5. Choose dry run for testing or uncheck to publish
+
+**Auto-Versioning**: Versions are automatically generated as `{major}.{minor}.{github_run_id}` ensuring unique versions every time.
 
 For detailed instructions, see [Terraform Cloud Deployment Guide](docs/TERRAFORM_CLOUD_DEPLOYMENT.md).
 

@@ -62,8 +62,11 @@ The workflow currently supports these modules:
 | Parameter | Description | Required | Default |
 |-----------|-------------|----------|---------|
 | `module_name` | Module to deploy | Yes | `app-service` |
-| `version` | Semantic version number | Yes | `1.0.0` |
+| `major_version` | Major version number | No | `1` |
+| `minor_version` | Minor version number | No | `0` |
 | `dry_run` | Validate only, don't publish | No | `false` |
+
+**Auto-Generated Version**: The workflow automatically generates versions using the pattern `{major}.{minor}.{github_run_id}`, ensuring unique versions for every deployment.
 
 ### 3. Version Management
 

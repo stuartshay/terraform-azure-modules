@@ -11,11 +11,16 @@ on:
           - app-service
           - monitoring
         default: 'app-service'
-      version:
-        description: 'Module version (semantic versioning, e.g., 1.0.0)'
-        required: true
+      major_version:
+        description: 'Major version number'
+        required: false
         type: string
-        default: '1.0.0'
+        default: '1'
+      minor_version:
+        description: 'Minor version number'
+        required: false
+        type: string
+        default: '0'
       dry_run:
         description: 'Dry run (validate only, do not publish)'
         required: false
@@ -34,6 +39,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Generate version
+        id: version
+        run: |
+          # Generate version using pattern: MAJOR.MINOR.GITHUB_RUN_ID
+          MAJOR="${{ github.event.inputs.major_version }}"
+          MINOR="${{ github.event.inputs.minor_version }}"
+          PATCH="${{ github.run_id }}"
+          VERSION="$MAJOR.$MINOR.$PATCH"
+
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -47,15 +65,21 @@ jobs:
             exit 1
           fi
 
-          # Validate version format (semantic versioning)
-          if [[ ! "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid version format: ${{ github.event.inputs.version }}"
-            echo "Please use semantic versioning (e.g., 1.0.0)"
+          # Validate major version
+          if [[ ! "${{ github.event.inputs.major_version }}" =~ ^[0-9]+$ ]]; then
+            echo "❌ Invalid major version: ${{ github.event.inputs.major_version }}"
+            exit 1
+          fi
+
+          # Validate minor version
+          if [[ ! "${{ github.event.inputs.minor_version }}" =~ ^[0-9]+$ ]]; then
+            echo "❌ Invalid minor version: ${{ github.event.inputs.minor_version }}"
             exit 1
           fi
 
           echo "✅ Module: ${{ github.event.inputs.module_name }}"
-          echo "✅ Version: ${{ github.event.inputs.version }}"
+          echo "✅ Generated Version: ${{ env.VERSION }}"
+          echo "✅ GitHub Run ID: ${{ github.run_id }}"
           echo "✅ Dry Run: ${{ github.event.inputs.dry_run }}"
 
       - name: Check module directory exists
@@ -103,20 +127,21 @@ jobs:
       - name: Validate Terraform configuration
         run: |
           MODULE_PATH="modules/${{ github.event.inputs.module_name }}"
-          TMP_VALIDATE_DIR="/tmp/terraform-module-${{ github.event.inputs.module_name }}-${{ github.event.inputs.version }}"
+          TEMP_DIR="/tmp/terraform-module-${{ github.event.inputs.module_name }}-${{ env.VERSION }}"
+
           echo "🔍 Validating Terraform configuration for ${{ github.event.inputs.module_name }}"
 
           # Clean up any existing temp directory
-          if [ -d "$TMP_VALIDATE_DIR" ]; then
-            rm -rf "$TMP_VALIDATE_DIR"
+          if [ -d "$TEMP_DIR" ]; then
+            rm -rf "$TEMP_DIR"
           fi
 
           # Create temporary directory and copy module files
-          mkdir -p "$TMP_VALIDATE_DIR"
-          rsync -av --exclude='examples/' --exclude='.terraform/' --exclude='.terraform.lock.hcl' "$MODULE_PATH/" "$TMP_VALIDATE_DIR/"
+          mkdir -p "$TEMP_DIR"
+          rsync -av --exclude='examples/' --exclude='.terraform/' --exclude='.terraform.lock.hcl' "$MODULE_PATH/" "$TEMP_DIR/"
 
           # Validate in temp directory
-          cd "$TMP_VALIDATE_DIR"
+          cd "$TEMP_DIR"
 
           # Initialize Terraform (backend=false for validation only)
           terraform init -backend=false
@@ -135,13 +160,19 @@ jobs:
       - name: Create module package
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
 
+          TEMP_DIR="/tmp/terraform-module-$MODULE_NAME-$VERSION"
           TARBALL_NAME="terraform-$ORGANIZATION-$MODULE_NAME-$PROVIDER-$VERSION.tar.gz"
 
           echo "📦 Creating module package..."
+          echo "📋 Package details:"
+          echo "  Module: $MODULE_NAME"
+          echo "  Version: $VERSION"
+          echo "  Organization: $ORGANIZATION"
+          echo "  GitHub Run ID: ${{ github.run_id }}"
 
           # Create tarball
           cd /tmp
@@ -149,15 +180,16 @@ jobs:
 
           # Display package info
           echo "✅ Package created: /tmp/$TARBALL_NAME"
-          echo "📊 Package size: $(du -h "/tmp/$TARBALL_NAME" | cut -f1)"
+          echo "📊 Package size: $(du -h /tmp/$TARBALL_NAME | cut -f1)"
 
           # Store package path for next step
-          echo "TARBALL_PATH=/tmp/$TARBALL_NAME" >> "$GITHUB_ENV"
+          echo "TARBALL_PATH=/tmp/$TARBALL_NAME" >> $GITHUB_ENV
 
       - name: Publish to Terraform Cloud
+        if: github.event.inputs.dry_run != 'true'
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
           TFC_API_URL="https://app.terraform.io/api/v2"
@@ -265,16 +297,15 @@ jobs:
 
           # Step 4: Upload the tarball
           echo "📤 Uploading module tarball..."
-          echo "📊 Tarball size: $(du -h "$TARBALL_PATH" | cut -f1)"
+          echo "📊 Tarball size: $(du -h $TARBALL_PATH | cut -f1)"
 
-          # shellcheck disable=SC2034
           UPLOAD_RESPONSE=$(curl -s \
             --request PUT \
             --upload-file "$TARBALL_PATH" \
             "$UPLOAD_URL")
 
           # Check if upload was successful (empty response is success for PUT)
-          if curl -s --request PUT --upload-file "$TARBALL_PATH" "$UPLOAD_URL"; then
+          if [ $? -eq 0 ]; then
             echo "✅ Module tarball uploaded successfully"
           else
             echo "❌ Failed to upload module tarball"
@@ -297,10 +328,33 @@ jobs:
             echo "✅ Module version status: $STATUS"
           fi
 
+      - name: Create Git tag
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          VERSION="${{ env.VERSION }}"
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+
+          # Create tag with module name and version
+          TAG_NAME="$MODULE_NAME-v$VERSION"
+
+          echo "🏷️ Creating Git tag: $TAG_NAME"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git tag "$TAG_NAME"; then
+            echo "✅ Git tag $TAG_NAME created"
+            echo "📤 Pushing tag to repository..."
+            git push origin "$TAG_NAME"
+            echo "✅ Tag pushed successfully"
+          else
+            echo "⚠️ Failed to create Git tag (tag may already exist)"
+          fi
+
       - name: Display results
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
 
@@ -308,6 +362,7 @@ jobs:
           echo "===================="
           echo "Module: $MODULE_NAME"
           echo "Version: $VERSION"
+          echo "GitHub Run ID: ${{ github.run_id }}"
           echo "Organization: $ORGANIZATION"
           echo "Provider: $PROVIDER"
           echo "Dry Run: ${{ github.event.inputs.dry_run }}"
@@ -322,5 +377,21 @@ jobs:
             echo "module \"$MODULE_NAME\" {"
             echo "  source  = \"app.terraform.io/$ORGANIZATION/$MODULE_NAME/$PROVIDER\""
             echo "  version = \"$VERSION\""
+            echo "  "
+            echo "  # Add your module configuration here"
             echo "}"
+            echo ""
+            echo "🏷️ Git Tag: $MODULE_NAME-v$VERSION"
+          else
+            echo ""
+            echo "✅ Dry run completed successfully - module is ready for publishing"
+            echo "📋 Would create version: $VERSION"
           fi
+
+      - name: Clean up
+        if: always()
+        run: |
+          # Clean up temporary files
+          rm -rf /tmp/terraform-module-*
+          rm -f /tmp/terraform-*.tar.gz
+          echo "🧹 Cleanup completed"
