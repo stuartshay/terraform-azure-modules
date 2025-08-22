@@ -79,6 +79,19 @@ See the `examples/` directory in each module for detailed usage examples.
 - Azure Provider >= 4.40
 - Appropriate Azure permissions for resource creation
 
+## CI/CD: Required Azure Secrets for Validation
+
+To enable Terraform validation in GitHub Actions, the following repository secrets must be set:
+
+- `AZURE_CLIENT_ID`: Service principal client ID
+- `AZURE_TENANT_ID`: Azure tenant ID
+- `AZURE_SUBSCRIPTION_ID`: Azure subscription ID
+- `AZURE_CLIENT_SECRET`: Service principal client secret
+
+These are used by the workflow to authenticate with Azure using the `azure/login` action. Without these, validation of modules and examples that require provider authentication will fail.
+
+For more information, see the [Azure/login GitHub Action documentation](https://github.com/Azure/login#configure-a-service-principal-with-a-secret).
+
 ## Contributing
 
 1. Fork the repository
