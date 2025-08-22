@@ -53,7 +53,6 @@ terraform.rc
 *.temp
 
 # Ignore IDE files
-.vscode/
 .idea/
 *.iml
 
