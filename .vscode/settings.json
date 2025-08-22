@@ -22,17 +22,6 @@
         "PATH": "${env:PATH}:/usr/bin:/usr/local/bin:/bin",
         "DOCKER_HOST": "unix:///var/run/docker.sock"
     },
-    "terraform.languageServer": {
-        "external": true,
-        "pathToBinary": "",
-        "args": [],
-        "maxNumberOfProblems": 100,
-        "trace.server": "off"
-    },
-    "mcp.servers.terraform.env": {
-        "PATH": "/usr/bin:/usr/local/bin:/bin:${env:PATH}",
-        "DOCKER_HOST": "unix:///var/run/docker.sock"
-    },
     "chat.tools.autoApprove": true,
     "chat.agent.maxRequests": 20,
     "github.copilot.chat.alternateGptPrompt.enabled": true,
