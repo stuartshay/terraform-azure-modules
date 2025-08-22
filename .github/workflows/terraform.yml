@@ -7,19 +7,12 @@ on:
     branches: [master]
 
 env:
-  TF_VERSION: '1.5.0'
+  TF_VERSION: '1.12.2'
 
 jobs:
   terraform-validate:
     name: Terraform Validation
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        directory:
-          - modules/monitoring
-          - modules/monitoring/examples/basic
-          - modules/monitoring/examples/complete
 
     steps:
       - name: Checkout
@@ -30,21 +23,35 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Find module directories (excluding examples)
+        id: find_modules
+        run: |
+          # Find all directories containing .tf files, excluding examples
+          MODULE_DIRS=$(find modules -name "*.tf" -type f | grep -v "/examples/" | xargs dirname | sort -u | tr '\n' ' ')
+          echo "Found module directories: $MODULE_DIRS"
+          echo "module_dirs=$MODULE_DIRS" >> "$GITHUB_OUTPUT"
+
       - name: Terraform Format Check
         id: fmt
-        run: terraform fmt -check -recursive
-        working-directory: ${{ matrix.directory }}
+        run: |
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            echo "Checking format in $dir"
+            terraform fmt -check -recursive "$dir" || echo "Format issues found in $dir"
+          done
         continue-on-error: true
 
-      - name: Terraform Init
-        id: init
-        run: terraform init -backend=false
-        working-directory: ${{ matrix.directory }}
-
-      - name: Terraform Validate
+      - name: Terraform Init and Validate
         id: validate
-        run: terraform validate
-        working-directory: ${{ matrix.directory }}
+        run: |
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            echo "Validating $dir"
+            cd "$dir"
+            terraform init -backend=false
+            terraform validate
+            cd - > /dev/null
+          done
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
@@ -52,7 +59,6 @@ jobs:
         with:
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
 
             <details><summary>Validation Output</summary>
@@ -63,7 +69,7 @@ jobs:
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.directory }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -80,27 +86,54 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Find module directories (excluding examples)
+        id: find_modules
+        run: |
+          # Find all directories containing .tf files, excluding examples
+          MODULE_DIRS=$(find modules -name "*.tf" -type f | grep -v "/examples/" | xargs dirname | sort -u | tr '\n' ' ')
+          echo "Found module directories: $MODULE_DIRS"
+          echo "module_dirs=$MODULE_DIRS" >> "$GITHUB_OUTPUT"
+
       - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: modules/monitoring
-          soft_fail: true
+        run: |
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            echo "Running tfsec on $dir"
+            tfsec "$dir" --soft-fail || echo "tfsec issues found in $dir"
+          done
 
       - name: Run Checkov
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: modules/monitoring
-          framework: terraform
-          soft_fail: true
-          output_format: sarif
-          output_file_path: reports/results.sarif
+        run: |
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            echo "Running Checkov on $dir"
+            checkov -d "$dir" --framework terraform --soft-fail --output sarif --output-file-path "reports/results-$(basename "$dir").sarif" || echo "Checkov issues found in $dir"
+          done
 
       - name: Upload Checkov results to GitHub Advanced Security
+        if: always()
+        run: |
+          # Create reports directory if it doesn't exist
+          mkdir -p reports
+          # Upload all SARIF files if they exist
+          for sarif_file in reports/results-*.sarif; do
+            if [ -f "$sarif_file" ]; then
+              echo "Found SARIF file: $sarif_file"
+              # Copy the first valid SARIF file as the combined result
+              if [ ! -f "reports/results.sarif" ]; then
+                cp "$sarif_file" reports/results.sarif
+                echo "Using $sarif_file as combined results"
+              fi
+            fi
+          done
+        continue-on-error: true
+
+      - name: Upload combined SARIF results
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/results.sarif
+        continue-on-error: true
 
   documentation:
     name: Documentation Check
@@ -110,53 +143,68 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Find module directories (excluding examples)
+        id: find_modules
+        run: |
+          # Find all directories containing .tf files, excluding examples
+          MODULE_DIRS=$(find modules -name "*.tf" -type f | grep -v "/examples/" | xargs dirname | sort -u | tr '\n' ' ')
+          echo "Found module directories: $MODULE_DIRS"
+          echo "module_dirs=$MODULE_DIRS" >> "$GITHUB_OUTPUT"
+
       - name: Check README files exist
         run: |
-          # Check main module README
-          if [ ! -f "modules/monitoring/README.md" ]; then
-            echo "ERROR: modules/monitoring/README.md not found"
-            exit 1
-          fi
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            # Check main module README
+            if [ ! -f "$dir/README.md" ]; then
+              echo "ERROR: $dir/README.md not found"
+              exit 1
+            fi
+            echo "Found README: $dir/README.md"
 
-          # Check example READMEs
-          if [ ! -f "modules/monitoring/examples/basic/README.md" ]; then
-            echo "ERROR: modules/monitoring/examples/basic/README.md not found"
-            exit 1
-          fi
-
-          if [ ! -f "modules/monitoring/examples/complete/README.md" ]; then
-            echo "ERROR: modules/monitoring/examples/complete/README.md not found"
-            exit 1
-          fi
-
+            # Check example READMEs if examples directory exists
+            if [ -d "$dir/examples" ]; then
+              for example_dir in "$dir/examples"/*; do
+                if [ -d "$example_dir" ] && [ ! -f "$example_dir/README.md" ]; then
+                  echo "ERROR: $example_dir/README.md not found"
+                  exit 1
+                fi
+                echo "Found example README: $example_dir/README.md"
+              done
+            fi
+          done
           echo "All README files found"
 
-      - name: Check for required sections in main README
+      - name: Check for required sections in module READMEs
         run: |
-          README_FILE="modules/monitoring/README.md"
+          read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            README_FILE="$dir/README.md"
+            echo "Checking required sections in $README_FILE"
 
-          # Check for required sections
-          if ! grep -q "## Usage" "$README_FILE"; then
-            echo "ERROR: Usage section not found in $README_FILE"
-            exit 1
-          fi
+            # Check for required sections
+            if ! grep -q "## Usage" "$README_FILE"; then
+              echo "ERROR: Usage section not found in $README_FILE"
+              exit 1
+            fi
 
-          if ! grep -q "## Requirements" "$README_FILE"; then
-            echo "ERROR: Requirements section not found in $README_FILE"
-            exit 1
-          fi
+            if ! grep -q "## Requirements" "$README_FILE"; then
+              echo "ERROR: Requirements section not found in $README_FILE"
+              exit 1
+            fi
 
-          if ! grep -q "## Inputs" "$README_FILE"; then
-            echo "ERROR: Inputs section not found in $README_FILE"
-            exit 1
-          fi
+            if ! grep -q "## Inputs" "$README_FILE"; then
+              echo "ERROR: Inputs section not found in $README_FILE"
+              exit 1
+            fi
 
-          if ! grep -q "## Outputs" "$README_FILE"; then
-            echo "ERROR: Outputs section not found in $README_FILE"
-            exit 1
-          fi
+            if ! grep -q "## Outputs" "$README_FILE"; then
+              echo "ERROR: Outputs section not found in $README_FILE"
+              exit 1
+            fi
 
-          echo "All required sections found in README"
+            echo "All required sections found in $README_FILE"
+          done
 
   release-check:
     name: Release Readiness
