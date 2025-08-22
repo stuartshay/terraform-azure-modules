@@ -160,7 +160,6 @@ jobs:
       - name: Create module package
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="$VERSION"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
 
@@ -188,7 +187,6 @@ jobs:
         if: github.event.inputs.dry_run != 'true'
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="$VERSION"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
           TFC_API_URL="https://app.terraform.io/api/v2"
@@ -325,7 +323,6 @@ jobs:
       - name: Create Git tag
         if: github.event.inputs.dry_run != 'true'
         run: |
-          VERSION="$VERSION"
           MODULE_NAME="${{ github.event.inputs.module_name }}"
 
           # Create tag with module name and version
@@ -348,7 +345,6 @@ jobs:
       - name: Display results
         run: |
           MODULE_NAME="${{ github.event.inputs.module_name }}"
-          VERSION="$VERSION"
           ORGANIZATION="${{ secrets.TF_CLOUD_ORGANIZATION }}"
           PROVIDER="azurerm"
 
