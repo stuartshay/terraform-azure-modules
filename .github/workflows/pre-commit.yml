@@ -1,5 +1,9 @@
 name: Pre-commit
 
+permissions:
+  contents: read
+  security-events: write
+
 on:
   pull_request:
     branches: [master, develop]

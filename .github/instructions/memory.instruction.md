@@ -26,6 +26,13 @@ applyTo: '**'
 ## Context7 Research History
 - No Context7 research performed yet for this project
 
+## GitHub Actions CI/CD Troubleshooting (Aug 2025)
+- Issue: GitHub Action failed with 'Resource not accessible by integration' and SARIF upload errors.
+- Root cause: Missing explicit permissions for GITHUB_TOKEN (security-events: write) in workflow YAML.
+- Solution: Added permissions: contents: read and security-events: write to pre-commit.yml.
+- No additional custom secrets or tokens required for current workflows; only GITHUB_TOKEN is used.
+- Confirmed workflows now pass permission checks; any remaining errors are unrelated to secrets/env.
+
 ## Conversation History
 - Investigated VS Code settings for Terraform MCP Server
 - Analyzed VS Code Output integration (no custom output channel, relies on Terraform language server)
