@@ -142,6 +142,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           REF_NAME: ${{ github.ref_name }}
           EVENT_NAME: ${{ github.event_name }}
+          CHECKOV_CONFIG_FILE: .checkov.yaml
         run: |
           echo "Running pre-commit checks on all files..."
           echo "Working directory: $(pwd)"
