@@ -20,7 +20,7 @@ on:
         description: 'Minor version number'
         required: false
         type: string
-        default: '0'
+        default: '1'
       dry_run:
         description: 'Dry run (validate only, do not publish)'
         required: false
