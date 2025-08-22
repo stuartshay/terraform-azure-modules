@@ -1,0 +1,272 @@
+name: Pre-commit
+
+on:
+  pull_request:
+    branches: [master, develop]
+  push:
+    branches: [master, develop]
+  workflow_dispatch:
+
+jobs:
+  pre-commit:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq shellcheck
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Install Checkov
+        run: |
+          pip install checkov
+
+      - name: Install terraform-docs
+        run: |
+          # Install terraform-docs for automatic documentation generation
+          curl -sSLo terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/v0.20.0/terraform-docs-v0.20.0-linux-amd64.tar.gz"
+          tar -xzf terraform-docs.tar.gz
+          sudo mv terraform-docs /usr/local/bin/
+          rm terraform-docs.tar.gz
+          # Verify installation
+          terraform-docs --version
+          echo "terraform-docs installed successfully"
+
+      - name: Install tfsec
+        run: |
+          # Install tfsec for additional security scanning
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Initialize Terraform modules for documentation
+        run: |
+          echo "Initializing Terraform modules for documentation generation..."
+          # Find all directories containing Terraform files
+          for dir in modules/*/; do
+            if [[ -d "$dir" && (-f "$dir/main.tf" || -f "$dir/variables.tf" || -f "$dir/outputs.tf") ]]; then
+              echo "Initializing $dir"
+              cd "$dir"
+              # Initialize with error handling for modules that require authentication
+              terraform init -backend=false -upgrade=false || {
+                echo "Warning: Failed to initialize $dir (this may be expected for modules requiring authentication)"
+              }
+              # Remove .terraform directory but keep .terraform.lock.hcl
+              rm -rf .terraform/ 2>/dev/null || true
+              cd - > /dev/null
+            fi
+          done
+
+          # Also initialize example directories
+          for dir in modules/*/examples/*/; do
+            if [[ -d "$dir" && (-f "$dir/main.tf" || -f "$dir/variables.tf" || -f "$dir/outputs.tf") ]]; then
+              echo "Initializing example $dir"
+              cd "$dir"
+              terraform init -backend=false -upgrade=false || {
+                echo "Warning: Failed to initialize $dir (this may be expected for examples requiring authentication)"
+              }
+              rm -rf .terraform/ 2>/dev/null || true
+              cd - > /dev/null
+            fi
+          done
+
+      - name: Debug terraform-docs before pre-commit
+        run: |
+          echo "Current terraform-docs status before pre-commit:"
+          find modules/ -name "README.md" -exec echo "=== {} ===" \; -exec head -5 {} \; 2>/dev/null || echo "No README.md files found"
+          echo "Terraform provider versions after init:"
+          find modules/ -name ".terraform.lock.hcl" -exec echo "=== {} ===" \; -exec head -10 {} \; 2>/dev/null || echo "No lock files found"
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
+
+      - name: Install pre-commit
+        run: |
+          pip install --upgrade pip
+          pip install pre-commit
+          # Verify pre-commit installation
+          pre-commit --version
+
+      - name: Validate configuration files
+        run: |
+          echo "Validating configuration files..."
+          echo "Current working directory: $(pwd)"
+          echo "Checkov config exists: $(test -f .checkov.yaml && echo 'YES' || echo 'NO')"
+          echo "Pre-commit config exists: $(test -f .pre-commit-config.yaml && echo 'YES' || echo 'NO')"
+          echo "TFLint config exists: $(test -f .tflint.hcl && echo 'YES' || echo 'NO')"
+          echo "Validating pre-commit config syntax..."
+          pre-commit validate-config
+          echo "Configuration validation completed."
+
+      - name: Install pre-commit hooks
+        run: |
+          pre-commit install --install-hooks
+
+      - name: Verify tool installations
+        run: |
+          echo "Verifying tool installations..."
+          echo "Terraform version: $(terraform --version 2>/dev/null | head -1 || echo 'Terraform not available')"
+          echo "TFLint version: $(tflint --version 2>/dev/null || echo 'TFLint not available')"
+          echo "Checkov version: $(checkov --version 2>/dev/null || echo 'Checkov not available')"
+          echo "terraform-docs version: $(terraform-docs --version 2>/dev/null || echo 'terraform-docs not available')"
+          echo "tfsec version: $(tfsec --version 2>/dev/null || echo 'tfsec not available')"
+          echo "jq version: $(jq --version 2>/dev/null || echo 'jq not available')"
+          echo "shellcheck version: $(shellcheck --version 2>/dev/null | head -1 || echo 'shellcheck not available')"
+          echo "Pre-commit version: $(pre-commit --version)"
+          echo "Tool verification completed."
+
+      - name: Run pre-commit on all files
+        id: precommit
+        continue-on-error: true
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          echo "Running pre-commit checks on all files..."
+          echo "Working directory: $(pwd)"
+          echo "Current branch: $(git branch --show-current)"
+          echo "Git status before pre-commit:"
+          git status --porcelain
+          echo "Pre-commit config validation:"
+          pre-commit validate-config
+          echo "Starting pre-commit run..."
+
+          # Run pre-commit and capture exit code
+          if pre-commit run --all-files --show-diff-on-failure --verbose; then
+            echo "✅ All pre-commit checks passed!"
+            exit 0
+          else
+            precommit_exit_code=$?
+            echo "Pre-commit failed with exit code: $precommit_exit_code"
+
+            # Check if files were modified by terraform-docs
+            if ! git diff --quiet; then
+              modified_files=$(git diff --name-only)
+              echo "Files were modified during pre-commit:"
+              echo "$modified_files"
+
+              # Check if only README.md files were modified (terraform-docs changes)
+              if echo "$modified_files" | grep -E '(^README\.md$|^modules/.*/README\.md$)' > /dev/null && ! echo "$modified_files" | grep -v -E '(^README\.md$|^modules/.*/README\.md$)' > /dev/null; then
+                echo "Only README.md files were modified by terraform-docs"
+                echo "This indicates terraform-docs updated documentation due to environment differences"
+                echo "Auto-committing terraform-docs changes..."
+
+                # Configure git for the action
+                git config --local user.email "action@github.com"
+                git config --local user.name "GitHub Action"
+
+                # Add and commit the changes
+                git add README.md modules/*/README.md 2>/dev/null || true
+                if git commit -m "docs: auto-update terraform documentation via CI [skip ci]"; then
+                  echo "✅ terraform-docs changes have been committed"
+
+                  # Push the changes back to the repository
+                  if [ "$EVENT_NAME" = "pull_request" ]; then
+                    # For pull requests, push to the PR branch
+                    git push origin HEAD:"$HEAD_REF"
+                    echo "✅ Changes pushed to PR branch: $HEAD_REF"
+                  else
+                    # For push events, push to the current branch
+                    git push origin HEAD:"$REF_NAME"
+                    echo "✅ Changes pushed to branch: $REF_NAME"
+                  fi
+
+                  echo "Re-running pre-commit to verify..."
+                  # Re-run pre-commit to make sure everything passes now
+                  if pre-commit run --all-files --show-diff-on-failure --verbose; then
+                    echo "✅ All checks passed after auto-commit!"
+                    exit 0
+                  else
+                    echo "❌ Pre-commit still failing after auto-commit"
+                    exit 1
+                  fi
+                else
+                  echo "No changes to commit"
+                fi
+              else
+                echo "Non-terraform-docs files were modified or other issues detected"
+                echo "Modified files:"
+                echo "$modified_files"
+                git diff --name-status
+                exit $precommit_exit_code
+              fi
+            else
+              echo "No files were modified, but pre-commit failed"
+              exit $precommit_exit_code
+            fi
+          fi
+
+      - name: Debug terraform-docs after pre-commit failure
+        if: failure()
+        run: |
+          echo "Files modified during pre-commit run:"
+          git status --porcelain
+          echo "Detailed diff of any changes:"
+          git diff
+          echo "Terraform-docs version and config check:"
+          terraform-docs --version
+          find modules/ -name ".terraform-docs.yml" -exec echo "=== {} ===" \; -exec cat {} \; 2>/dev/null || echo "No terraform-docs config files found"
+
+      - name: Generate summary report
+        if: always()
+        run: |
+          {
+            echo "## Pre-commit Check Results"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ steps.precommit.outcome }}" == "success" ]; then
+            echo "✅ **All pre-commit checks passed successfully!**" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ **Some pre-commit checks failed. Please review the output above.**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          {
+            echo ""
+            echo "### Terraform Module Checks performed:"
+            echo "- File formatting (trailing whitespace, end of files)"
+            echo "- YAML and JSON validation"
+            echo "- Terraform formatting (terraform fmt)"
+            echo "- Terraform validation (terraform validate)"
+            echo "- Terraform documentation generation (terraform-docs)"
+            echo "- Terraform linting (tflint)"
+            echo "- Security scanning (checkov, tfsec)"
+            echo "- Shell script linting (shellcheck)"
+            echo "- GitHub Actions workflow linting (actionlint)"
+            echo ""
+            echo "**Module Structure Validation:**"
+            echo "- Standard module structure enforcement"
+            echo "- Variable and output documentation requirements"
+            echo "- Provider version constraints"
+            echo "- Module source pinning"
+            echo "- Naming convention compliance"
+            echo ""
+            echo "**Timestamp:** $(date)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check pre-commit results
+        if: steps.precommit.outcome == 'failure'
+        run: |
+          echo "Pre-commit checks failed. Please fix the issues and try again."
+          exit 1
