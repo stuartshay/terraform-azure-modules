@@ -45,7 +45,7 @@ jobs:
           # Generate version using pattern: MAJOR.MINOR.GITHUB_RUN_ID
           MAJOR="${{ github.event.inputs.major_version }}"
           MINOR="${{ github.event.inputs.minor_version }}"
-          PATCH="${{ github.run_id }}"
+          PATCH="${{ github.run_number }}"
           VERSION="$MAJOR.$MINOR.$PATCH"
 
           echo "Generated version: $VERSION"
