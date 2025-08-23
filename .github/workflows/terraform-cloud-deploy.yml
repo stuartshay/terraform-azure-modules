@@ -42,11 +42,22 @@ jobs:
       - name: Generate version
         id: version
         run: |
-          # Generate version using pattern: MAJOR.MINOR.GITHUB_RUN_ID
+          # Get current branch name
+          BRANCH_NAME="${{ github.ref_name }}"
+
+          # Generate version using pattern: MAJOR.MINOR.GITHUB_RUN_ID for master, MAJOR.MINOR-beta.GITHUB_RUN_ID for others
           MAJOR="${{ github.event.inputs.major_version }}"
           MINOR="${{ github.event.inputs.minor_version }}"
           PATCH="${{ github.run_number }}"
-          VERSION="$MAJOR.$MINOR.$PATCH"
+
+          # Check if we're on master/main branch
+          if [[ "$BRANCH_NAME" == "master" || "$BRANCH_NAME" == "main" ]]; then
+            VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "Branch: $BRANCH_NAME (production)"
+          else
+            VERSION="$MAJOR.$MINOR-beta.$PATCH"
+            echo "Branch: $BRANCH_NAME (beta)"
+          fi
 
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
