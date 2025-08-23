@@ -143,7 +143,11 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
-**Auto-Versioning**: Versions are automatically generated as `{major}.{minor}.{github_run_id}` ensuring unique versions every time.
+**Auto-Versioning**: Versions are automatically generated based on the branch:
+- **Master/Main branch**: `{major}.{minor}.{github_run_id}` (e.g., `1.1.5`)
+- **Other branches**: `{major}.{minor}.{github_run_id}-beta` (e.g., `1.1.5-beta`)
+
+This ensures unique versions every time while clearly distinguishing production releases from development/beta versions.
 
 For detailed instructions, see [Terraform Cloud Deployment Guide](docs/TERRAFORM_CLOUD_DEPLOYMENT.md).
 
@@ -188,7 +192,48 @@ For more information, see the [Azure/login GitHub Action documentation](https://
 
 ## Versioning
 
-This repository uses semantic versioning. Each release is tagged with a version number (e.g., `v0.1.0`).
+This repository uses semantic versioning with branch-specific formatting to distinguish between production and development releases.
+
+### Version Format
+
+- **Production (master/main branch)**: `MAJOR.MINOR.PATCH` (e.g., `1.1.5`)
+- **Development (other branches)**: `MAJOR.MINOR.PATCH-beta` (e.g., `1.1.5-beta`)
+
+### How It Works
+
+1. **Major/Minor versions** are manually specified when running the deployment workflow (defaults to 1.1)
+2. **Patch version** is automatically generated using the GitHub run number, ensuring uniqueness
+3. **Branch detection** automatically applies the appropriate format:
+   - Master/main branches produce stable versions for production use
+   - All other branches (develop, feature branches, etc.) produce beta versions
+
+### Git Tags
+
+Each successful deployment creates a Git tag in the format: `{module-name}-v{version}`
+
+Examples:
+- `app-service-v1.1.5` (production release from master)
+- `monitoring-v1.1.5-beta` (beta release from develop branch)
+
+### Usage Examples
+
+**Production version (from master branch):**
+```hcl
+module "app_service" {
+  source  = "app.terraform.io/your-org/app-service/azurerm"
+  version = "1.1.5"  # Stable production release
+}
+```
+
+**Beta version (from develop branch):**
+```hcl
+module "app_service" {
+  source  = "app.terraform.io/your-org/app-service/azurerm"
+  version = "1.1.5-beta"  # Pre-release for testing
+}
+```
+
+This approach ensures clear separation between stable production releases and development versions while maintaining semantic versioning compliance.
 
 ## License
 
