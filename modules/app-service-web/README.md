@@ -6,7 +6,7 @@ This module creates Azure App Service resources including App Service Plan and W
 
 ```hcl
 module "app_service" {
-  source = "../../modules/app-service"
+  source = "../../modules/app-service-web"
 
   resource_group_name = "rg-example"
   location           = "East US"

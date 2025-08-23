@@ -7,7 +7,7 @@ This guide explains how to deploy Terraform modules to Terraform Cloud using the
 The project includes an automated deployment workflow that can publish Terraform modules to your Terraform Cloud private registry. The workflow supports:
 
 - **Manual deployment** via GitHub Actions workflow dispatch
-- **Module selection** (app-service or monitoring)
+- **Module selection** (app-service-web or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -41,7 +41,7 @@ Ensure you have:
 
 The workflow currently supports these modules:
 
-- **app-service**: Azure App Service resources including App Service Plan and Web App
+- **app-service-web**: Azure App Service resources including App Service Plan and Web App
 - **monitoring**: Comprehensive monitoring solution with Log Analytics, Application Insights, and Azure Monitor
 
 ## Using the Deployment Workflow
@@ -53,7 +53,7 @@ The workflow currently supports these modules:
 3. Select **Deploy to Terraform Cloud** workflow
 4. Click **Run workflow**
 5. Fill in the parameters:
-   - **Module to deploy**: Choose `app-service` or `monitoring`
+   - **Module to deploy**: Choose `app-service-web` or `monitoring`
    - **Module version**: Enter semantic version (e.g., `1.0.0`)
    - **Dry run**: Check for validation only, uncheck to publish
 
@@ -61,7 +61,7 @@ The workflow currently supports these modules:
 
 | Parameter | Description | Required | Default |
 |-----------|-------------|----------|---------|
-| `module_name` | Module to deploy | Yes | `app-service` |
+| `module_name` | Module to deploy | Yes | `app-service-web` |
 | `major_version` | Major version number | No | `1` |
 | `minor_version` | Minor version number | No | `0` |
 | `dry_run` | Validate only, don't publish | No | `false` |
@@ -120,8 +120,8 @@ Before using the GitHub Actions workflow, you can test locally:
 ### 1. Test Module Validation
 
 ```bash
-# Test app-service module
-./scripts/test-publish-module.sh app-service 1.0.0
+# Test app-service-web module
+./scripts/test-publish-module.sh app-service-web 1.0.0
 
 # Test monitoring module
 ./scripts/test-publish-module.sh monitoring 1.0.0
@@ -130,8 +130,8 @@ Before using the GitHub Actions workflow, you can test locally:
 ### 2. Publish to Terraform Cloud
 
 ```bash
-# Publish app-service module
-./scripts/publish-to-terraform-cloud.sh app-service 1.0.0
+# Publish app-service-web module
+./scripts/publish-to-terraform-cloud.sh app-service-web 1.0.0
 
 # Publish monitoring module
 ./scripts/publish-to-terraform-cloud.sh monitoring 1.0.0
@@ -145,7 +145,7 @@ Once published, you can use the modules in your Terraform configurations:
 
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"

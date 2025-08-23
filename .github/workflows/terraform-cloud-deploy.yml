@@ -8,9 +8,9 @@ on:
         required: true
         type: choice
         options:
-          - app-service
+          - app-service-web
           - monitoring
-        default: 'app-service'
+        default: 'app-service-web'
       major_version:
         description: 'Major version number'
         required: false
@@ -71,7 +71,7 @@ jobs:
       - name: Validate inputs
         run: |
           # Validate module name
-          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service|monitoring)$ ]]; then
+          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-web|monitoring)$ ]]; then
             echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
             exit 1
           fi

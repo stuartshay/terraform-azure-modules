@@ -44,8 +44,8 @@ fi
 # Check arguments
 if [ $# -ne 2 ]; then
     print_error "Usage: $0 <module-name> <version>"
-    print_error "Example: $0 app-service 1.0.0"
-    print_error "Available modules: app-service, monitoring"
+    print_error "Example: $0 app-service-web 1.0.0"
+    print_error "Available modules: app-service-web, monitoring"
     exit 1
 fi
 
@@ -71,8 +71,8 @@ if [ -z "$TF_API_TOKEN" ]; then
 fi
 
 # Validate module name
-if [[ ! "$MODULE_NAME" =~ ^(app-service|monitoring)$ ]]; then
-    print_error "Invalid module name. Available modules: app-service, monitoring"
+if [[ ! "$MODULE_NAME" =~ ^(app-service-web|monitoring)$ ]]; then
+    print_error "Invalid module name. Available modules: app-service-web, monitoring"
     exit 1
 fi
 
