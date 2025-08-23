@@ -1,0 +1,105 @@
+# Basic App Service Function Example
+
+This example demonstrates the minimal configuration required to deploy an Azure Function App using the `app-service-function` module.
+
+## What This Example Creates
+
+- **Resource Group**: Container for all resources
+- **Virtual Network**: Network isolation for the Function App
+- **Subnet**: Dedicated subnet with delegation for Function Apps
+- **Function App Module**: Complete Function App setup including:
+  - Storage Account for Function App state
+  - App Service Plan with EP1 SKU (Elastic Premium)
+  - Linux Function App with Python 3.13 runtime
+  - VNet integration for network isolation
+  - Application Insights for monitoring
+  - Security configurations (HTTPS-only, etc.)
+
+## Usage
+
+1. **Initialize Terraform**:
+   ```bash
+   terraform init
+   ```
+
+2. **Plan the deployment**:
+   ```bash
+   terraform plan
+   ```
+
+3. **Apply the configuration**:
+   ```bash
+   terraform apply
+   ```
+
+4. **Clean up resources**:
+   ```bash
+   terraform destroy
+   ```
+
+## Configuration
+
+This example uses:
+- **SKU**: EP1 (Elastic Premium) for production readiness
+- **Python Version**: 3.13 (default)
+- **Location**: East US
+- **VNet Integration**: Enabled with dedicated subnet
+- **Application Insights**: Enabled for monitoring
+
+## Outputs
+
+After deployment, you'll get:
+- Function App name and hostname
+- Storage account name
+- App Service Plan ID
+
+## Next Steps
+
+- Deploy your Python functions to the created Function App
+- Configure custom app settings if needed
+- Set up CI/CD pipelines for function deployment
+- Monitor your functions through Application Insights
+
+For more advanced configurations, see the [complete example](../complete/).
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.40 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_function_app"></a> [function\_app](#module\_function\_app) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_subnet.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource |
+| [azurerm_virtual_network.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource |
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
+| <a name="output_function_app_default_hostname"></a> [function\_app\_default\_hostname](#output\_function\_app\_default\_hostname) | The default hostname of the Function App |
+| <a name="output_function_app_name"></a> [function\_app\_name](#output\_function\_app\_name) | The name of the Function App |
+| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the Functions storage account |
+<!-- END_TF_DOCS -->

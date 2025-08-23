@@ -8,6 +8,52 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ## Available Modules
 
+### App Service Module - Function
+
+Azure Function App resources including Storage Account, App Service Plan, and Function App with VNET integration and restricted SKU options.
+
+- **Path**: `modules/app-service-function`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Restricted SKUs**: Only Y1 (Consumption) and EP1 (Elastic Premium) SKUs allowed for cost control and performance
+- **VNET Integration**: Function App deployed with VNET integration for network isolation
+- **Security**: HTTPS-only, secure storage account configuration, network isolation
+- **Performance**: Configurable scaling with always-ready instances for EP1
+- **Monitoring**: Optional Application Insights integration
+- **Storage**: Dedicated storage account with security configurations
+- Linux Function App with Python runtime
+- Configurable app settings
+- Resource tagging support
+
+#### Quick Start
+
+```hcl
+module "function_app" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
+
+  # SKU must be Y1 or EP1
+  sku_name = "EP1"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+
+
+
 ### App Service Module - Web
 
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
@@ -48,6 +94,11 @@ module "app_service" {
   }
 }
 ```
+
+
+
+
+
 
 ### Monitoring Module
 
@@ -131,7 +182,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web or monitoring)
+- **Module selection** (app-service-web, app-service-function, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -147,7 +198,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service-web or monitoring)
+3. Select module (app-service-web, app-service-function, or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -166,6 +217,12 @@ Once deployed, modules are available at:
 ```hcl
 module "app_service" {
   source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  version = "1.0.0"
+  # configuration...
+}
+
+module "function_app" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
   version = "1.0.0"
   # configuration...
 }
