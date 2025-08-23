@@ -100,6 +100,68 @@ module "app_service" {
 
 
 
+### Networking Module
+
+Azure networking resources including Virtual Network (VNet), subnets, Network Security Groups (NSGs), and optional monitoring components.
+
+- **Path**: `modules/networking`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Virtual Network** with configurable address space
+- **Subnets** with flexible configuration (address prefixes, service endpoints, delegations)
+- **Network Security Groups** with default security rules
+- **Security Rules** including HTTPS, DNS, and service-specific rules
+- **Route Tables** (optional) for custom routing
+- **Network Watcher** (optional) for monitoring and diagnostics
+- **VNet Flow Logs** (replacing deprecated NSG flow logs)
+- **Storage Account** for flow logs with security configurations
+- **Traffic Analytics** integration (optional)
+- **App Service and Function App** specific NSG rules
+- **Network isolation** through NSG associations
+
+#### Quick Start
+
+```hcl
+module "networking" {
+  source  = "app.terraform.io/azure-policy-cloud/networking/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  location_short     = "eastus"
+
+  # Network configuration
+  vnet_address_space = ["10.0.0.0/16"]
+  subnet_config = {
+    appservice = {
+      address_prefixes  = ["10.0.1.0/24"]
+      service_endpoints = ["Microsoft.Web"]
+      delegation = {
+        name = "app-service-delegation"
+        service_delegation = {
+          name    = "Microsoft.Web/serverFarms"
+          actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        }
+      }
+    }
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+
+
+
 ### Monitoring Module
 
 Comprehensive Azure monitoring solution including Log Analytics Workspace, Application Insights, alerts, and monitoring configurations.
