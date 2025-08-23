@@ -10,6 +10,8 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ### App Service Module - Function
 
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/app-service-function/azurerm)
+
 Azure Function App resources including Storage Account, App Service Plan, and Function App with VNET integration and restricted SKU options.
 
 - **Path**: `modules/app-service-function`
@@ -56,6 +58,8 @@ module "function_app" {
 
 ### App Service Module - Web
 
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/app-service-web/azurerm)
+
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
 - **Path**: `modules/app-service-web`
@@ -101,6 +105,8 @@ module "app_service" {
 
 
 ### Networking Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/networking/azurerm)
 
 Azure networking resources including Virtual Network (VNet), subnets, Network Security Groups (NSGs), and optional monitoring components.
 
@@ -163,6 +169,8 @@ module "networking" {
 
 
 ### Monitoring Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/monitoring/azurerm)
 
 Comprehensive Azure monitoring solution including Log Analytics Workspace, Application Insights, alerts, and monitoring configurations.
 
