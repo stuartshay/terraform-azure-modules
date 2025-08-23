@@ -1,11 +1,11 @@
 # Azure App Service Function Module
 
-This Terraform module creates an Azure Function App with associated resources including Storage Account, App Service Plan, and optional Application Insights. The module is designed for production use with security best practices and VNet integration.
+This Terraform module creates an Azure Function App with associated resources including Storage Account, App Service Plan, and optional Application Insights. The module is designed for production use with security best practices and VNET integration.
 
 ## Features
 
 - **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
-- **VNet Integration**: Function App deployed with VNet integration for network isolation
+- **VNET Integration**: Function App deployed with VNET integration for network isolation
 - **Security**: HTTPS-only, secure storage account configuration, network isolation
 - **Performance**: Configurable scaling with always-ready instances for Elastic Premium
 - **Monitoring**: Optional Application Insights integration
@@ -14,13 +14,37 @@ This Terraform module creates an Azure Function App with associated resources in
 - Configurable app settings
 - Resource tagging support
 
+#### Quick Start
+
+```hcl
+module "app-service-function" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
+
+  # SKU must be EP1, EP2, or EP3
+  sku_name = "EP1"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
 ## Usage
 
 ### Basic Example
 
 ```hcl
-module "function_app" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-function?ref=v1.0.0"
+module "app-service-function" {
+  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -42,8 +66,9 @@ module "function_app" {
 ### Complete Example with All Options
 
 ```hcl
-module "function_app" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-function?ref=v1.0.0"
+module "app-service-function" {
+  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -53,7 +78,7 @@ module "function_app" {
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # Performance configuration
-  sku_name                     = "EP1"
+  sku_name                     = "EP2"
   python_version               = "3.11"
   always_ready_instances       = 2
   maximum_elastic_worker_count = 10
@@ -148,7 +173,7 @@ This module restricts SKU options to Elastic Premium tiers only to ensure consis
 - **Memory**: 3.5 GB RAM  
 - **Billing**: Pre-warmed instances + additional scaling
 - **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNet integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration, unlimited execution time
 
 ### EP2 (Elastic Premium - Medium)
 - **Use Case**: Production workloads with higher compute requirements
@@ -156,7 +181,7 @@ This module restricts SKU options to Elastic Premium tiers only to ensure consis
 - **Memory**: 7 GB RAM
 - **Billing**: Pre-warmed instances + additional scaling
 - **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNet integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration, unlimited execution time
 
 ### EP3 (Elastic Premium - Large)
 - **Use Case**: Production workloads with intensive compute requirements
@@ -164,14 +189,14 @@ This module restricts SKU options to Elastic Premium tiers only to ensure consis
 - **Memory**: 14 GB RAM
 - **Billing**: Pre-warmed instances + additional scaling
 - **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNet integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration, unlimited execution time
 
 ## Security Features
 
 - **HTTPS Only**: All traffic forced to HTTPS
-- **VNet Integration**: Required for network isolation
+- **VNET Integration**: Required for network isolation
 - **Storage Security**: Minimum TLS 1.2, disabled public blob access
-- **Network Access**: Public network access disabled (VNet only)
+- **Network Access**: Public network access disabled (VNET only)
 - **SAS Policy**: 1-day expiration for storage access
 
 ## Monitoring
