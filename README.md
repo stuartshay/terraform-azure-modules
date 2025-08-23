@@ -8,47 +8,6 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ## Available Modules
 
-### App Service Module - Web
-
-Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
-
-- **Path**: `modules/app-service-web`
-- **Provider**: `azurerm`
-- **Version**: `>= 4.40`
-
-#### Features
-
-- **Restricted SKUs**: Only S1 and S2 SKUs allowed for enhanced security and performance
-- **VNET Integration**: App Service deployed with VNET integration for network isolation
-- **Security**: HTTPS-only, FTP disabled, HTTP/2 enabled
-- **Performance**: Always-on enabled for better performance
-- Linux Web App with Python runtime
-- Configurable app settings
-- Resource tagging support
-
-#### Quick Start
-
-```hcl
-module "app_service" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
-  version = "1.0.0"
-
-  resource_group_name = "rg-example"
-  location           = "East US"
-  environment        = "dev"
-  workload           = "myapp"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-app-service"
-
-  # SKU must be S1 or S2
-  sku_name = "S1"
-
-  tags = {
-    Environment = "dev"
-    Project     = "example"
-  }
-}
-```
-
 ### App Service Module - Function
 
 Azure Function App resources including Storage Account, App Service Plan, and Function App with VNET integration and restricted SKU options.
@@ -91,6 +50,55 @@ module "function_app" {
   }
 }
 ```
+
+
+
+
+### App Service Module - Web
+
+Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
+
+- **Path**: `modules/app-service-web`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Restricted SKUs**: Only S1 and S2 SKUs allowed for enhanced security and performance
+- **VNET Integration**: App Service deployed with VNET integration for network isolation
+- **Security**: HTTPS-only, FTP disabled, HTTP/2 enabled
+- **Performance**: Always-on enabled for better performance
+- Linux Web App with Python runtime
+- Configurable app settings
+- Resource tagging support
+
+#### Quick Start
+
+```hcl
+module "app_service" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-app-service"
+
+  # SKU must be S1 or S2
+  sku_name = "S1"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+
+
+
+
 
 ### Monitoring Module
 
