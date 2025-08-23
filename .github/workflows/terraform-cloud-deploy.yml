@@ -55,7 +55,7 @@ jobs:
             VERSION="$MAJOR.$MINOR.$PATCH"
             echo "Branch: $BRANCH_NAME (production)"
           else
-            VERSION="$MAJOR.$MINOR-beta.$PATCH"
+            VERSION="$MAJOR.$MINOR.$PATCH-beta"
             echo "Branch: $BRANCH_NAME (beta)"
           fi
 
