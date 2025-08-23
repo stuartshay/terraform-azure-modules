@@ -15,8 +15,7 @@ updates:
     labels:
       - 'dependencies'
       - 'terraform'
-    assignees:
-      - 'stuartshay'
+    <<: *dependabot_assignees
 
   - package-ecosystem: 'terraform'
     directory: '/modules/app-service-web'
