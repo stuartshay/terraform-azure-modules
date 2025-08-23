@@ -4,7 +4,17 @@
 
 [![Deploy to Terraform Cloud](https://github.com/stuartshay/terraform-azure-modules/actions/workflows/terraform-cloud-deploy.yml/badge.svg)](https://github.com/stuartshay/terraform-azure-modules/actions/workflows/terraform-cloud-deploy.yml)
 
-A collection of reusable Terraform modules for Azure infrastructure components.
+A comprehensive collection of enterprise-grade Terraform modules for Azure infrastructure components with automated CI/CD workflows and Terraform Cloud integration. This repository provides production-ready, security-focused modules designed for scalable Azure deployments with built-in best practices, standardized naming conventions, and automated publishing to Terraform Cloud's private registry.
+
+## Key Features
+
+🏗️ **Production-Ready Modules** - Enterprise-grade modules with security best practices and performance optimization  
+🔒 **Security-First Design** - HTTPS-only, VNET integration, restricted SKUs, and compliance-ready configurations  
+🚀 **Automated CI/CD** - GitHub Actions workflows for validation, testing, and automated publishing  
+☁️ **Terraform Cloud Integration** - Seamless deployment to Terraform Cloud private registry with versioning  
+📋 **Comprehensive Documentation** - Detailed usage examples, Quick Start guides, and API documentation  
+🏷️ **Semantic Versioning** - Automated version management with branch-specific release strategies  
+🔍 **Quality Assurance** - Pre-commit hooks, Checkov security scanning, and automated validation
 
 ## Available Modules
 
