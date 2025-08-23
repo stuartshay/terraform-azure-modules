@@ -19,13 +19,13 @@ variable "location" {
 }
 
 variable "sku_name" {
-  description = "The SKU name for the App Service Plan (Y1 for Consumption or EP1 for Elastic Premium)"
+  description = "The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium)"
   type        = string
   default     = "EP1"
 
   validation {
-    condition     = contains(["Y1", "EP1"], var.sku_name)
-    error_message = "The sku_name must be either Y1 (Consumption) or EP1 (Elastic Premium)."
+    condition     = contains(["EP1", "EP2", "EP3"], var.sku_name)
+    error_message = "The sku_name must be EP1, EP2, or EP3 (Elastic Premium tiers only)."
   }
 }
 
@@ -58,7 +58,7 @@ variable "enable_application_insights" {
 }
 
 variable "always_ready_instances" {
-  description = "Number of always ready instances for EP1 SKU"
+  description = "Number of always ready instances for Elastic Premium SKUs"
   type        = number
   default     = 1
 
@@ -69,7 +69,7 @@ variable "always_ready_instances" {
 }
 
 variable "maximum_elastic_worker_count" {
-  description = "Maximum number of elastic workers for EP1 SKU"
+  description = "Maximum number of elastic workers for Elastic Premium SKUs"
   type        = number
   default     = 3
 

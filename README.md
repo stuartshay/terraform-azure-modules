@@ -20,10 +20,10 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 
 #### Features
 
-- **Restricted SKUs**: Only Y1 (Consumption) and EP1 (Elastic Premium) SKUs allowed for cost control and performance
+- **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
 - **VNET Integration**: Function App deployed with VNET integration for network isolation
 - **Security**: HTTPS-only, secure storage account configuration, network isolation
-- **Performance**: Configurable scaling with always-ready instances for EP1
+- **Performance**: Configurable scaling with always-ready instances for Elastic Premium
 - **Monitoring**: Optional Application Insights integration
 - **Storage**: Dedicated storage account with security configurations
 - Linux Function App with Python runtime
@@ -33,7 +33,7 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 #### Quick Start
 
 ```hcl
-module "function_app" {
+module "app-service-function" {
   source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
   version = "1.0.0"
 
@@ -43,7 +43,7 @@ module "function_app" {
   workload           = "myapp"
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
-  # SKU must be Y1 or EP1
+  # SKU must be EP1, EP2, or EP3
   sku_name = "EP1"
 
   tags = {
