@@ -19,9 +19,14 @@ variable "location" {
 }
 
 variable "sku_name" {
-  description = "The SKU name for the App Service Plan"
+  description = "The SKU name for the App Service Plan (S1 or S2 only)"
   type        = string
-  default     = "B1"
+  default     = "S1"
+
+  validation {
+    condition     = contains(["S1", "S2"], var.sku_name)
+    error_message = "The sku_name must be either S1 or S2."
+  }
 }
 
 variable "python_version" {
@@ -34,6 +39,11 @@ variable "app_settings" {
   description = "App settings for the web app"
   type        = map(string)
   default     = {}
+}
+
+variable "subnet_id" {
+  description = "The subnet ID for VNET integration"
+  type        = string
 }
 
 variable "tags" {

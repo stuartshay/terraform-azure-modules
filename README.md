@@ -10,7 +10,7 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ### App Service Module - Web
 
-Azure App Service resources including App Service Plan and Web App with configurable settings.
+Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
 - **Path**: `modules/app-service-web`
 - **Provider**: `azurerm`
@@ -18,7 +18,10 @@ Azure App Service resources including App Service Plan and Web App with configur
 
 #### Features
 
-- App Service Plan with configurable SKU
+- **Restricted SKUs**: Only S1 and S2 SKUs allowed for enhanced security and performance
+- **VNET Integration**: App Service deployed with VNET integration for network isolation
+- **Security**: HTTPS-only, FTP disabled, HTTP/2 enabled
+- **Performance**: Always-on enabled for better performance
 - Linux Web App with Python runtime
 - Configurable app settings
 - Resource tagging support
@@ -34,6 +37,10 @@ module "app_service" {
   location           = "East US"
   environment        = "dev"
   workload           = "myapp"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-app-service"
+
+  # SKU must be S1 or S2
+  sku_name = "S1"
 
   tags = {
     Environment = "dev"
