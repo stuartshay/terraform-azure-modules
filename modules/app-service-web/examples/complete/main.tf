@@ -17,10 +17,37 @@ provider "azurerm" {
 
 # Create a resource group for this example
 resource "azurerm_resource_group" "example" {
-  name     = "rg-app-service-complete-example"
+  name     = "rg-app-service-web-complete-example"
   location = "East US"
 
   tags = local.common_tags
+}
+
+# Create a virtual network for the example
+resource "azurerm_virtual_network" "example" {
+  name                = "vnet-${local.workload}-${local.environment}"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  tags = local.common_tags
+}
+
+# Create a subnet for App Service integration
+resource "azurerm_subnet" "app_service" {
+  name                 = "subnet-app-service"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.1.0/24"]
+
+  # Delegate subnet to App Service
+  delegation {
+    name = "app-service-delegation"
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 # Local values for consistent configuration
@@ -30,7 +57,7 @@ locals {
 
   common_tags = {
     Environment = local.environment
-    Project     = "app-service-complete-example"
+    Project     = "app-service-web-complete-example"
     Owner       = "platform-team"
     Example     = "complete"
     CostCenter  = "engineering"
@@ -46,9 +73,10 @@ module "app_service" {
   location            = azurerm_resource_group.example.location
   workload            = local.workload
   environment         = local.environment
+  subnet_id           = azurerm_subnet.app_service.id
 
-  # Optional variables with custom values
-  sku_name       = "P1v3" # Premium v3 tier for production
+  # Use S2 SKU for higher performance (only S1 and S2 are allowed)
+  sku_name       = "S2"
   python_version = "3.11" # Specific Python version
 
   # Custom app settings

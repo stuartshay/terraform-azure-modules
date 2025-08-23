@@ -35,40 +35,11 @@ repos:
           - --hook-config=--create-file-if-not-exist=true
       - id: terraform_tflint
         args:
-          - --args=--only=terraform_deprecated_interpolation
-          - --args=--only=terraform_deprecated_index
-          - --args=--only=terraform_unused_declarations
-          - --args=--only=terraform_comment_syntax
-          - --args=--only=terraform_documented_outputs
-          - --args=--only=terraform_documented_variables
-          - --args=--only=terraform_typed_variables
-          - --args=--only=terraform_module_pinned_source
-          - --args=--only=terraform_naming_convention
-          - --args=--only=terraform_required_version
-          - --args=--only=terraform_required_providers
-          - --args=--only=terraform_standard_module_structure
+          - --args=--config=${PWD}/.tflint.hcl
       - id: terraform_checkov
         args:
-          - --args=--framework terraform --quiet
-          - --args=--skip-check CKV_AZURE_1
-          - --args=--skip-check CKV2_AZURE_1
-          - --args=--skip-check CKV2_AZURE_8
-          - --args=--skip-check CKV_AZURE_225
-          - --args=--skip-check CKV_AZURE_212
-          - --args=--skip-check CKV_AZURE_211
-          - --args=--skip-check CKV_AZURE_33
-          - --args=--skip-check CKV_AZURE_244
-          - --args=--skip-check CKV2_AZURE_33
-          - --args=--skip-check CKV_AZURE_213
-          - --args=--skip-check CKV_AZURE_16
-          - --args=--skip-check CKV_AZURE_13
-          - --args=--skip-check CKV_AZURE_88
-          - --args=--skip-check CKV_AZURE_65
-          - --args=--skip-check CKV_AZURE_71
-          - --args=--skip-check CKV_AZURE_17
-          - --args=--skip-check CKV_AZURE_66
-          - --args=--skip-check CKV_AZURE_222
-          - --args=--skip-check CKV_AZURE_63
+          - --args=--framework=terraform
+          - --args=--config-file=${PWD}/.checkov.yaml
         exclude: '(.*/examples/.*|examples/.*)'
 
   # Security scanning

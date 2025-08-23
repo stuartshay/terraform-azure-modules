@@ -1,6 +1,13 @@
-# App Service Module
+# App Service Module - Web
 
-This module creates Azure App Service resources including App Service Plan and Web App.
+This module creates Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
+
+## Features
+
+- **Restricted SKUs**: Only S1 and S2 SKUs are allowed for enhanced security and performance
+- **VNET Integration**: App Service is deployed with VNET integration for network isolation
+- **Security**: HTTPS-only, FTP disabled, HTTP/2 enabled
+- **Performance**: Always-on enabled for better performance
 
 ## Usage
 
@@ -12,6 +19,10 @@ module "app_service" {
   location           = "East US"
   environment        = "dev"
   workload           = "azurepolicy"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-app-service"
+
+  # SKU must be S1 or S2
+  sku_name = "S1"
 
   tags = {
     Environment = "dev"
@@ -48,7 +59,8 @@ module "app_service" {
 | location | Azure region | `string` | n/a | yes |
 | environment | Environment name | `string` | n/a | yes |
 | workload | Workload name | `string` | n/a | yes |
-| sku_name | App Service Plan SKU | `string` | `"B1"` | no |
+| sku_name | App Service Plan SKU (S1 or S2 only) | `string` | `"S1"` | no |
+| subnet_id | Subnet ID for VNET integration | `string` | n/a | yes |
 | python_version | Python version | `string` | `"3.13"` | no |
 | app_settings | App settings | `map(string)` | `{}` | no |
 | tags | Resource tags | `map(string)` | `{}` | no |
@@ -84,6 +96,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [azurerm_app_service_virtual_network_swift_connection.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_virtual_network_swift_connection) | resource |
 | [azurerm_linux_web_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app) | resource |
 | [azurerm_service_plan.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
 
@@ -96,7 +109,8 @@ No modules.
 | <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
 | <a name="input_python_version"></a> [python\_version](#input\_python\_version) | The Python version | `string` | `"3.13"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
-| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan | `string` | `"B1"` | no |
+| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (S1 or S2 only) | `string` | `"S1"` | no |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
 

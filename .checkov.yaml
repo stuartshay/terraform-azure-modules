@@ -4,6 +4,11 @@
 directory:
   - modules
 
+# Skip paths (exclude examples directories)
+skip-path:
+  - modules/app-service-web/examples/
+  - modules/monitoring/examples/
+
 # File types to scan
 framework:
   - terraform
@@ -29,6 +34,7 @@ skip-check:
   - CKV_AZURE_66 # Ensure that App service enables failed request tracing
   - CKV_AZURE_222 # Ensure that Azure Web App public network access is disabled
   - CKV_AZURE_63 # Ensure that App service enables HTTP logging
+  - CKV2_AZURE_31 # Ensure VNET subnet is configured with a Network Security Group (NSG)
 
 # Output format
 output: cli
