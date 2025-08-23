@@ -39,8 +39,8 @@ resource "azurerm_service_plan" "functions" {
   os_type             = "Linux"
   sku_name            = var.sku_name
 
-  # EP1 specific configurations
-  maximum_elastic_worker_count = var.sku_name == "EP1" ? var.maximum_elastic_worker_count : null
+  # Elastic Premium specific configurations
+  maximum_elastic_worker_count = var.maximum_elastic_worker_count
 
   tags = var.tags
 }
@@ -65,9 +65,9 @@ resource "azurerm_linux_function_app" "main" {
     }
 
     # Performance configurations
-    always_on                 = var.sku_name != "Y1" ? true : false
-    pre_warmed_instance_count = var.sku_name == "EP1" ? var.always_ready_instances : null
-    elastic_instance_minimum  = var.sku_name == "EP1" ? var.always_ready_instances : null
+    always_on                 = true
+    pre_warmed_instance_count = var.always_ready_instances
+    elastic_instance_minimum  = var.always_ready_instances
 
     # VNet integration settings
     vnet_route_all_enabled = true

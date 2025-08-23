@@ -1,26 +1,50 @@
 # Azure App Service Function Module
 
-This Terraform module creates an Azure Function App with associated resources including Storage Account, App Service Plan, and optional Application Insights. The module is designed for production use with security best practices and VNet integration.
+This Terraform module creates an Azure Function App with associated resources including Storage Account, App Service Plan, and optional Application Insights. The module is designed for production use with security best practices and VNET integration.
 
 ## Features
 
-- **Restricted SKUs**: Only Y1 (Consumption) and EP1 (Elastic Premium) SKUs allowed for cost control and performance
-- **VNet Integration**: Function App deployed with VNet integration for network isolation
+- **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
+- **VNET Integration**: Function App deployed with VNET integration for network isolation
 - **Security**: HTTPS-only, secure storage account configuration, network isolation
-- **Performance**: Configurable scaling with always-ready instances for EP1
+- **Performance**: Configurable scaling with always-ready instances for Elastic Premium
 - **Monitoring**: Optional Application Insights integration
 - **Storage**: Dedicated storage account with security configurations
 - Linux Function App with Python runtime
 - Configurable app settings
 - Resource tagging support
 
+#### Quick Start
+
+```hcl
+module "app-service-function" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
+
+  # SKU must be EP1, EP2, or EP3
+  sku_name = "EP1"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
 ## Usage
 
 ### Basic Example
 
 ```hcl
-module "function_app" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-function?ref=v1.0.0"
+module "app-service-function" {
+  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -29,7 +53,7 @@ module "function_app" {
   environment        = "dev"
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
-  # SKU must be Y1 or EP1
+  # SKU must be EP1, EP2, or EP3
   sku_name = "EP1"
 
   tags = {
@@ -42,8 +66,9 @@ module "function_app" {
 ### Complete Example with All Options
 
 ```hcl
-module "function_app" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-function?ref=v1.0.0"
+module "app-service-function" {
+  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -53,7 +78,7 @@ module "function_app" {
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # Performance configuration
-  sku_name                     = "EP1"
+  sku_name                     = "EP2"
   python_version               = "3.11"
   always_ready_instances       = 2
   maximum_elastic_worker_count = 10
@@ -111,12 +136,12 @@ module "function_app" {
 | resource_group_name | The name of the resource group | `string` | n/a | yes |
 | location | The Azure region | `string` | n/a | yes |
 | subnet_id | The subnet ID for VNET integration | `string` | n/a | yes |
-| sku_name | The SKU name for the App Service Plan (Y1 for Consumption or EP1 for Elastic Premium) | `string` | `"EP1"` | no |
+| sku_name | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
 | python_version | The Python version | `string` | `"3.13"` | no |
 | function_app_settings | Additional app settings for the Function App | `map(string)` | `{}` | no |
 | enable_application_insights | Enable Application Insights for the Function App | `bool` | `true` | no |
-| always_ready_instances | Number of always ready instances for EP1 SKU | `number` | `1` | no |
-| maximum_elastic_worker_count | Maximum number of elastic workers for EP1 SKU | `number` | `3` | no |
+| always_ready_instances | Number of always ready instances for Elastic Premium SKUs | `number` | `1` | no |
+| maximum_elastic_worker_count | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
 | tags | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 
 ## Outputs
@@ -140,26 +165,38 @@ module "function_app" {
 
 ## SKU Options
 
-This module restricts SKU options to ensure cost control and appropriate performance:
+This module restricts SKU options to Elastic Premium tiers only to ensure consistent performance and security:
 
-### Y1 (Consumption Plan)
-- **Use Case**: Development, testing, light workloads
-- **Billing**: Pay-per-execution
-- **Scaling**: Automatic, serverless
-- **Limitations**: Cold start, execution time limits
-
-### EP1 (Elastic Premium)
-- **Use Case**: Production workloads requiring consistent performance
+### EP1 (Elastic Premium - Small)
+- **Use Case**: Production workloads, development with production-like performance
+- **vCPU**: 1 vCPU
+- **Memory**: 3.5 GB RAM  
 - **Billing**: Pre-warmed instances + additional scaling
 - **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNet integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration, unlimited execution time
+
+### EP2 (Elastic Premium - Medium)
+- **Use Case**: Production workloads with higher compute requirements
+- **vCPU**: 2 vCPU
+- **Memory**: 7 GB RAM
+- **Billing**: Pre-warmed instances + additional scaling
+- **Scaling**: Configurable pre-warmed instances with elastic scaling
+- **Benefits**: No cold start, VNET integration, unlimited execution time
+
+### EP3 (Elastic Premium - Large)
+- **Use Case**: Production workloads with intensive compute requirements
+- **vCPU**: 4 vCPU
+- **Memory**: 14 GB RAM
+- **Billing**: Pre-warmed instances + additional scaling
+- **Scaling**: Configurable pre-warmed instances with elastic scaling
+- **Benefits**: No cold start, VNET integration, unlimited execution time
 
 ## Security Features
 
 - **HTTPS Only**: All traffic forced to HTTPS
-- **VNet Integration**: Required for network isolation
+- **VNET Integration**: Required for network isolation
 - **Storage Security**: Minimum TLS 1.2, disabled public blob access
-- **Network Access**: Public network access disabled (VNet only)
+- **Network Access**: Public network access disabled (VNET only)
 - **SAS Policy**: 1-day expiration for storage access
 
 ## Monitoring
@@ -246,15 +283,15 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_always_ready_instances"></a> [always\_ready\_instances](#input\_always\_ready\_instances) | Number of always ready instances for EP1 SKU | `number` | `1` | no |
+| <a name="input_always_ready_instances"></a> [always\_ready\_instances](#input\_always\_ready\_instances) | Number of always ready instances for Elastic Premium SKUs | `number` | `1` | no |
 | <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights) | Enable Application Insights for the Function App | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | n/a | yes |
 | <a name="input_function_app_settings"></a> [function\_app\_settings](#input\_function\_app\_settings) | Additional app settings for the Function App | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
-| <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for EP1 SKU | `number` | `3` | no |
+| <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
 | <a name="input_python_version"></a> [python\_version](#input\_python\_version) | The Python version | `string` | `"3.13"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
-| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (Y1 for Consumption or EP1 for Elastic Premium) | `string` | `"EP1"` | no |
+| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
