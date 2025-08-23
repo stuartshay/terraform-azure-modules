@@ -8,11 +8,11 @@ A collection of reusable Terraform modules for Azure infrastructure components.
 
 ## Available Modules
 
-### App Service Module
+### App Service Module - Web
 
 Azure App Service resources including App Service Plan and Web App with configurable settings.
 
-- **Path**: `modules/app-service`
+- **Path**: `modules/app-service-web`
 - **Provider**: `azurerm`
 - **Version**: `>= 4.40`
 
@@ -27,7 +27,8 @@ Azure App Service resources including App Service Plan and Web App with configur
 
 ```hcl
 module "app_service" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service?ref=v0.1.0"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  version = "1.0.0"
 
   resource_group_name = "rg-example"
   location           = "East US"
@@ -123,7 +124,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service or monitoring)
+- **Module selection** (app-service-web or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -139,7 +140,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service or monitoring)
+3. Select module (app-service-web or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -157,7 +158,7 @@ Once deployed, modules are available at:
 
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
   version = "1.0.0"
   # configuration...
 }
@@ -212,7 +213,7 @@ This repository uses semantic versioning with branch-specific formatting to dist
 Each successful deployment creates a Git tag in the format: `{module-name}-v{version}`
 
 Examples:
-- `app-service-v1.1.5` (production release from master)
+- `app-service-web-v1.1.5` (production release from master)
 - `monitoring-v1.1.5-beta` (beta release from develop branch)
 
 ### Usage Examples
@@ -220,7 +221,7 @@ Examples:
 **Production version (from master branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service/azurerm"
+  source  = "app.terraform.io/your-org/app-service-web/azurerm"
   version = "1.1.5"  # Stable production release
 }
 ```
@@ -228,7 +229,7 @@ module "app_service" {
 **Beta version (from develop branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service/azurerm"
+  source  = "app.terraform.io/your-org/app-service-web/azurerm"
   version = "1.1.5-beta"  # Pre-release for testing
 }
 ```

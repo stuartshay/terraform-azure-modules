@@ -1,31 +1,16 @@
-# Complete App Service Example
+# Basic App Service Example
 
-This example demonstrates all available configuration options for the app-service module.
+This example demonstrates the minimal configuration required for the app-service-web module.
 
 ## Features
 
 This example creates:
-- App Service Plan with P1v3 SKU (Premium v3 tier) for production workloads
-- Linux Web App with Python 3.11
+- App Service Plan with B1 SKU (Basic tier)
+- Linux Web App with Python 3.13
 - HTTPS only enabled for security
 - Always on enabled for better performance
 - HTTP/2 enabled for latest version
 - FTP disabled for security
-- Comprehensive app settings for a production application
-- Detailed tagging strategy for governance and cost management
-
-## Configuration Highlights
-
-- **Premium SKU**: Uses P1v3 for better performance and features
-- **Custom Python Version**: Demonstrates version specification
-- **Production App Settings**: Includes common settings for:
-  - Application Insights integration
-  - Database connections
-  - Redis caching
-  - Storage account integration
-  - API configurations
-  - Logging and worker settings
-- **Comprehensive Tagging**: Shows enterprise-level tagging strategy
 
 ## Usage
 
@@ -37,7 +22,7 @@ $ terraform plan
 $ terraform apply
 ```
 
-Note that this example may create resources which cost money (Premium tier). Run `terraform destroy` when you don't need these resources.
+Note that this example may create resources which cost money. Run `terraform destroy` when you don't need these resources.
 
 ## Requirements
 
@@ -76,7 +61,6 @@ No inputs.
 | app_service_name | The name of the App Service |
 | app_service_default_hostname | The default hostname of the App Service |
 | app_service_plan_id | The ID of the App Service Plan |
-| app_service_url | The HTTPS URL of the App Service |
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -116,5 +100,4 @@ No inputs.
 | <a name="output_app_service_id"></a> [app\_service\_id](#output\_app\_service\_id) | The ID of the App Service |
 | <a name="output_app_service_name"></a> [app\_service\_name](#output\_app\_service\_name) | The name of the App Service |
 | <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
-| <a name="output_app_service_url"></a> [app\_service\_url](#output\_app\_service\_url) | The HTTPS URL of the App Service |
 <!-- END_TF_DOCS -->
