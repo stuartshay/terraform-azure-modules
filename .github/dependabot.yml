@@ -3,14 +3,59 @@
 
 version: 2
 updates:
-  - package-ecosystem: "terraform"
-    directory: "/modules"
+  # Scan each module subdirectory
+  - package-ecosystem: 'terraform'
+    directory: '/modules/app-service-function'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: 'chore'
+      include: 'scope'
     labels:
-      - "dependencies"
-      - "terraform"
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  - package-ecosystem: 'terraform'
+    directory: '/modules/app-service-web'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  - package-ecosystem: 'terraform'
+    directory: '/modules/monitoring'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  - package-ecosystem: 'terraform'
+    directory: '/modules/networking'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
