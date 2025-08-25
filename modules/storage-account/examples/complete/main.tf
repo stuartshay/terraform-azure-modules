@@ -282,7 +282,6 @@ module "storage_account" {
   # Diagnostic settings
   enable_diagnostic_settings = true
   log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id
-  diagnostic_logs            = ["StorageRead", "StorageWrite", "StorageDelete"]
   diagnostic_metrics         = ["Transaction", "Capacity"]
 
   tags = {
