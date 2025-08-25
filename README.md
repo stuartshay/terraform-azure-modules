@@ -68,7 +68,7 @@ module "app-service-function" {
 
 ### App Service Module - Web
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/app-service-web/azurerm)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
 
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
