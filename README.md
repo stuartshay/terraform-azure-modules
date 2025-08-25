@@ -269,7 +269,8 @@ Comprehensive Azure monitoring solution including Log Analytics Workspace, Appli
 
 ```hcl
 module "monitoring" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/monitoring?ref=v0.1.0"
+  source  = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
