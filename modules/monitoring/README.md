@@ -12,13 +12,16 @@ This Terraform module creates a comprehensive monitoring solution for Azure reso
 - **Cost Management** - Budget alerts and cost optimization
 - **Security** - Private endpoints and diagnostic settings
 
-## Quick Start
+
+## Usage
 
 You can use this module directly from the Terraform Cloud private registry:
 
 `https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/monitoring/azurerm/`
 
-### Basic Example
+### Quick Start
+
+#### Basic Example
 
 ```hcl
 module "monitoring" {
