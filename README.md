@@ -68,7 +68,7 @@ module "app-service-function" {
 
 ### App Service Module - Web
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/app-service-web/azurerm)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
 
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
@@ -116,7 +116,8 @@ module "app_service" {
 
 ### Networking Module
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/networking/azurerm)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/networking/azurerm/)
+
 
 Azure networking resources including Virtual Network (VNet), subnets, Network Security Groups (NSGs), and optional monitoring components.
 
@@ -178,9 +179,73 @@ module "networking" {
 
 
 
+### Storage Account Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/storage-account/azurerm/)
+
+Azure Storage Account with comprehensive features including blob containers, file shares, queues, tables, private endpoints, and advanced security configurations.
+
+- **Path**: `modules/storage-account`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Storage Account** with configurable performance tiers and replication types
+- **Blob Containers** with access control and metadata
+- **File Shares** with quota management and SMB/NFS protocols
+- **Queues** and **Tables** for messaging and NoSQL storage
+- **Private Endpoints** for secure network access
+- **Static Website** hosting capability
+- **Data Lake Gen2** support for big data analytics
+- **Lifecycle Management** for automated data tiering and cleanup
+- **Advanced Security** with encryption, network rules, and access controls
+- **Monitoring Integration** with diagnostic settings and Log Analytics
+- **Compliance Features** including immutability policies and audit trails
+
+#### Quick Start
+
+```hcl
+module "storage_account" {
+  source  = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  location_short     = "eastus"
+
+  # Basic configuration
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  account_kind             = "StorageV2"
+  access_tier              = "Hot"
+
+  # Create blob containers
+  blob_containers = {
+    documents = {
+      access_type = "private"
+    }
+    backups = {
+      access_type = "private"
+    }
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+
+
+
 ### Monitoring Module
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/registry/modules/azure-policy-cloud/monitoring/azurerm)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/monitoring/azurerm/)
 
 Comprehensive Azure monitoring solution including Log Analytics Workspace, Application Insights, alerts, and monitoring configurations.
 
@@ -262,7 +327,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web, app-service-function, or monitoring)
+- **Module selection** (app-service-web, app-service-function, networking, storage-account, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
