@@ -347,3 +347,66 @@ variable "smart_detection_emails" {
     error_message = "All smart detection emails must be valid email addresses."
   }
 }
+
+# Storage Account Configuration for Enhanced Security
+variable "storage_account_tier" {
+  description = "Storage account tier for monitoring data"
+  type        = string
+  default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Premium"], var.storage_account_tier)
+    error_message = "Storage account tier must be Standard or Premium."
+  }
+}
+
+variable "storage_account_replication_type" {
+  description = "Storage account replication type for monitoring data"
+  type        = string
+  default     = "GRS"
+
+  validation {
+    condition     = contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.storage_account_replication_type)
+    error_message = "Storage account replication type must be one of: LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
+  }
+}
+
+variable "enable_storage_versioning" {
+  description = "Enable blob versioning for monitoring storage"
+  type        = bool
+  default     = true
+}
+
+variable "enable_storage_change_feed" {
+  description = "Enable change feed for monitoring storage"
+  type        = bool
+  default     = true
+}
+
+variable "storage_delete_retention_days" {
+  description = "Delete retention days for monitoring storage blobs and containers"
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.storage_delete_retention_days >= 1 && var.storage_delete_retention_days <= 365
+    error_message = "Storage delete retention days must be between 1 and 365."
+  }
+}
+
+variable "enable_comprehensive_logging" {
+  description = "Enable comprehensive logging for all storage services (Blob, File, Queue, Table)"
+  type        = bool
+  default     = true
+}
+
+variable "storage_logging_retention_days" {
+  description = "Retention days for storage service logging"
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.storage_logging_retention_days >= 1 && var.storage_logging_retention_days <= 365
+    error_message = "Storage logging retention days must be between 1 and 365."
+  }
+}

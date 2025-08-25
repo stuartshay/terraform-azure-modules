@@ -124,7 +124,7 @@ module "monitoring" {
 - `azurerm_monitor_activity_log_alert` - Resource and service health alerts
 
 ### Optional Resources
-- `azurerm_storage_account` - Monitoring data storage (if enabled)
+- **Storage Account Module** - Secure monitoring data storage with comprehensive logging (if enabled)
 - `azurerm_private_endpoint` - Private endpoint for Log Analytics (if enabled)
 - `azurerm_application_insights_workbook` - Monitoring dashboard (if enabled)
 - `azurerm_consumption_budget_resource_group` - Budget alerts (if enabled)
@@ -217,6 +217,33 @@ The module is designed to integrate with Azure Function Apps:
 - **Diagnostic Settings**: Audit logs for monitoring infrastructure
 - **RBAC Integration**: Works with Azure role-based access control
 - **Data Encryption**: All data encrypted at rest and in transit
+- **Enhanced Storage Security**: When storage monitoring is enabled, includes:
+  - **Comprehensive Logging**: Blob, File, Queue, and Table services with READ, WRITE, DELETE operation logging
+  - **Enforced Versioning**: Blob versioning and change feed enabled for data protection
+  - **Retention Policies**: Configurable retention for deleted blobs and containers
+  - **Access Controls**: Shared access key disabled, public access blocked
+  - **TLS Enforcement**: Minimum TLS 1.2 for all connections
+
+### Storage Account Security
+When `enable_storage_monitoring = true`, the module creates a secure storage account using the centralized storage-account module with:
+
+#### Comprehensive Logging
+- **Blob Service**: READ, WRITE, DELETE operations logged
+- **File Service**: READ, WRITE, DELETE operations logged  
+- **Queue Service**: READ, WRITE, DELETE operations logged
+- **Table Service**: READ, WRITE, DELETE operations logged
+- **Retention**: 7-day retention for all logging data
+
+#### Enforced Data Protection
+- **Blob Versioning**: Enabled to track all blob changes
+- **Change Feed**: Enabled for audit trail of storage operations
+- **Delete Retention**: 7-day retention for deleted blobs and containers
+- **Access Security**: Shared access keys disabled, public access blocked
+
+#### Network Security
+- **TLS Enforcement**: Minimum TLS 1.2 required
+- **Private Access**: Public network access disabled by default
+- **Geo-Redundancy**: GRS replication for data durability
 
 ## Outputs
 
@@ -336,7 +363,9 @@ This module is licensed under the Apache License 2.0 - see the [LICENSE](../../L
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_monitoring_storage"></a> [monitoring\_storage](#module\_monitoring\_storage) | ../storage-account | n/a |
 
 ## Resources
 
@@ -365,7 +394,6 @@ No modules.
 | [azurerm_monitor_scheduled_query_rules_alert_v2.function_exceptions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert_v2.function_performance](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 | [azurerm_private_endpoint.log_analytics](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
-| [azurerm_storage_account.monitoring](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [random_uuid.workbook](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) | resource |
 
 ## Inputs
@@ -380,11 +408,14 @@ No modules.
 | <a name="input_enable_activity_log_alerts"></a> [enable\_activity\_log\_alerts](#input\_enable\_activity\_log\_alerts) | Enable activity log alerts | `bool` | `true` | no |
 | <a name="input_enable_availability_tests"></a> [enable\_availability\_tests](#input\_enable\_availability\_tests) | Enable availability test alerts | `bool` | `false` | no |
 | <a name="input_enable_budget_alerts"></a> [enable\_budget\_alerts](#input\_enable\_budget\_alerts) | Enable budget alerts | `bool` | `false` | no |
+| <a name="input_enable_comprehensive_logging"></a> [enable\_comprehensive\_logging](#input\_enable\_comprehensive\_logging) | Enable comprehensive logging for all storage services (Blob, File, Queue, Table) | `bool` | `true` | no |
 | <a name="input_enable_log_alerts"></a> [enable\_log\_alerts](#input\_enable\_log\_alerts) | Enable log query alerts | `bool` | `true` | no |
 | <a name="input_enable_private_endpoints"></a> [enable\_private\_endpoints](#input\_enable\_private\_endpoints) | Enable private endpoints for monitoring resources | `bool` | `false` | no |
 | <a name="input_enable_security_center"></a> [enable\_security\_center](#input\_enable\_security\_center) | Enable Security Center solution | `bool` | `true` | no |
 | <a name="input_enable_smart_detection"></a> [enable\_smart\_detection](#input\_enable\_smart\_detection) | Enable Application Insights smart detection | `bool` | `true` | no |
+| <a name="input_enable_storage_change_feed"></a> [enable\_storage\_change\_feed](#input\_enable\_storage\_change\_feed) | Enable change feed for monitoring storage | `bool` | `true` | no |
 | <a name="input_enable_storage_monitoring"></a> [enable\_storage\_monitoring](#input\_enable\_storage\_monitoring) | Enable storage account for monitoring data | `bool` | `false` | no |
+| <a name="input_enable_storage_versioning"></a> [enable\_storage\_versioning](#input\_enable\_storage\_versioning) | Enable blob versioning for monitoring storage | `bool` | `true` | no |
 | <a name="input_enable_update_management"></a> [enable\_update\_management](#input\_enable\_update\_management) | Enable Update Management solution | `bool` | `false` | no |
 | <a name="input_enable_vm_insights"></a> [enable\_vm\_insights](#input\_enable\_vm\_insights) | Enable VM Insights data collection | `bool` | `false` | no |
 | <a name="input_enable_workbook"></a> [enable\_workbook](#input\_enable\_workbook) | Enable monitoring workbook | `bool` | `true` | no |
@@ -409,6 +440,10 @@ No modules.
 | <a name="input_response_time_threshold"></a> [response\_time\_threshold](#input\_response\_time\_threshold) | Response time threshold in seconds | `number` | `5` | no |
 | <a name="input_sampling_percentage"></a> [sampling\_percentage](#input\_sampling\_percentage) | Sampling percentage for Application Insights | `number` | `100` | no |
 | <a name="input_smart_detection_emails"></a> [smart\_detection\_emails](#input\_smart\_detection\_emails) | List of email addresses for smart detection notifications | `list(string)` | `[]` | no |
+| <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | Storage account replication type for monitoring data | `string` | `"GRS"` | no |
+| <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | Storage account tier for monitoring data | `string` | `"Standard"` | no |
+| <a name="input_storage_delete_retention_days"></a> [storage\_delete\_retention\_days](#input\_storage\_delete\_retention\_days) | Delete retention days for monitoring storage blobs and containers | `number` | `7` | no |
+| <a name="input_storage_logging_retention_days"></a> [storage\_logging\_retention\_days](#input\_storage\_logging\_retention\_days) | Retention days for storage service logging | `number` | `7` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | Azure subscription ID | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | Name of the workload or application | `string` | n/a | yes |

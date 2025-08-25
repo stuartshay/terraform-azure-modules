@@ -82,17 +82,17 @@ output "action_group_short_name" {
 # Storage Account Outputs (if enabled)
 output "monitoring_storage_account_id" {
   description = "ID of the monitoring storage account"
-  value       = var.enable_storage_monitoring ? azurerm_storage_account.monitoring[0].id : null
+  value       = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_id : null
 }
 
 output "monitoring_storage_account_name" {
   description = "Name of the monitoring storage account"
-  value       = var.enable_storage_monitoring ? azurerm_storage_account.monitoring[0].name : null
+  value       = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_name : null
 }
 
 output "monitoring_storage_primary_connection_string" {
   description = "Primary connection string for monitoring storage account"
-  value       = var.enable_storage_monitoring ? azurerm_storage_account.monitoring[0].primary_connection_string : null
+  value       = var.enable_storage_monitoring ? module.monitoring_storage[0].primary_connection_string : null
   sensitive   = true
 }
 
@@ -233,7 +233,7 @@ output "resource_names" {
     log_analytics_workspace = azurerm_log_analytics_workspace.main.name
     application_insights    = azurerm_application_insights.main.name
     action_group            = azurerm_monitor_action_group.main.name
-    storage_account         = var.enable_storage_monitoring ? azurerm_storage_account.monitoring[0].name : null
+    storage_account         = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_name : null
     workbook                = var.enable_workbook ? azurerm_application_insights_workbook.main[0].name : null
   }
 }

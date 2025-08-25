@@ -3,10 +3,9 @@
 
 # Local values for consistent naming
 locals {
-  log_analytics_name   = "log-${var.workload}-${var.environment}-${var.location_short}-001"
-  app_insights_name    = "appi-${var.workload}-${var.environment}-${var.location_short}-001"
-  action_group_name    = "ag-${var.workload}-${var.environment}-${var.location_short}-001"
-  storage_account_name = "stmon${var.workload}${var.environment}001"
+  log_analytics_name = "log-${var.workload}-${var.environment}-${var.location_short}-001"
+  app_insights_name  = "appi-${var.workload}-${var.environment}-${var.location_short}-001"
+  action_group_name  = "ag-${var.workload}-${var.environment}-${var.location_short}-001"
 }
 
 # Log Analytics Workspace
@@ -45,39 +44,56 @@ resource "azurerm_application_insights" "main" {
   tags = var.tags
 }
 
-# Storage Account for monitoring data (optional)
-resource "azurerm_storage_account" "monitoring" {
+# Storage Account for monitoring data using centralized module (optional)
+module "monitoring_storage" {
   count = var.enable_storage_monitoring ? 1 : 0
 
-  name                     = local.storage_account_name
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "GRS" # Use geo-redundant storage for compliance
+  source = "../storage-account"
+
+  # Required variables
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  workload            = var.workload
+  environment         = var.environment
+  location_short      = var.location_short
+
+  # Storage configuration with enhanced security
+  account_tier             = var.storage_account_tier
+  account_replication_type = var.storage_account_replication_type
   min_tls_version          = "TLS1_2"
 
   # Security configurations
-  allow_nested_items_to_be_public = false
-  shared_access_key_enabled       = false
-  public_network_access_enabled   = false
-  is_hns_enabled                  = true
+  shared_access_key_enabled     = false
+  allow_blob_public_access      = false
+  public_network_access_enabled = false
+  enable_data_lake_gen2         = true
 
-  blob_properties {
-    delete_retention_policy {
-      days = 7
-    }
-    versioning_enabled  = true
-    change_feed_enabled = true
-    container_delete_retention_policy {
-      days = 7
-    }
-  }
+  # Enhanced blob properties with comprehensive logging
+  enable_blob_properties          = true
+  enable_blob_versioning          = var.enable_storage_versioning
+  enable_change_feed              = var.enable_storage_change_feed
+  blob_delete_retention_days      = var.storage_delete_retention_days
+  container_delete_retention_days = var.storage_delete_retention_days
 
+  # Comprehensive logging for all storage services
+  enable_queue_properties      = var.enable_comprehensive_logging
+  enable_queue_logging         = var.enable_comprehensive_logging
+  queue_logging_read           = var.enable_comprehensive_logging
+  queue_logging_write          = var.enable_comprehensive_logging
+  queue_logging_delete         = var.enable_comprehensive_logging
+  queue_logging_retention_days = var.storage_logging_retention_days
 
-  sas_policy {
-    expiration_period = "01.00:00:00" # 1 day
-    expiration_action = "Log"
-  }
+  # File share properties for comprehensive logging
+  enable_share_properties = var.enable_comprehensive_logging
+  share_retention_days    = var.storage_delete_retention_days
+
+  # SAS policy
+  sas_expiration_period = "01.00:00:00" # 1 day
+  sas_expiration_action = "Log"
+
+  # Diagnostic settings integration
+  enable_diagnostic_settings = true
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 
   tags = var.tags
 }
@@ -159,7 +175,7 @@ resource "azurerm_monitor_diagnostic_setting" "log_analytics" {
 
   name               = "diag-${local.log_analytics_name}"
   target_resource_id = azurerm_log_analytics_workspace.main.id
-  storage_account_id = var.enable_storage_monitoring ? azurerm_storage_account.monitoring[0].id : null
+  storage_account_id = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_id : null
 
   enabled_log {
     category = "Audit"
