@@ -267,7 +267,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | ../storage-account | n/a |
 
 ## Resources
 
@@ -277,7 +279,6 @@ No modules.
 | [azurerm_application_insights.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
 | [azurerm_linux_function_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
 | [azurerm_service_plan.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
-| [azurerm_storage_account.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 
 ## Inputs
 
@@ -285,13 +286,19 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_always_ready_instances"></a> [always\_ready\_instances](#input\_always\_ready\_instances) | Number of always ready instances for Elastic Premium SKUs | `number` | `1` | no |
 | <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights) | Enable Application Insights for the Function App | `bool` | `true` | no |
+| <a name="input_enable_storage_change_feed"></a> [enable\_storage\_change\_feed](#input\_enable\_storage\_change\_feed) | Enable change feed for the Function App storage account | `bool` | `false` | no |
+| <a name="input_enable_storage_versioning"></a> [enable\_storage\_versioning](#input\_enable\_storage\_versioning) | Enable blob versioning for the Function App storage account | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | n/a | yes |
 | <a name="input_function_app_settings"></a> [function\_app\_settings](#input\_function\_app\_settings) | Additional app settings for the Function App | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
+| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the Azure region (used for storage account naming) | `string` | `"eus"` | no |
 | <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
 | <a name="input_python_version"></a> [python\_version](#input\_python\_version) | The Python version | `string` | `"3.13"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
+| <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The storage account replication type for the Function App storage | `string` | `"LRS"` | no |
+| <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The storage account tier for the Function App storage | `string` | `"Standard"` | no |
+| <a name="input_storage_delete_retention_days"></a> [storage\_delete\_retention\_days](#input\_storage\_delete\_retention\_days) | Number of days to retain deleted blobs | `number` | `7` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
@@ -309,4 +316,7 @@ No modules.
 | <a name="output_function_app_name"></a> [function\_app\_name](#output\_function\_app\_name) | The name of the Function App |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | The ID of the Functions storage account |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the Functions storage account |
+| <a name="output_storage_account_primary_access_key"></a> [storage\_account\_primary\_access\_key](#output\_storage\_account\_primary\_access\_key) | The primary access key for the Functions storage account |
+| <a name="output_storage_account_primary_blob_endpoint"></a> [storage\_account\_primary\_blob\_endpoint](#output\_storage\_account\_primary\_blob\_endpoint) | The primary blob endpoint for the Functions storage account |
+| <a name="output_storage_account_primary_connection_string"></a> [storage\_account\_primary\_connection\_string](#output\_storage\_account\_primary\_connection\_string) | The primary connection string for the Functions storage account |
 <!-- END_TF_DOCS -->

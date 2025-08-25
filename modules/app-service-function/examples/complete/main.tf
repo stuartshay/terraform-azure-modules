@@ -71,6 +71,7 @@ module "function_app" {
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
+  location_short      = "eus" # East US short name
   workload            = local.workload
   environment         = local.environment
   subnet_id           = azurerm_subnet.functions.id
@@ -83,6 +84,13 @@ module "function_app" {
 
   # Enable Application Insights
   enable_application_insights = true
+
+  # Storage account configuration
+  storage_account_tier             = "Standard"
+  storage_account_replication_type = "LRS"
+  enable_storage_versioning        = true
+  enable_storage_change_feed       = true
+  storage_delete_retention_days    = 30
 
   # Custom function app settings
   function_app_settings = {

@@ -17,3 +17,9 @@ output "app_service_plan_id" {
   description = "The ID of the App Service Plan"
   value       = module.function_app.app_service_plan_id
 }
+
+output "application_insights_connection_string" {
+  description = "Application Insights connection string"
+  value       = module.function_app.application_insights_connection_string
+  sensitive   = true
+}

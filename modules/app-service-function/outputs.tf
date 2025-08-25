@@ -20,12 +20,12 @@ output "app_service_plan_id" {
 
 output "storage_account_name" {
   description = "The name of the Functions storage account"
-  value       = azurerm_storage_account.functions.name
+  value       = module.functions_storage.storage_account_name
 }
 
 output "storage_account_id" {
   description = "The ID of the Functions storage account"
-  value       = azurerm_storage_account.functions.id
+  value       = module.functions_storage.storage_account_id
 }
 
 output "application_insights_connection_string" {
@@ -43,4 +43,22 @@ output "application_insights_instrumentation_key" {
 output "application_insights_id" {
   description = "The ID of Application Insights"
   value       = var.enable_application_insights ? azurerm_application_insights.functions[0].id : null
+}
+
+# Additional storage account outputs for backward compatibility
+output "storage_account_primary_access_key" {
+  description = "The primary access key for the Functions storage account"
+  value       = module.functions_storage.primary_access_key
+  sensitive   = true
+}
+
+output "storage_account_primary_connection_string" {
+  description = "The primary connection string for the Functions storage account"
+  value       = module.functions_storage.primary_connection_string
+  sensitive   = true
+}
+
+output "storage_account_primary_blob_endpoint" {
+  description = "The primary blob endpoint for the Functions storage account"
+  value       = module.functions_storage.primary_blob_endpoint
 }

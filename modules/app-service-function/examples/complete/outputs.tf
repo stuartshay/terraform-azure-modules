@@ -23,6 +23,11 @@ output "storage_account_id" {
   value       = module.function_app.storage_account_id
 }
 
+output "storage_account_primary_blob_endpoint" {
+  description = "The primary blob endpoint for the Functions storage account"
+  value       = module.function_app.storage_account_primary_blob_endpoint
+}
+
 output "app_service_plan_id" {
   description = "The ID of the App Service Plan"
   value       = module.function_app.app_service_plan_id

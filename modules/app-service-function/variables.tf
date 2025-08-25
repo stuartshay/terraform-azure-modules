@@ -18,6 +18,17 @@ variable "location" {
   type        = string
 }
 
+variable "location_short" {
+  description = "Short name for the Azure region (used for storage account naming)"
+  type        = string
+  default     = "eus"
+
+  validation {
+    condition     = length(var.location_short) > 0 && length(var.location_short) <= 6
+    error_message = "Location short name must not be empty and must be 6 characters or less for storage account naming."
+  }
+}
+
 variable "sku_name" {
   description = "The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium)"
   type        = string
@@ -83,4 +94,50 @@ variable "tags" {
   description = "A map of tags to assign to the resource"
   type        = map(string)
   default     = {}
+}
+
+# Storage Account Configuration
+variable "storage_account_tier" {
+  description = "The storage account tier for the Function App storage"
+  type        = string
+  default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Premium"], var.storage_account_tier)
+    error_message = "Storage account tier must be Standard or Premium."
+  }
+}
+
+variable "storage_account_replication_type" {
+  description = "The storage account replication type for the Function App storage"
+  type        = string
+  default     = "LRS"
+
+  validation {
+    condition     = contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.storage_account_replication_type)
+    error_message = "Storage account replication type must be LRS, GRS, RAGRS, ZRS, GZRS, or RAGZRS."
+  }
+}
+
+variable "enable_storage_versioning" {
+  description = "Enable blob versioning for the Function App storage account"
+  type        = bool
+  default     = false
+}
+
+variable "enable_storage_change_feed" {
+  description = "Enable change feed for the Function App storage account"
+  type        = bool
+  default     = false
+}
+
+variable "storage_delete_retention_days" {
+  description = "Number of days to retain deleted blobs"
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.storage_delete_retention_days >= 1 && var.storage_delete_retention_days <= 365
+    error_message = "Storage delete retention days must be between 1 and 365."
+  }
 }

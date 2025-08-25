@@ -70,6 +70,7 @@ module "function_app" {
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
+  location_short      = "eus" # East US short name
   workload            = local.workload
   environment         = local.environment
   subnet_id           = azurerm_subnet.functions.id
