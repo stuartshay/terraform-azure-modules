@@ -12,13 +12,17 @@ This Terraform module creates a comprehensive monitoring solution for Azure reso
 - **Cost Management** - Budget alerts and cost optimization
 - **Security** - Private endpoints and diagnostic settings
 
-## Usage
+## Quick Start
+
+You can use this module directly from the Terraform Cloud private registry:
+
+`https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/monitoring/azurerm/`
 
 ### Basic Example
 
 ```hcl
 module "monitoring" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/monitoring?ref=v0.1.0"
+  source = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
 
   # Required variables
   resource_group_name = "rg-myapp-dev-eastus"
@@ -45,7 +49,7 @@ module "monitoring" {
 
 ```hcl
 module "monitoring" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/monitoring?ref=v0.1.0"
+  source = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
 
   # Required variables
   resource_group_name = "rg-myapp-prod-eastus"

@@ -29,9 +29,10 @@ This module creates Azure networking resources including Virtual Network (VNet),
 
 ### Basic Example
 
+
 ```hcl
 module "networking" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/networking?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/networking/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -58,9 +59,10 @@ module "networking" {
 
 ### Complete Example with All Features
 
+
 ```hcl
 module "networking" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/networking?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/networking/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -249,13 +251,13 @@ This networking module is designed to work with other modules in this repository
 ```hcl
 # Create networking
 module "networking" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/networking?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/networking/azurerm"
   # ... configuration
 }
 
 # Use networking outputs in app service module
 module "app_service" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-web?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
   
   subnet_id = module.networking.app_service_subnet_id
   # ... other configuration

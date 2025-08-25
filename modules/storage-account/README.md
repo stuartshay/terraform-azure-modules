@@ -35,7 +35,7 @@ This module creates Azure Storage Account with comprehensive features including 
 
 ```hcl
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -67,7 +67,7 @@ module "storage_account" {
 
 ```hcl
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -511,7 +511,7 @@ This storage account module is designed to work with other modules in this repos
 ```hcl
 # Create storage account
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
   # ... configuration
 }
 
