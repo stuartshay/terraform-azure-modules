@@ -11,9 +11,10 @@ This module creates Azure App Service resources including App Service Plan and W
 
 ## Usage
 
+
 ```hcl
 module "app_service" {
-  source = "../../modules/app-service-web"
+  source = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
 
   resource_group_name = "rg-example"
   location           = "East US"

@@ -643,19 +643,13 @@ variable "immutability_period_days" {
 
 # Blob Containers
 variable "blob_containers" {
-  description = "Map of blob containers to create"
+  description = <<EOT
+Map of blob containers to create. All containers are always private (CKV_AZURE_34 enforced). The 'access_type' field is not used and any value is ignored; containers are always created with private access only.
+EOT
   type = map(object({
-    access_type = optional(string, "private")
-    metadata    = optional(map(string), null)
+    metadata = optional(map(string), null)
   }))
   default = {}
-
-  validation {
-    condition = alltrue([
-      for container in var.blob_containers : contains(["blob", "container", "private"], container.access_type)
-    ])
-    error_message = "Container access type must be blob, container, or private."
-  }
 }
 
 # File Shares
@@ -819,11 +813,6 @@ variable "eventhub_name" {
   default     = null
 }
 
-variable "diagnostic_logs" {
-  description = "List of diagnostic log categories to enable"
-  type        = list(string)
-  default     = ["StorageRead", "StorageWrite", "StorageDelete"]
-}
 
 variable "diagnostic_metrics" {
   description = "List of diagnostic metric categories to enable"

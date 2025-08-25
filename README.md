@@ -203,6 +203,9 @@ Azure Storage Account with comprehensive features including blob containers, fil
 - **Monitoring Integration** with diagnostic settings and Log Analytics
 - **Compliance Features** including immutability policies and audit trails
 
+> **Logging Requirement:**
+> For Blob, Queue, File, and Table services, logging is **required** for all **READ, WRITE, and DELETE** actions. This ensures full auditability and compliance for all storage operations.
+
 #### Quick Start
 
 ```hcl
@@ -269,7 +272,8 @@ Comprehensive Azure monitoring solution including Log Analytics Workspace, Appli
 
 ```hcl
 module "monitoring" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/monitoring?ref=v0.1.0"
+  source  = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
+  version = "1.0.0"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -319,8 +323,11 @@ See the `examples/` directory in each module for detailed usage examples.
 - Terraform >= 1.5
 - Azure Provider >= 4.40
 - Appropriate Azure permissions for resource creation
-
 ## Terraform Cloud Deployment
+
+> **Versioning Requirement:**
+> For **Blob** and **Container** resources, versioning is **required**. This ensures that all changes and deletions can be tracked and recovered, supporting data protection and compliance.
+
 
 This repository includes automated deployment to Terraform Cloud private registry via GitHub Actions.
 

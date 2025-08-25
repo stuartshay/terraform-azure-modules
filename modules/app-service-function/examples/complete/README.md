@@ -161,6 +161,7 @@ No inputs.
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the resource group |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | The ID of the Functions storage account |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the Functions storage account |
+| <a name="output_storage_account_primary_blob_endpoint"></a> [storage\_account\_primary\_blob\_endpoint](#output\_storage\_account\_primary\_blob\_endpoint) | The primary blob endpoint for the Functions storage account |
 | <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | The ID of the functions subnet |
 | <a name="output_virtual_network_id"></a> [virtual\_network\_id](#output\_virtual\_network\_id) | The ID of the virtual network |
 <!-- END_TF_DOCS -->

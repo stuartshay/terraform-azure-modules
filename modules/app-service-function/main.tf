@@ -1,32 +1,40 @@
 # Azure App Service Function Module
 # This module creates an Azure Function App with associated resources
 
-# Storage Account for Functions
-resource "azurerm_storage_account" "functions" {
-  #checkov:skip=CKV2_AZURE_40:Shared access key is required for Function Apps
-  name                     = "stfunc${var.workload}${var.environment}001"
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  min_tls_version          = "TLS1_2"
+# Storage Account for Functions using centralized module
+module "functions_storage" {
+  source = "../storage-account"
+
+  # Required variables
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  environment         = var.environment
+  workload            = "${var.workload}func" # Add 'func' suffix to distinguish
+  location_short      = var.location_short
+
+  # Storage account configuration mapped from function variables
+  account_tier             = var.storage_account_tier
+  account_replication_type = var.storage_account_replication_type
+
+  # Function App specific requirements
+  shared_access_key_enabled     = true # Required for Function Apps
+  public_network_access_enabled = true # Required for Function Apps
+
+  # Advanced features based on function app variables
+  enable_blob_versioning = var.enable_storage_versioning
+  enable_change_feed     = var.enable_storage_change_feed
+
+  # Data protection
+  blob_delete_retention_days = var.storage_delete_retention_days
 
   # Security configurations
-  allow_nested_items_to_be_public = false
-  shared_access_key_enabled       = true # Required for Function Apps
-  public_network_access_enabled   = true # Required for Function Apps
+  enable_https_traffic_only = true
+  min_tls_version           = "TLS1_2"
+  allow_blob_public_access  = false
 
-  blob_properties {
-    delete_retention_policy {
-      days = 7
-    }
-  }
-
-  # SAS expiration policy
-  sas_policy {
-    expiration_period = "01.00:00:00" # 1 day
-    expiration_action = "Log"
-  }
+  # SAS policy for Function Apps
+  sas_expiration_period = "01.00:00:00" # 1 day
+  sas_expiration_action = "Log"
 
   tags = var.tags
 }
@@ -51,8 +59,8 @@ resource "azurerm_linux_function_app" "main" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  storage_account_name       = azurerm_storage_account.functions.name
-  storage_account_access_key = azurerm_storage_account.functions.primary_access_key
+  storage_account_name       = module.functions_storage.storage_account_name
+  storage_account_access_key = module.functions_storage.primary_access_key
   service_plan_id            = azurerm_service_plan.functions.id
 
   # Security configurations

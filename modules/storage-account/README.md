@@ -1,3 +1,6 @@
+<!--
+SECURITY COMPLIANCE: All blob containers created by this module are always private. Public access is not possible and is explicitly prevented (CKV_AZURE_34 enforced). This module enforces private-only access for all containers, and any documentation or code suggesting otherwise is obsolete.
+-->
 # Storage Account Module
 
 This module creates Azure Storage Account with comprehensive features including blob containers, file shares, queues, tables, private endpoints, and advanced security configurations.
@@ -32,7 +35,7 @@ This module creates Azure Storage Account with comprehensive features including 
 
 ```hcl
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
@@ -49,12 +52,8 @@ module "storage_account" {
 
   # Create blob containers
   blob_containers = {
-    documents = {
-      access_type = "private"
-    }
-    backups = {
-      access_type = "private"
-    }
+    documents = {}
+    backups = {}
   }
 
   tags = {
@@ -68,12 +67,13 @@ module "storage_account" {
 
 ```hcl
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
 
   # Required variables
   resource_group_name = "rg-example"
   location           = "East US"
   environment        = "prod"
+
   workload           = "myapp"
   location_short     = "eastus"
 
@@ -118,15 +118,14 @@ module "storage_account" {
   identity_type = "SystemAssigned"
 
   # Blob containers
+  # All containers are always private (CKV_AZURE_34 enforced). 'access_type' is ignored and always set to 'private'.
   blob_containers = {
     documents = {
-      access_type = "private"
       metadata = {
         purpose = "document-storage"
       }
     }
     backups = {
-      access_type = "private"
       metadata = {
         purpose = "backup-storage"
       }
@@ -276,6 +275,9 @@ module "storage_account" {
 
 ## Storage Account Configuration
 
+> **Security Compliance Note:**
+> All blob containers created by this module are always private. Public access is not possible and is explicitly prevented (CKV_AZURE_34 enforced). Any field or documentation suggesting otherwise is obsolete. All configuration and implementation ensures private-only access for all containers.
+
 ### Account Types
 
 The module supports all Azure Storage account types:
@@ -287,15 +289,17 @@ The module supports all Azure Storage account types:
 - **FileStorage**: Premium file storage
 
 ### Replication Types
-
-- **LRS**: Locally Redundant Storage
-- **GRS**: Geo-Redundant Storage
-- **RAGRS**: Read-Access Geo-Redundant Storage
-- **ZRS**: Zone-Redundant Storage
-- **GZRS**: Geo-Zone-Redundant Storage
-- **RAGZRS**: Read-Access Geo-Zone-Redundant Storage
+  - **LRS**: Locally Redundant Storage
+  - **GRS**: Geo-Redundant Storage
+  - **RAGRS**: Read-Access Geo-Redundant Storage
+  - **ZRS**: Zone-Redundant Storage
+  - **GZRS**: Geo-Zone-Redundant Storage
+  - **RAGZRS**: Read-Access Geo-Zone-Redundant Storage
 
 ### Access Tiers
+<!--
+SECURITY COMPLIANCE: All blob containers created by this module are always private. Public access is not possible and is explicitly prevented (CKV_AZURE_34 enforced). This section and the entire module implementation ensure private-only access for all containers.
+-->
 
 - **Hot**: For frequently accessed data
 - **Cool**: For infrequently accessed data (30+ days)
@@ -304,9 +308,9 @@ The module supports all Azure Storage account types:
 ## Blob Container Configuration
 
 ```hcl
+# All containers are always private (CKV_AZURE_34 enforced). 'access_type' is ignored and always set to 'private'.
 blob_containers = {
   container_name = {
-    access_type = "private"  # private, blob, container
     metadata = {
       purpose = "document-storage"
       tier    = "production"
@@ -445,12 +449,15 @@ network_rules_subnet_ids     = [
 
 ### Diagnostic Settings
 
+
 ```hcl
 enable_diagnostic_settings = true
 log_analytics_workspace_id = "/subscriptions/.../workspaces/law-example"
-diagnostic_logs           = ["StorageRead", "StorageWrite", "StorageDelete"]
 diagnostic_metrics        = ["Transaction", "Capacity"]
 ```
+
+> **Logging Requirements:**
+> Logging for Blob, Table, and Queue services is always enabled for the following categories: `StorageRead`, `StorageWrite`, and `StorageDelete`. These log categories are enforced by the module and cannot be disabled or changed. This ensures that all read, write, and delete actions for Blob, Table, and Queue are always logged for compliance and audit purposes.
 
 ### Available Log Categories
 
@@ -504,7 +511,7 @@ This storage account module is designed to work with other modules in this repos
 ```hcl
 # Create storage account
 module "storage_account" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/storage-account?ref=v1.0.0"
+  source = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
   # ... configuration
 }
 
@@ -581,14 +588,13 @@ No modules.
 | <a name="input_azure_files_ad_netbios_domain_name"></a> [azure\_files\_ad\_netbios\_domain\_name](#input\_azure\_files\_ad\_netbios\_domain\_name) | NetBIOS domain name for Active Directory authentication | `string` | `null` | no |
 | <a name="input_azure_files_ad_storage_sid"></a> [azure\_files\_ad\_storage\_sid](#input\_azure\_files\_ad\_storage\_sid) | Storage SID for Active Directory authentication | `string` | `null` | no |
 | <a name="input_azure_files_authentication_directory_type"></a> [azure\_files\_authentication\_directory\_type](#input\_azure\_files\_authentication\_directory\_type) | Directory type for Azure Files authentication | `string` | `"AADDS"` | no |
-| <a name="input_blob_containers"></a> [blob\_containers](#input\_blob\_containers) | Map of blob containers to create | <pre>map(object({<br/>    access_type = optional(string, "private")<br/>    metadata    = optional(map(string), null)<br/>  }))</pre> | `{}` | no |
+| <a name="input_blob_containers"></a> [blob\_containers](#input\_blob\_containers) | Map of blob containers to create. All containers are always private (CKV\_AZURE\_34 enforced). The 'access\_type' field is not used and any value is ignored; containers are always created with private access only. | <pre>map(object({<br/>    metadata = optional(map(string), null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_blob_delete_retention_days"></a> [blob\_delete\_retention\_days](#input\_blob\_delete\_retention\_days) | Blob delete retention in days (0 to disable) | `number` | `7` | no |
 | <a name="input_change_feed_retention_days"></a> [change\_feed\_retention\_days](#input\_change\_feed\_retention\_days) | Change feed retention in days | `number` | `7` | no |
 | <a name="input_container_delete_retention_days"></a> [container\_delete\_retention\_days](#input\_container\_delete\_retention\_days) | Container delete retention in days (0 to disable) | `number` | `7` | no |
 | <a name="input_cors_rules"></a> [cors\_rules](#input\_cors\_rules) | CORS rules for blob service | <pre>list(object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  }))</pre> | `[]` | no |
 | <a name="input_customer_managed_key_user_assigned_identity_id"></a> [customer\_managed\_key\_user\_assigned\_identity\_id](#input\_customer\_managed\_key\_user\_assigned\_identity\_id) | User assigned identity ID for customer managed key | `string` | `null` | no |
 | <a name="input_customer_managed_key_vault_key_id"></a> [customer\_managed\_key\_vault\_key\_id](#input\_customer\_managed\_key\_vault\_key\_id) | Key Vault key ID for customer managed key | `string` | `null` | no |
-| <a name="input_diagnostic_logs"></a> [diagnostic\_logs](#input\_diagnostic\_logs) | List of diagnostic log categories to enable | `list(string)` | <pre>[<br/>  "StorageRead",<br/>  "StorageWrite",<br/>  "StorageDelete"<br/>]</pre> | no |
 | <a name="input_diagnostic_metrics"></a> [diagnostic\_metrics](#input\_diagnostic\_metrics) | List of diagnostic metric categories to enable | `list(string)` | <pre>[<br/>  "Transaction"<br/>]</pre> | no |
 | <a name="input_diagnostic_storage_account_id"></a> [diagnostic\_storage\_account\_id](#input\_diagnostic\_storage\_account\_id) | Storage account ID for diagnostic settings | `string` | `null` | no |
 | <a name="input_enable_azure_files_authentication"></a> [enable\_azure\_files\_authentication](#input\_enable\_azure\_files\_authentication) | Enable Azure Files authentication | `bool` | `false` | no |

@@ -290,13 +290,19 @@ resource "azurerm_storage_account" "main" {
   tags = var.tags
 }
 
+######################################################################
 # Blob Containers
+# SECURITY: Public access is always set to "private" for all containers.
+# This is enforced for compliance with CKV_AZURE_34 and Azure best practices.
+# No user input or override is possible for public access.
+######################################################################
 resource "azurerm_storage_container" "main" {
   for_each = var.blob_containers
 
-  name                  = local.container_names[each.key]
-  storage_account_name  = azurerm_storage_account.main.name
-  container_access_type = each.value.access_type
+  name               = local.container_names[each.key]
+  storage_account_id = azurerm_storage_account.main.id
+  # Enforced for security: Only private access is allowed (CKV_AZURE_34 compliance)
+  container_access_type = "private"
 
   metadata = each.value.metadata
 }
@@ -305,11 +311,11 @@ resource "azurerm_storage_container" "main" {
 resource "azurerm_storage_share" "main" {
   for_each = var.file_shares
 
-  name                 = local.file_share_names[each.key]
-  storage_account_name = azurerm_storage_account.main.name
-  quota                = each.value.quota_gb
-  enabled_protocol     = each.value.enabled_protocol
-  access_tier          = each.value.access_tier
+  name               = local.file_share_names[each.key]
+  storage_account_id = azurerm_storage_account.main.id
+  quota              = each.value.quota_gb
+  enabled_protocol   = each.value.enabled_protocol
+  access_tier        = each.value.access_tier
 
   dynamic "acl" {
     for_each = each.value.acl != null ? each.value.acl : []
@@ -460,14 +466,17 @@ resource "azurerm_monitor_diagnostic_setting" "main" {
   eventhub_authorization_rule_id = var.eventhub_authorization_rule_id
   eventhub_name                  = var.eventhub_name
 
-  # Metrics
-  dynamic "enabled_log" {
-    for_each = var.diagnostic_logs
-    content {
-      category = enabled_log.value
-    }
+  # Enable logging for Blob, Table, and Queue services (delete, read, write)
+  enabled_log {
+    category = "StorageRead"
   }
-
+  enabled_log {
+    category = "StorageWrite"
+  }
+  enabled_log {
+    category = "StorageDelete"
+  }
+  # Metrics
   dynamic "metric" {
     for_each = var.diagnostic_metrics
     content {
