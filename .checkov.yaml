@@ -21,9 +21,7 @@ skip-check:
   - CKV_AZURE_225 # Ensure the App Service Plan is zone redundant
   - CKV_AZURE_212 # Ensure App Service has a minimum number of instances for failover
   - CKV_AZURE_211 # Ensure App Service plan suitable for production use
-  #- CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service for read, write and delete requests
   - CKV_AZURE_244 # Avoid the use of local users for Azure Storage unless necessary
-  #- CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
   - CKV_AZURE_213 # Ensure that App Service configures health check
   - CKV_AZURE_16 # Ensure that Register with Azure Active Directory is enabled on App Service
   - CKV_AZURE_13 # Ensure App Service Authentication is set on Azure App Service
