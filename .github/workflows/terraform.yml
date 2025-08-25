@@ -43,6 +43,9 @@ jobs:
 
       - name: Terraform Init and Validate
         id: validate
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
         run: |
           read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
           for dir in "${DIRS[@]}"; do
