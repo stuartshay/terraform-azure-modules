@@ -3,7 +3,8 @@
 
 # Storage Account for Functions using centralized module
 module "functions_storage" {
-  source = "../storage-account"
+  source  = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
+  version = "1.1.22"
 
   # Required variables
   resource_group_name = var.resource_group_name

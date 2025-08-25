@@ -273,7 +273,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | ../storage-account | n/a |
+| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | app.terraform.io/azure-policy-cloud/storage-account/azurerm | 1.1.22 |
 
 ## Resources
 
