@@ -24,7 +24,7 @@ A comprehensive collection of enterprise-grade Terraform modules for Azure infra
 
 Azure Function App resources including Storage Account, App Service Plan, and Function App with VNET integration and restricted SKU options.
 
-- **Path**: `modules/app-service-function`
+- **Path**: `modules/app-service-plan-function`
 - **Provider**: `azurerm`
 - **Version**: `>= 4.40`
 
@@ -32,19 +32,12 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 
 - **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
 - **VNET Integration**: Function App deployed with VNET integration for network isolation
-- **Security**: HTTPS-only, secure storage account configuration, network isolation
-- **Performance**: Configurable scaling with always-ready instances for Elastic Premium
-- **Monitoring**: Optional Application Insights integration
-- **Storage**: Dedicated storage account with security configurations
-- Linux Function App with Python runtime
-- Configurable app settings
-- Resource tagging support
 
 #### Quick Start
 
 ```hcl
-module "app-service-function" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+module "app-service-plan-function" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
@@ -62,8 +55,6 @@ module "app-service-function" {
   }
 }
 ```
-
-
 
 
 ### App Service Module - Web
