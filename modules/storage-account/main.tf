@@ -307,6 +307,15 @@ resource "azurerm_storage_container" "main" {
   metadata = each.value.metadata
 }
 
+# Container Immutability Policies
+resource "azurerm_storage_container_immutability_policy" "main" {
+  for_each = var.enable_container_immutability ? toset(var.immutable_containers) : toset([])
+
+  storage_container_resource_manager_id = azurerm_storage_container.main[each.key].resource_manager_id
+  immutability_period_in_days           = var.container_immutability_days
+  protected_append_writes_all_enabled   = false
+}
+
 # File Shares
 resource "azurerm_storage_share" "main" {
   for_each = var.file_shares
@@ -455,7 +464,7 @@ resource "azurerm_private_endpoint" "main" {
   tags = var.tags
 }
 
-# Diagnostic Settings
+# Legacy Diagnostic Settings (for backwards compatibility)
 resource "azurerm_monitor_diagnostic_setting" "main" {
   count = var.enable_diagnostic_settings ? 1 : 0
 
@@ -484,4 +493,193 @@ resource "azurerm_monitor_diagnostic_setting" "main" {
       enabled  = true
     }
   }
+}
+
+# New Diagnostic Settings for individual storage services
+# Blob Service Diagnostic Setting
+resource "azurerm_monitor_diagnostic_setting" "blob" {
+  count = var.enable_diagnostics ? 1 : 0
+
+  name                           = "diag-${local.storage_account_name}-blob"
+  target_resource_id             = "${azurerm_storage_account.main.id}/blobServices/default"
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  storage_account_id             = var.diagnostic_storage_account_id
+  eventhub_authorization_rule_id = var.eventhub_authorization_rule_id
+  eventhub_name                  = var.eventhub_name
+
+  enabled_log {
+    category = "StorageRead"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageWrite"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageDelete"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+}
+
+# File Service Diagnostic Setting
+resource "azurerm_monitor_diagnostic_setting" "file" {
+  count = var.enable_diagnostics ? 1 : 0
+
+  name                           = "diag-${local.storage_account_name}-file"
+  target_resource_id             = "${azurerm_storage_account.main.id}/fileServices/default"
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  storage_account_id             = var.diagnostic_storage_account_id
+  eventhub_authorization_rule_id = var.eventhub_authorization_rule_id
+  eventhub_name                  = var.eventhub_name
+
+  enabled_log {
+    category = "StorageRead"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageWrite"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageDelete"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+}
+
+# Queue Service Diagnostic Setting
+resource "azurerm_monitor_diagnostic_setting" "queue" {
+  count = var.enable_diagnostics ? 1 : 0
+
+  name                           = "diag-${local.storage_account_name}-queue"
+  target_resource_id             = "${azurerm_storage_account.main.id}/queueServices/default"
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  storage_account_id             = var.diagnostic_storage_account_id
+  eventhub_authorization_rule_id = var.eventhub_authorization_rule_id
+  eventhub_name                  = var.eventhub_name
+
+  enabled_log {
+    category = "StorageRead"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageWrite"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageDelete"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+}
+
+# Table Service Diagnostic Setting
+resource "azurerm_monitor_diagnostic_setting" "table" {
+  count = var.enable_diagnostics ? 1 : 0
+
+  name                           = "diag-${local.storage_account_name}-table"
+  target_resource_id             = "${azurerm_storage_account.main.id}/tableServices/default"
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  storage_account_id             = var.diagnostic_storage_account_id
+  eventhub_authorization_rule_id = var.eventhub_authorization_rule_id
+  eventhub_name                  = var.eventhub_name
+
+  enabled_log {
+    category = "StorageRead"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageWrite"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+  enabled_log {
+    category = "StorageDelete"
+    retention_policy {
+      enabled = var.diagnostics_retention_days > 0
+      days    = var.diagnostics_retention_days
+    }
+  }
+}
+
+# SAS Token Generation and Key Vault Integration
+data "azurerm_storage_account_sas" "main" {
+  count = var.enable_sas_secret ? 1 : 0
+
+  connection_string = azurerm_storage_account.main.primary_connection_string
+  https_only        = var.sas_https_only
+  signed_version    = "2017-07-29"
+
+  resource_types {
+    service   = contains(split("", var.sas_resource_types), "s")
+    container = contains(split("", var.sas_resource_types), "c")
+    object    = contains(split("", var.sas_resource_types), "o")
+  }
+
+  services {
+    blob  = contains(split("", var.sas_services), "b")
+    queue = contains(split("", var.sas_services), "q")
+    table = contains(split("", var.sas_services), "t")
+    file  = contains(split("", var.sas_services), "f")
+  }
+
+  start  = timeadd(timestamp(), "${var.start_time_offset_minutes}m")
+  expiry = timeadd(timestamp(), "${var.sas_ttl_hours}h")
+
+  permissions {
+    read    = contains(split("", var.sas_permissions), "r")
+    write   = contains(split("", var.sas_permissions), "w")
+    delete  = contains(split("", var.sas_permissions), "d")
+    list    = contains(split("", var.sas_permissions), "l")
+    add     = contains(split("", var.sas_permissions), "a")
+    create  = contains(split("", var.sas_permissions), "c")
+    update  = contains(split("", var.sas_permissions), "u")
+    process = contains(split("", var.sas_permissions), "p")
+    tag     = false
+    filter  = false
+  }
+
+  ip_addresses = var.sas_ip_addresses
+}
+
+# Store SAS token in Key Vault
+resource "azurerm_key_vault_secret" "sas_token" {
+  count = var.enable_sas_secret && var.key_vault_id != null && var.key_vault_secret_name != null ? 1 : 0
+
+  name         = var.key_vault_secret_name
+  value        = data.azurerm_storage_account_sas.main[0].sas
+  key_vault_id = var.key_vault_id
+  content_type = "application/x-sas-token"
+
+  depends_on = [data.azurerm_storage_account_sas.main]
 }
