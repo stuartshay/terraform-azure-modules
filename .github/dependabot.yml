@@ -7,7 +7,7 @@ registries:
     type: terraform-registry
     url: https://app.terraform.io
     # Create a Dependabot secret named DEPENDABOT_TF_API_TOKEN with a valid HCP Terraform user/team token
-    token: "${{secrets.DEPENDABOT_TF_API_TOKEN}}"
+    token: '${{secrets.DEPENDABOT_TF_API_TOKEN}}'
 updates:
   # Scan each module subdirectory
   - package-ecosystem: 'terraform'
@@ -25,6 +25,8 @@ updates:
       - 'terraform'
     assignees:
       - 'stuartshay'
+
+# Trigger: touch config to enqueue Dependabot re-run (2025-08-26)
 
   - package-ecosystem: 'terraform'
     directory: '/modules/app-service-web'
