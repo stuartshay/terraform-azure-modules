@@ -28,15 +28,26 @@ provider "azurerm" {
 data "azurerm_client_config" "current" {}
 
 # Create a resource group for this example
-resource "azurerm_resource_group" "example" {
-  name     = "rg-storage-enhanced-example"
-  location = "East US"
+locals {
+  # Use provided RG name/location when set; otherwise fall back to example defaults
+  rg_name     = var.resource_group_name != "" ? var.resource_group_name : "rg-storage-enhanced-example"
+  rg_location = var.location
 
-  tags = {
-    Environment = "dev"
+  # Base example tags merged with inputs
+  base_tags = {
+    Environment = var.environment
     Project     = "storage-enhanced-example"
     Example     = "complete-enhanced"
   }
+
+  tags = merge(local.base_tags, var.tags)
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = local.rg_name
+  location = local.rg_location
+
+  tags = local.tags
 }
 
 # Create Log Analytics Workspace for diagnostic logs
@@ -45,9 +56,9 @@ resource "azurerm_log_analytics_workspace" "example" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   sku                 = "PerGB2018"
-  retention_in_days   = 30
+  retention_in_days   = var.diagnostics_retention_days
 
-  tags = azurerm_resource_group.example.tags
+  tags = local.tags
 }
 
 # Create Key Vault for SAS token storage
@@ -74,7 +85,7 @@ resource "azurerm_key_vault" "example" {
     ]
   }
 
-  tags = azurerm_resource_group.example.tags
+  tags = local.tags
 }
 
 # Enhanced storage account module usage with all new features
@@ -84,7 +95,7 @@ module "storage_account_enhanced" {
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
-  environment         = "dev"
+  environment         = var.environment
   workload            = "enhanced"
   location_short      = "eastus"
 
@@ -95,36 +106,36 @@ module "storage_account_enhanced" {
   access_tier              = "Hot"
 
   # Enhanced Diagnostics Configuration
-  enable_diagnostics              = true
-  log_analytics_workspace_id      = azurerm_log_analytics_workspace.example.id
-  diagnostics_retention_days      = 30
+  enable_diagnostics         = true
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id
+  diagnostics_retention_days = var.diagnostics_retention_days
 
   # Blob Properties with Enhanced Data Protection
   enable_blob_properties          = true
-  enable_blob_versioning          = true  # Now defaults to true
-  enable_change_feed              = true  # Now defaults to true
+  enable_blob_versioning          = true # Now defaults to true
+  enable_change_feed              = true # Now defaults to true
   change_feed_retention_days      = 30
-  blob_delete_retention_days      = 14    # Updated default
+  blob_delete_retention_days      = 14 # Updated default
   container_delete_retention_days = 7
 
   # Container Immutability for Compliance
   enable_container_immutability = true
-  container_immutability_days   = 30
+  container_immutability_days   = var.container_immutability_days
   immutable_containers          = ["audit", "compliance"]
 
   # SAS Token and Key Vault Integration
-  enable_sas_secret      = true
-  key_vault_id           = azurerm_key_vault.example.id
-  key_vault_secret_name  = "storage-sas-token"
-  sas_services           = "bqtf"  # blob, queue, table, file
-  sas_resource_types     = "sco"   # service, container, object
-  sas_permissions        = "rwdl"  # read, write, delete, list
-  sas_ttl_hours          = 24
-  sas_https_only         = true
+  enable_sas_secret     = true
+  key_vault_id          = azurerm_key_vault.example.id
+  key_vault_secret_name = "storage-sas-token"
+  sas_services          = "bqtf" # blob, queue, table, file
+  sas_resource_types    = "sco"  # service, container, object
+  sas_permissions       = "rwdl" # read, write, delete, list
+  sas_ttl_hours         = var.sas_ttl_hours
+  sas_https_only        = true
 
   # Security configurations
-  enable_https_traffic_only = true
-  min_tls_version          = "TLS1_2"
+  enable_https_traffic_only     = true
+  min_tls_version               = "TLS1_2"
   public_network_access_enabled = false
 
   # Create multiple blob containers including immutable ones
@@ -137,20 +148,20 @@ module "storage_account_enhanced" {
     }
     audit = {
       metadata = {
-        purpose = "audit-logs"
+        purpose   = "audit-logs"
         retention = "30-days"
       }
     }
     compliance = {
       metadata = {
-        purpose = "compliance-data"
+        purpose   = "compliance-data"
         retention = "30-days"
       }
     }
     backups = {
       metadata = {
         purpose = "backup-storage"
-        tier = "cool"
+        tier    = "cool"
       }
     }
   }
@@ -174,5 +185,5 @@ module "storage_account_enhanced" {
   # Create tables for NoSQL storage
   tables = ["logs", "metrics"]
 
-  tags = azurerm_resource_group.example.tags
+  tags = local.tags
 }

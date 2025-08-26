@@ -72,12 +72,12 @@ output "key_vault_id" {
 output "security_summary" {
   description = "Summary of security and compliance features"
   value = {
-    diagnostics_enabled         = true
-    blob_versioning_enabled     = module.storage_account_enhanced.blob_versioning_enabled
-    container_immutability      = "enabled for audit and compliance containers"
-    sas_token_in_key_vault     = module.storage_account_enhanced.key_vault_sas_secret_id != null
-    https_only                 = true
-    min_tls_version           = "TLS1_2"
-    public_access_disabled    = true
+    diagnostics_enabled     = true
+    blob_versioning_enabled = module.storage_account_enhanced.blob_versioning_enabled
+    container_immutability  = "enabled for audit and compliance containers"
+    sas_token_in_key_vault  = module.storage_account_enhanced.key_vault_sas_secret_id != null
+    https_only              = true
+    min_tls_version         = "TLS1_2"
+    public_access_disabled  = true
   }
 }

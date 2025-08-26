@@ -54,3 +54,13 @@ applyTo: '**'
 	- All module outputs are well-documented and follow Terraform conventions
 	- Recommend keeping .env out of version control and using .env.template for sharing config structure
 	- CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, and CKV_AZURE_88 are required and must not be skipped in .checkov.yaml for App Service modules. This compliance documentation should be preserved in future changes.
+
+## Current Task (Aug 26, 2025)
+- Type: Bug Fix — resolve failing `pre-commit run terraform_tflint --all-files`
+- Branch/PR: `copilot/fix-34` / PR #35
+- Plan: Research TFLint + azurerm rules, run hook to capture errors, fix Terraform modules/examples accordingly, rerun until clean.
+
+### Outcome
+- Fixed unused variable warnings in `modules/storage-account/examples/complete-enhanced` by wiring example variables into resources and module inputs (resource group name/location, diagnostic retention, immutability days, SAS TTL, and tags merged via `locals`).
+- Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
+- Verified: `pre-commit run terraform_tflint --all-files` now passes.
