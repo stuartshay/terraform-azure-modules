@@ -3,7 +3,8 @@
 
 # Storage Account for Functions using centralized module
 module "functions_storage" {
-  source = "../storage-account"
+  source  = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
+  version = "1.1.22"
 
   # Required variables
   resource_group_name = var.resource_group_name
@@ -17,8 +18,8 @@ module "functions_storage" {
   account_replication_type = var.storage_account_replication_type
 
   # Function App specific requirements
-  shared_access_key_enabled     = true # Required for Function Apps
-  public_network_access_enabled = true # Required for Function Apps
+  shared_access_key_enabled     = var.storage_shared_access_key_enabled
+  public_network_access_enabled = var.storage_public_network_access_enabled
 
   # Advanced features based on function app variables
   enable_blob_versioning = var.enable_storage_versioning
@@ -65,7 +66,7 @@ resource "azurerm_linux_function_app" "main" {
 
   # Security configurations
   https_only                    = true
-  public_network_access_enabled = false # Force VNet integration
+  public_network_access_enabled = var.storage_public_network_access_enabled
 
   site_config {
     application_stack {

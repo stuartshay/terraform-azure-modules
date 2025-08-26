@@ -24,7 +24,8 @@ applyTo: '**'
 - Uses .env and .env.template for secrets and environment variables
 
 ## Context7 Research History
-- No Context7 research performed yet for this project
+- Terraform CLI credentials and GitHub Actions: Confirmed from hashicorp/setup-terraform README that `cli_config_credentials_token` configures HCP Terraform credentials; environment variable alternative `TF_TOKEN_app_terraform_io` supported (Terraform >=1.2) per CLI config docs.
+- Connection guidance: HashiCorp docs recommend providing credentials then running non-interactive commands; private module registry access requires valid user/team token (not org token).
 
 ## Shellcheck Issues and Fixes (Aug 2025)
 - SC2086: Added double quotes to all variable expansions in .github/workflows/terraform-cloud-deploy.yml to prevent globbing and word splitting.
@@ -37,6 +38,9 @@ applyTo: '**'
 - Solution: Added permissions: contents: read and security-events: write to pre-commit.yml.
 - No additional custom secrets or tokens required for current workflows; only GITHUB_TOKEN is used.
 - Confirmed workflows now pass permission checks; any remaining errors are unrelated to secrets/env.
+- Terraform Cloud auth failure: Observed 401 Unauthorized when fetching private registry module during `terraform init` in modules. Root cause is missing CLI credentials in runner.
+- Fix implemented: In `.github/workflows/terraform.yml`, added `cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}` to setup-terraform step, plus an explicit verification step hitting `https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION` with the token to fail fast if invalid. Also enforced `-input=false` during init.
+- Manual trigger: Added `workflow_dispatch` to the workflow so runs can be started manually from the Actions tab for on-demand validation.
 
 ## Conversation History
 - Investigated VS Code settings for Terraform MCP Server

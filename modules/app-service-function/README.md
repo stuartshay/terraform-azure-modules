@@ -106,6 +106,10 @@ module "app-service-function" {
 
 ## Requirements
 
+
+> **Note:**
+> The `location_short` variable is used in the storage account name, which must not exceed 24 characters. The value of `location_short` must be 6 characters or less to ensure compliance with Azure's [storage account naming rules](https://docs.microsoft.com/azure/storage/common/storage-account-overview#storage-account-names). The storage account name is constructed as `st<workload><environment><location_short>001`. See the variable validation for details.
+
 | Name | Version |
 |------|---------|
 | terraform | >= 1.5 |
@@ -269,7 +273,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | ../storage-account | n/a |
+| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | app.terraform.io/azure-policy-cloud/storage-account/azurerm | 1.1.22 |
 
 ## Resources
 
@@ -291,7 +295,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | n/a | yes |
 | <a name="input_function_app_settings"></a> [function\_app\_settings](#input\_function\_app\_settings) | Additional app settings for the Function App | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
-| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the Azure region (used for storage account naming) | `string` | `"eus"` | no |
+| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the Azure region (used for storage account naming; must be <= 6 characters to ensure the final name does not exceed Azure's 24-character limit). See module documentation for details. | `string` | `"eus"` | no |
 | <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
 | <a name="input_python_version"></a> [python\_version](#input\_python\_version) | The Python version | `string` | `"3.13"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
@@ -299,6 +303,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 | <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The storage account replication type for the Function App storage | `string` | `"LRS"` | no |
 | <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The storage account tier for the Function App storage | `string` | `"Standard"` | no |
 | <a name="input_storage_delete_retention_days"></a> [storage\_delete\_retention\_days](#input\_storage\_delete\_retention\_days) | Number of days to retain deleted blobs | `number` | `7` | no |
+| <a name="input_storage_public_network_access_enabled"></a> [storage\_public\_network\_access\_enabled](#input\_storage\_public\_network\_access\_enabled) | Whether public network access is enabled for the storage account. Set to false for maximum security. If true, storage account is accessible from the public internet. See module documentation for security implications. | `bool` | `false` | no |
+| <a name="input_storage_shared_access_key_enabled"></a> [storage\_shared\_access\_key\_enabled](#input\_storage\_shared\_access\_key\_enabled) | Whether shared access key authentication is enabled for the storage account. Set to false to disable shared key access for improved security. If true, shared key authentication is allowed. See module documentation for security implications. | `bool` | `true` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |

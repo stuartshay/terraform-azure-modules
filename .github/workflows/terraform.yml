@@ -5,9 +5,16 @@ on:
     branches: [master, develop]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 env:
   TF_VERSION: '1.12.2'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  security-events: write
 
 jobs:
   terraform-validate:
@@ -22,6 +29,27 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          # Configure Terraform CLI credentials for HCP Terraform (Terraform Cloud)
+          # so that private registry modules can be accessed during init/validate
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Verify Terraform Cloud authentication
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+        run: |
+          if [ -z "${TF_API_TOKEN:-}" ] || [ -z "${TF_CLOUD_ORGANIZATION:-}" ]; then
+            echo "Skipping Terraform Cloud auth verification: TF_API_TOKEN or TF_CLOUD_ORGANIZATION not available (e.g., forked PR)."
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION")
+          if [ "$STATUS" != "200" ]; then
+            echo "Failed to authenticate to Terraform Cloud (HTTP $STATUS) for org '$TF_CLOUD_ORGANIZATION'" >&2
+            exit 1
+          fi
+          echo "Successfully authenticated to Terraform Cloud for org '$TF_CLOUD_ORGANIZATION'"
 
       - name: Find module directories (excluding examples)
         id: find_modules
@@ -43,12 +71,20 @@ jobs:
 
       - name: Terraform Init and Validate
         id: validate
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
         run: |
+          if [ -z "${TF_API_TOKEN:-}" ] || [ -z "${TF_CLOUD_ORGANIZATION:-}" ]; then
+            echo "Skipping Terraform init/validate because TF_API_TOKEN or TF_CLOUD_ORGANIZATION is not available (e.g., forked PR)."
+            exit 0
+          fi
           read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
           for dir in "${DIRS[@]}"; do
             echo "Validating $dir"
             cd "$dir"
-            terraform init -backend=false
+            terraform init -backend=false -input=false
             terraform validate
             cd - > /dev/null
           done
@@ -86,6 +122,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Verify Terraform Cloud authentication
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+        run: |
+          if [ -z "${TF_API_TOKEN:-}" ] || [ -z "${TF_CLOUD_ORGANIZATION:-}" ]; then
+            echo "Skipping Terraform Cloud auth verification: TF_API_TOKEN or TF_CLOUD_ORGANIZATION not available (e.g., forked PR)."
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION")
+          if [ "$STATUS" != "200" ]; then
+            echo "Failed to authenticate to Terraform Cloud (HTTP $STATUS) for org '$TF_CLOUD_ORGANIZATION'" >&2
+            exit 1
+          fi
+          echo "Successfully authenticated to Terraform Cloud for org '$TF_CLOUD_ORGANIZATION'"
+
       - name: Find module directories (excluding examples)
         id: find_modules
         run: |
@@ -95,6 +155,8 @@ jobs:
           echo "module_dirs=$MODULE_DIRS" >> "$GITHUB_OUTPUT"
 
       - name: Run tfsec
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
         run: |
           read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
           for dir in "${DIRS[@]}"; do
@@ -103,6 +165,8 @@ jobs:
           done
 
       - name: Run Checkov
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
         run: |
           read -ra DIRS <<< "${{ steps.find_modules.outputs.module_dirs }}"
           for dir in "${DIRS[@]}"; do

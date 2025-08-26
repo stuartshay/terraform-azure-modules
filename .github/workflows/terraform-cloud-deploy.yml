@@ -139,6 +139,9 @@ jobs:
           echo "✅ Terraform Cloud credentials configured"
 
       - name: Validate Terraform configuration
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
         run: |
           MODULE_PATH="modules/${{ github.event.inputs.module_name }}"
           TEMP_DIR="/tmp/terraform-module-${{ github.event.inputs.module_name }}-$VERSION"

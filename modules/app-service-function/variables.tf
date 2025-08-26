@@ -18,15 +18,36 @@ variable "location" {
   type        = string
 }
 
+######################################################################
+# Storage Account Naming Compliance
+#
+# Azure storage account names must be globally unique, 3-24 characters,
+# and use only lowercase letters and numbers. The name is constructed as:
+#   st<workload><environment><location_short>001
+# To ensure compliance, location_short must be <= 6 characters.
+# See: https://docs.microsoft.com/azure/storage/common/storage-account-overview#storage-account-names
+######################################################################
 variable "location_short" {
-  description = "Short name for the Azure region (used for storage account naming)"
+  description = "Short name for the Azure region (used for storage account naming; must be <= 6 characters to ensure the final name does not exceed Azure's 24-character limit). See module documentation for details."
   type        = string
   default     = "eus"
 
   validation {
     condition     = length(var.location_short) > 0 && length(var.location_short) <= 6
-    error_message = "Location short name must not be empty and must be 6 characters or less for storage account naming."
+    error_message = "Location short name must not be empty and must be 6 characters or less. This is required to ensure the final storage account name does not exceed Azure's 24-character limit (see: https://docs.microsoft.com/azure/storage/common/storage-account-overview#storage-account-names). The storage account name is constructed as 'st<workload><environment><location_short>001'."
   }
+}
+# Storage Account Security Settings
+variable "storage_public_network_access_enabled" {
+  description = "Whether public network access is enabled for the storage account. Set to false for maximum security. If true, storage account is accessible from the public internet. See module documentation for security implications."
+  type        = bool
+  default     = false
+}
+
+variable "storage_shared_access_key_enabled" {
+  description = "Whether shared access key authentication is enabled for the storage account. Set to false to disable shared key access for improved security. If true, shared key authentication is allowed. See module documentation for security implications."
+  type        = bool
+  default     = true
 }
 
 variable "sku_name" {
