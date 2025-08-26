@@ -8,8 +8,8 @@ on:
         required: true
         type: choice
         options:
+          - app-service-plan-function
           - app-service-web
-          - app-service-function
           - monitoring
           - networking
           - storage-account
