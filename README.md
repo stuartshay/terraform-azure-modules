@@ -18,7 +18,7 @@ A comprehensive collection of enterprise-grade Terraform modules for Azure infra
 
 ## Available Modules
 
-### App Service Module - Function
+### App Service Plan Module - Function
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-plan-function/azurerm/)
 
@@ -57,7 +57,7 @@ module "app-service-plan-function" {
 ```
 
 
-### App Service Module - Web
+### App Service PlanModule - Web
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
 
