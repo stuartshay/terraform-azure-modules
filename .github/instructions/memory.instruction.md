@@ -90,3 +90,8 @@ applyTo: '**'
 - Fixed unused variable warnings in `modules/storage-account/examples/complete-enhanced` by wiring example variables into resources and module inputs (resource group name/location, diagnostic retention, immutability days, SAS TTL, and tags merged via `locals`).
 - Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
 - Verified: `pre-commit run terraform_tflint --all-files` now passes.
+
+## Merge Maintenance (Aug 26, 2025)
+- Merged `origin/master` into `copilot/fix-34`.
+- Resolved conflict in `.github/instructions/memory.instruction.md` by preserving both the master’s "Storage Account Requirements (Issue #34)" section and the current task’s TFLint outcome.
+- Ran full `pre-commit run --all-files`: all hooks passed.
