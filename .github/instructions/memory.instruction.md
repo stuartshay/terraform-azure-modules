@@ -61,3 +61,22 @@ applyTo: '**'
 	- All module outputs are well-documented and follow Terraform conventions
 	- Recommend keeping .env out of version control and using .env.template for sharing config structure
 	- CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, and CKV_AZURE_88 are required and must not be skipped in .checkov.yaml for App Service modules. This compliance documentation should be preserved in future changes.
+
+## Storage Account Requirements (Issue #34 - Aug 2025)
+- Goal: Refine requirements for the `storage-account` module to enforce diagnostics (StorageRead/Write/Delete) for Blob, File, Queue, Table; enable Blob versioning; and integrate SAS token management with Azure Key Vault.
+- Diagnostics: Use `azurerm_monitor_diagnostic_setting` against subresources `blobServices/default`, `fileServices/default`, `queueServices/default`, and `tableServices/default` with categories `StorageRead`, `StorageWrite`, `StorageDelete`; destinations parameterized (Log Analytics workspace ID, Event Hub auth rule ID, archive storage ID) with retention days.
+- Versioning: Enable `blob_properties.versioning_enabled = true`; recommend `change_feed_enabled = true` and soft delete retention for blobs and containers.
+- Immutability: Support optional container-level immutability via `azurerm_storage_container_immutability_policy` for version-level immutability when requested.
+- SAS & Key Vault: Optionally generate SAS via `data.azurerm_storage_account_sas` with configurable services/resource types/permissions/expiry and store in Key Vault as `azurerm_key_vault_secret` when `key_vault_id` provided.
+- References (Microsoft Docs):
+	- Blob logs categories: https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/microsoft-storage-storageaccounts-blobservices-logs
+	- File logs categories: https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/microsoft-storage-storageaccounts-fileservices-logs
+	- Queue logs categories: https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/microsoft-storage-storageaccounts-queueservices-logs
+	- Table logs categories: https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/microsoft-storage-storageaccounts-tableservices-logs
+	- Service monitoring overviews: Blob https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage, Queue https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage, Table https://learn.microsoft.com/azure/storage/tables/monitor-table-storage, Files https://learn.microsoft.com/azure/storage/files/storage-files-monitoring
+	- Classic logging note retained for context: https://learn.microsoft.com/azure/storage/common/manage-storage-analytics-logs
+
+	### Outcome
+	- Updated GitHub Issue #34 with a comprehensive specification: diagnostics categories and destinations, blob versioning + change feed + soft-delete, optional container immutability, and SAS → Key Vault integration with secure defaults.
+	- Added proposed module inputs/outputs and explicit acceptance criteria to guide implementation and testing.
+	- Linked to relevant Microsoft docs for categories and monitoring references to ensure accuracy.

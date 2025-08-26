@@ -6,8 +6,8 @@ registries:
   tfc-private:
     type: terraform-registry
     url: https://app.terraform.io
-    # Create a Dependabot secret named DEPENDABOT_TF_API_TOKEN with a valid HCP Terraform user/team token
-    token: '${{secrets.DEPENDABOT_TF_API_TOKEN}}'
+    # Create a Dependabot secret named TF_API_TOKEN with a valid HCP Terraform user/team token
+    token: '${{secrets.TF_API_TOKEN}}'
 updates:
   # Scan each module subdirectory
   - package-ecosystem: 'terraform'
