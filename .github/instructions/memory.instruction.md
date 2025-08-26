@@ -41,6 +41,13 @@ applyTo: '**'
 - Terraform Cloud auth failure: Observed 401 Unauthorized when fetching private registry module during `terraform init` in modules. Root cause is missing CLI credentials in runner.
 - Fix implemented: In `.github/workflows/terraform.yml`, added `cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}` to setup-terraform step, plus an explicit verification step hitting `https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION` with the token to fail fast if invalid. Also enforced `-input=false` during init.
 - Manual trigger: Added `workflow_dispatch` to the workflow so runs can be started manually from the Actions tab for on-demand validation.
+ - Pre-commit workflow parity: Updated `.github/workflows/pre-commit.yml` to configure HCP Terraform auth with `hashicorp/setup-terraform@v3` using `cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}`, added a verification step using curl against the organizations endpoint, and exported `TF_TOKEN_app_terraform_io` into `$GITHUB_ENV` so hooks like terraform-docs, tflint, and any terraform init during docs generation can access private modules. Avoided using `secrets` in `if:` conditions to satisfy actionlint; used script-level checks instead.
+
+## Dependabot & Private Registry (Aug 2025)
+- Dependabot now configured to access HCP Terraform private registry via `registries`:
+	- Added `tfc-private` with `type: terraform-registry`, `url: https://app.terraform.io`, and `token: ${{secrets.DEPENDABOT_TF_API_TOKEN}}`.
+	- Each Terraform `updates` entry for module directories includes `registries: [tfc-private]` so private modules/providers can be resolved.
+- Required secret: Create repository secret `DEPENDABOT_TF_API_TOKEN` with a valid HCP Terraform user/team token that has access to the private modules used by the modules in this repo (e.g., app-service-function depends on storage-account).
 
 ## Conversation History
 - Investigated VS Code settings for Terraform MCP Server
