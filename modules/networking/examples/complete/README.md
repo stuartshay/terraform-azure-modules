@@ -137,7 +137,7 @@ module "app_service" {
 
 # Use Functions subnet for function apps
 module "function_app" {
-  source = "../../../app-service-function"
+  source = "../../../app-service-plan-function"
   
   subnet_id = module.networking.functions_subnet_id
   # ... other configuration

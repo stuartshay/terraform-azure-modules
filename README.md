@@ -325,7 +325,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web, app-service-function, networking, storage-account, or monitoring)
+- **Module selection** (app-service-web, app-service-plan-function, networking, storage-account, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -341,7 +341,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service-web, app-service-function, or monitoring)
+3. Select module (app-service-web, app-service-plan-function, or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -365,7 +365,7 @@ module "app_service" {
 }
 
 module "function_app" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
   # configuration...
 }
