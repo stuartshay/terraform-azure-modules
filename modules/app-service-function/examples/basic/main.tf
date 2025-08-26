@@ -1,4 +1,4 @@
-# Basic App Service Function Example
+# Basic App Service Plan for Functions Example
 # This example demonstrates the minimal configuration required for the app-service-function module
 
 terraform {
@@ -36,56 +36,25 @@ locals {
   }
 }
 
-# Create a virtual network for the example
-resource "azurerm_virtual_network" "example" {
-  name                = "vnet-${local.workload}-${local.environment}"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  tags = local.common_tags
-}
-
-# Create a subnet for Function App integration
-resource "azurerm_subnet" "functions" {
-  name                 = "subnet-functions"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = ["10.0.1.0/24"]
-
-  # Delegate subnet to App Service
-  delegation {
-    name = "function-delegation"
-    service_delegation {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-}
-
-# Basic function app module configuration
-module "function_app" {
+# Basic App Service Plan for Functions
+module "function_app_service_plan" {
   source = "../../"
 
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
-  location_short      = "eus" # East US short name
   workload            = local.workload
   environment         = local.environment
-  subnet_id           = azurerm_subnet.functions.id
 
   # Use EP1 SKU (default - Elastic Premium for production readiness)
   sku_name = "EP1"
+  os_type  = "Linux"
 
   # This creates:
-  # - Storage Account for Function App state
   # - App Service Plan with EP1 SKU (Elastic Premium)
-  # - Linux Function App with Python 3.13
-  # - VNET integration for network isolation
-  # - Application Insights for monitoring
-  # - HTTPS only enabled
-  # - Always on enabled for EP1
+  # - Linux operating system support
+  # - Elastic scaling capabilities
+  # - Ready for Function App deployment
 
   tags = local.common_tags
 }

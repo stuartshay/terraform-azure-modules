@@ -1,23 +1,30 @@
-# Azure App Service Function Module
+# Azure App Service Plan for Functions Module
 
-This Terraform module creates an Azure Function App with associated resources including Storage Account, App Service Plan, and optional Application Insights. The module is designed for production use with security best practices and VNET integration.
+This Terraform module creates an Azure App Service Plan specifically designed for Function Apps. This is a decoupled module that creates only the App Service Plan, allowing you to manage Function Apps separately for greater flexibility and cost optimization.
 
 ## Features
 
-- **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
-- **VNET Integration**: Function App deployed with VNET integration for network isolation
-- **Security**: HTTPS-only, secure storage account configuration, network isolation
-- **Performance**: Configurable scaling with always-ready instances for Elastic Premium
-- **Monitoring**: Optional Application Insights integration
-- **Storage**: Dedicated storage account with security configurations
-- Linux Function App with Python runtime
-- Configurable app settings
-- Resource tagging support
+- **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed - these are the approved SKUs for production use
+- **Cross-Platform Support**: Supports both Linux and Windows operating systems
+- **Elastic Premium Benefits**: Pre-warmed instances, unlimited execution time, VNET integration support
+- **Cost Optimization**: One App Service Plan can host multiple Function Apps
+- **Flexible Scaling**: Configurable maximum elastic worker count
+- **Resource Tagging**: Full support for Azure resource tags
 
-#### Quick Start
+## ⚠️ Important: Approved SKUs Only
+
+**This module is restricted to EP1, EP2, and EP3 (Elastic Premium) SKUs only.** These are the approved SKUs for production Function App workloads and provide:
+
+- No cold start delays
+- Predictable performance
+- VNET integration capabilities
+- Unlimited execution time
+- Pre-warmed instances
+
+## Quick Start
 
 ```hcl
-module "app-service-function" {
+module "function_app_service_plan" {
   source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
   version = "1.0.0"
 
@@ -27,8 +34,9 @@ module "app-service-function" {
   workload           = "myapp"
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
-  # SKU must be EP1, EP2, or EP3
+  # Only EP1, EP2, or EP3 are allowed
   sku_name = "EP1"
+  os_type  = "Linux"  # or "Windows"
 
   tags = {
     Environment = "dev"
@@ -39,10 +47,10 @@ module "app-service-function" {
 
 ## Usage
 
-### Basic Example
+### Basic Linux Example
 
 ```hcl
-module "app-service-function" {
+module "function_app_service_plan" {
   source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
   version = "1.0.0"
 
@@ -53,8 +61,9 @@ module "app-service-function" {
   environment        = "dev"
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
-  # SKU must be EP1, EP2, or EP3
+  # Configuration
   sku_name = "EP1"
+  os_type  = "Linux"
 
   tags = {
     Environment = "dev"
@@ -63,10 +72,10 @@ module "app-service-function" {
 }
 ```
 
-### Complete Example with All Options
+### Windows Example with Scaling Configuration
 
 ```hcl
-module "app-service-function" {
+module "function_app_service_plan" {
   source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
   version = "1.0.0"
 
@@ -77,24 +86,12 @@ module "app-service-function" {
   environment        = "prod"
   subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
-  # Performance configuration
-  sku_name                     = "EP2"
-  python_version               = "3.11"
-  always_ready_instances       = 2
+  # Configuration
+  sku_name = "EP2"
+  os_type  = "Windows"
+  
+  # Scaling configuration
   maximum_elastic_worker_count = 10
-
-  # Monitoring
-  enable_application_insights = true
-
-  # Custom app settings
-  function_app_settings = {
-    "ENVIRONMENT"                 = "prod"
-    "FUNCTIONS_EXTENSION_VERSION" = "~4"
-    "WEBSITE_RUN_FROM_PACKAGE"    = "1"
-    "DATABASE_URL"                = "your-database-connection-string"
-    "API_BASE_URL"                = "https://api.example.com"
-    "LOG_LEVEL"                   = "INFO"
-  }
 
   tags = {
     Environment = "prod"
@@ -104,11 +101,65 @@ module "app-service-function" {
 }
 ```
 
+### Using the App Service Plan with Function Apps
+
+After creating the App Service Plan, you can create Function Apps that use it:
+
+```hcl
+# Create the App Service Plan
+module "function_app_service_plan" {
+  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  workload           = "myapp"
+  environment        = "dev"
+  sku_name           = "EP1"
+  os_type            = "Linux"
+
+  tags = local.common_tags
+}
+
+# Create Function Apps using the plan
+resource "azurerm_linux_function_app" "api" {
+  name                = "func-myapp-api-dev-001"
+  resource_group_name = "rg-example"
+  location            = "East US"
+  service_plan_id     = module.function_app_service_plan.app_service_plan_id
+
+  storage_account_name       = azurerm_storage_account.functions.name
+  storage_account_access_key = azurerm_storage_account.functions.primary_access_key
+
+  site_config {
+    application_stack {
+      python_version = "3.11"
+    }
+  }
+
+  tags = local.common_tags
+}
+
+resource "azurerm_linux_function_app" "worker" {
+  name                = "func-myapp-worker-dev-001"
+  resource_group_name = "rg-example"
+  location            = "East US"
+  service_plan_id     = module.function_app_service_plan.app_service_plan_id
+
+  storage_account_name       = azurerm_storage_account.functions.name
+  storage_account_access_key = azurerm_storage_account.functions.primary_access_key
+
+  site_config {
+    application_stack {
+      python_version = "3.11"
+    }
+  }
+
+  tags = local.common_tags
+}
+```
+
 ## Requirements
-
-
-> **Note:**
-> The `location_short` variable is used in the storage account name, which must not exceed 24 characters. The value of `location_short` must be 6 characters or less to ensure compliance with Azure's [storage account naming rules](https://docs.microsoft.com/azure/storage/common/storage-account-overview#storage-account-names). The storage account name is constructed as `st<workload><environment><location_short>001`. See the variable validation for details.
 
 | Name | Version |
 |------|---------|
@@ -125,11 +176,7 @@ module "app-service-function" {
 
 | Name | Type |
 |------|------|
-| [azurerm_storage_account.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [azurerm_service_plan.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
-| [azurerm_linux_function_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
-| [azurerm_app_service_virtual_network_swift_connection.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_virtual_network_swift_connection) | resource |
-| [azurerm_application_insights.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
 
 ## Inputs
 
@@ -139,12 +186,9 @@ module "app-service-function" {
 | environment | The environment name | `string` | n/a | yes |
 | resource_group_name | The name of the resource group | `string` | n/a | yes |
 | location | The Azure region | `string` | n/a | yes |
-| subnet_id | The subnet ID for VNET integration | `string` | n/a | yes |
+| subnet_id | The subnet ID for VNET integration (required for App Service Plan) | `string` | n/a | yes |
+| os_type | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
 | sku_name | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
-| python_version | The Python version | `string` | `"3.13"` | no |
-| function_app_settings | Additional app settings for the Function App | `map(string)` | `{}` | no |
-| enable_application_insights | Enable Application Insights for the Function App | `bool` | `true` | no |
-| always_ready_instances | Number of always ready instances for Elastic Premium SKUs | `number` | `1` | no |
 | maximum_elastic_worker_count | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
 | tags | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 
@@ -152,96 +196,73 @@ module "app-service-function" {
 
 | Name | Description |
 |------|-------------|
-| function_app_id | The ID of the Function App |
-| function_app_name | The name of the Function App |
-| function_app_default_hostname | The default hostname of the Function App |
 | app_service_plan_id | The ID of the App Service Plan |
-| storage_account_name | The name of the Functions storage account |
-| storage_account_id | The ID of the Functions storage account |
-| application_insights_connection_string | Application Insights connection string |
-| application_insights_instrumentation_key | Application Insights instrumentation key |
-| application_insights_id | The ID of Application Insights |
+| app_service_plan_name | The name of the App Service Plan |
+| app_service_plan_kind | The kind of App Service Plan |
+| app_service_plan_sku | The SKU of the App Service Plan |
+| app_service_plan_os_type | The operating system type of the App Service Plan |
 
 ## Examples
 
-- [Basic](examples/basic/) - Minimal configuration for getting started
-- [Complete](examples/complete/) - Full configuration with all features enabled
+- [Basic](examples/basic/) - Minimal configuration for Linux App Service Plan
+- [Complete](examples/complete/) - Full configuration with Windows and scaling options
 
-## SKU Options
+## SKU Options (Approved Only)
 
 This module restricts SKU options to Elastic Premium tiers only to ensure consistent performance and security:
 
-### EP1 (Elastic Premium - Small)
-- **Use Case**: Production workloads, development with production-like performance
+### EP1 (Elastic Premium - Small) ⭐ Recommended for Development
+- **Use Case**: Development, testing, small production workloads
 - **vCPU**: 1 vCPU
 - **Memory**: 3.5 GB RAM  
-- **Billing**: Pre-warmed instances + additional scaling
-- **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNET integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration support, unlimited execution time
 
-### EP2 (Elastic Premium - Medium)
-- **Use Case**: Production workloads with higher compute requirements
+### EP2 (Elastic Premium - Medium) ⭐ Recommended for Production
+- **Use Case**: Production workloads with moderate compute requirements
 - **vCPU**: 2 vCPU
 - **Memory**: 7 GB RAM
-- **Billing**: Pre-warmed instances + additional scaling
-- **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNET integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration support, unlimited execution time
 
 ### EP3 (Elastic Premium - Large)
 - **Use Case**: Production workloads with intensive compute requirements
 - **vCPU**: 4 vCPU
 - **Memory**: 14 GB RAM
-- **Billing**: Pre-warmed instances + additional scaling
-- **Scaling**: Configurable pre-warmed instances with elastic scaling
-- **Benefits**: No cold start, VNET integration, unlimited execution time
+- **Benefits**: No cold start, VNET integration support, unlimited execution time
 
-## Security Features
+## Operating System Support
 
-- **HTTPS Only**: All traffic forced to HTTPS
-- **VNET Integration**: Required for network isolation
-- **Storage Security**: Minimum TLS 1.2, disabled public blob access
-- **Network Access**: Public network access disabled (VNET only)
-- **SAS Policy**: 1-day expiration for storage access
+### Linux (Default)
+- Supports Python, Node.js, .NET, Java, PowerShell runtimes
+- Generally lower cost
+- Better performance for containerized workloads
 
-## Monitoring
-
-When `enable_application_insights` is true (default), the module creates:
-- Application Insights workspace
-- Automatic connection to Function App
-- Performance and availability monitoring
-- Custom telemetry support
+### Windows
+- Supports .NET Framework, PowerShell, Node.js, Python runtimes
+- Required for .NET Framework applications
+- Better integration with Windows-specific services
 
 ## Naming Conventions
 
-Resources are named using the pattern: `{resource-type}-{workload}-{component}-{environment}-001`
+The App Service Plan is named using the pattern: `asp-{workload}-functions-{environment}-001`
 
-Examples:
-- Storage Account: `stfuncmyappdev001`
-- App Service Plan: `asp-myapp-functions-dev-001`
-- Function App: `func-myapp-dev-001`
-- Application Insights: `appi-myapp-functions-dev-001`
+Example: `asp-myapp-functions-dev-001`
 
-## Network Requirements
+## Benefits of This Decoupled Approach
 
-The Function App requires a dedicated subnet with delegation to `Microsoft.Web/serverFarms`. The subnet should have sufficient IP addresses for scaling requirements.
+1. **Cost Optimization**: Multiple Function Apps can share the same App Service Plan
+2. **Separation of Concerns**: Plan management is separate from Function App management
+3. **Flexibility**: Different Function Apps can have different configurations while sharing compute resources
+4. **Easier Scaling**: Scale the plan independently of individual Function Apps
+5. **Resource Management**: Better control over compute resources and costs
 
-Example subnet configuration:
-```hcl
-resource "azurerm_subnet" "functions" {
-  name                 = "subnet-functions"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = ["10.0.1.0/24"]
+## Migration from Previous Version
 
-  delegation {
-    name = "function-delegation"
-    service_delegation {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-}
-```
+If you were using the previous version that created Function Apps directly, you'll need to:
+
+1. Create storage accounts separately for your Function Apps
+2. Create Application Insights separately if needed
+3. Handle VNET integration at the Function App level
+4. Update your Terraform configurations to use this plan with separate Function App resources
 
 ## Contributing
 
@@ -271,41 +292,24 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_functions_storage"></a> [functions\_storage](#module\_functions\_storage) | app.terraform.io/azure-policy-cloud/storage-account/azurerm | 1.1.22 |
+No modules.
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [azurerm_app_service_virtual_network_swift_connection.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service_virtual_network_swift_connection) | resource |
-| [azurerm_application_insights.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
-| [azurerm_linux_function_app.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
 | [azurerm_service_plan.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_always_ready_instances"></a> [always\_ready\_instances](#input\_always\_ready\_instances) | Number of always ready instances for Elastic Premium SKUs | `number` | `1` | no |
-| <a name="input_enable_application_insights"></a> [enable\_application\_insights](#input\_enable\_application\_insights) | Enable Application Insights for the Function App | `bool` | `true` | no |
-| <a name="input_enable_storage_change_feed"></a> [enable\_storage\_change\_feed](#input\_enable\_storage\_change\_feed) | Enable change feed for the Function App storage account | `bool` | `false` | no |
-| <a name="input_enable_storage_versioning"></a> [enable\_storage\_versioning](#input\_enable\_storage\_versioning) | Enable blob versioning for the Function App storage account | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | n/a | yes |
-| <a name="input_function_app_settings"></a> [function\_app\_settings](#input\_function\_app\_settings) | Additional app settings for the Function App | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
-| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the Azure region (used for storage account naming; must be <= 6 characters to ensure the final name does not exceed Azure's 24-character limit). See module documentation for details. | `string` | `"eus"` | no |
 | <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
-| <a name="input_python_version"></a> [python\_version](#input\_python\_version) | The Python version | `string` | `"3.13"` | no |
+| <a name="input_os_type"></a> [os\_type](#input\_os\_type) | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
-| <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The storage account replication type for the Function App storage | `string` | `"LRS"` | no |
-| <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The storage account tier for the Function App storage | `string` | `"Standard"` | no |
-| <a name="input_storage_delete_retention_days"></a> [storage\_delete\_retention\_days](#input\_storage\_delete\_retention\_days) | Number of days to retain deleted blobs | `number` | `7` | no |
-| <a name="input_storage_public_network_access_enabled"></a> [storage\_public\_network\_access\_enabled](#input\_storage\_public\_network\_access\_enabled) | Whether public network access is enabled for the storage account. Set to false for maximum security. If true, storage account is accessible from the public internet. See module documentation for security implications. | `bool` | `false` | no |
-| <a name="input_storage_shared_access_key_enabled"></a> [storage\_shared\_access\_key\_enabled](#input\_storage\_shared\_access\_key\_enabled) | Whether shared access key authentication is enabled for the storage account. Set to false to disable shared key access for improved security. If true, shared key authentication is allowed. See module documentation for security implications. | `bool` | `true` | no |
-| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
 
@@ -314,15 +318,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 | Name | Description |
 |------|-------------|
 | <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
-| <a name="output_application_insights_connection_string"></a> [application\_insights\_connection\_string](#output\_application\_insights\_connection\_string) | Application Insights connection string |
-| <a name="output_application_insights_id"></a> [application\_insights\_id](#output\_application\_insights\_id) | The ID of Application Insights |
-| <a name="output_application_insights_instrumentation_key"></a> [application\_insights\_instrumentation\_key](#output\_application\_insights\_instrumentation\_key) | Application Insights instrumentation key |
-| <a name="output_function_app_default_hostname"></a> [function\_app\_default\_hostname](#output\_function\_app\_default\_hostname) | The default hostname of the Function App |
-| <a name="output_function_app_id"></a> [function\_app\_id](#output\_function\_app\_id) | The ID of the Function App |
-| <a name="output_function_app_name"></a> [function\_app\_name](#output\_function\_app\_name) | The name of the Function App |
-| <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | The ID of the Functions storage account |
-| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the Functions storage account |
-| <a name="output_storage_account_primary_access_key"></a> [storage\_account\_primary\_access\_key](#output\_storage\_account\_primary\_access\_key) | The primary access key for the Functions storage account |
-| <a name="output_storage_account_primary_blob_endpoint"></a> [storage\_account\_primary\_blob\_endpoint](#output\_storage\_account\_primary\_blob\_endpoint) | The primary blob endpoint for the Functions storage account |
-| <a name="output_storage_account_primary_connection_string"></a> [storage\_account\_primary\_connection\_string](#output\_storage\_account\_primary\_connection\_string) | The primary connection string for the Functions storage account |
+| <a name="output_app_service_plan_kind"></a> [app\_service\_plan\_kind](#output\_app\_service\_plan\_kind) | The kind of App Service Plan |
+| <a name="output_app_service_plan_name"></a> [app\_service\_plan\_name](#output\_app\_service\_plan\_name) | The name of the App Service Plan |
+| <a name="output_app_service_plan_os_type"></a> [app\_service\_plan\_os\_type](#output\_app\_service\_plan\_os\_type) | The operating system type of the App Service Plan |
+| <a name="output_app_service_plan_sku"></a> [app\_service\_plan\_sku](#output\_app\_service\_plan\_sku) | The SKU of the App Service Plan |
 <!-- END_TF_DOCS -->

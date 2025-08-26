@@ -1,54 +1,30 @@
-output "function_app_name" {
-  description = "The name of the Function App"
-  value       = module.function_app.function_app_name
+output "app_service_plan_id" {
+  description = "The ID of the App Service Plan"
+  value       = module.function_app_service_plan.app_service_plan_id
 }
 
-output "function_app_id" {
-  description = "The ID of the Function App"
-  value       = module.function_app.function_app_id
+output "app_service_plan_name" {
+  description = "The name of the App Service Plan"
+  value       = module.function_app_service_plan.app_service_plan_name
 }
 
-output "function_app_default_hostname" {
-  description = "The default hostname of the Function App"
-  value       = module.function_app.function_app_default_hostname
+output "app_service_plan_sku" {
+  description = "The SKU of the App Service Plan"
+  value       = module.function_app_service_plan.app_service_plan_sku
+}
+
+output "app_service_plan_os_type" {
+  description = "The operating system type of the App Service Plan"
+  value       = module.function_app_service_plan.app_service_plan_os_type
 }
 
 output "storage_account_name" {
-  description = "The name of the Functions storage account"
-  value       = module.function_app.storage_account_name
+  description = "The name of the storage account"
+  value       = azurerm_storage_account.functions.name
 }
 
-output "storage_account_id" {
-  description = "The ID of the Functions storage account"
-  value       = module.function_app.storage_account_id
-}
-
-output "storage_account_primary_blob_endpoint" {
-  description = "The primary blob endpoint for the Functions storage account"
-  value       = module.function_app.storage_account_primary_blob_endpoint
-}
-
-output "app_service_plan_id" {
-  description = "The ID of the App Service Plan"
-  value       = module.function_app.app_service_plan_id
-}
-
-output "application_insights_id" {
-  description = "The ID of Application Insights"
-  value       = module.function_app.application_insights_id
-}
-
-output "resource_group_name" {
-  description = "The name of the resource group"
-  value       = azurerm_resource_group.example.name
-}
-
-output "virtual_network_id" {
-  description = "The ID of the virtual network"
-  value       = azurerm_virtual_network.example.id
-}
-
-output "subnet_id" {
-  description = "The ID of the functions subnet"
-  value       = azurerm_subnet.functions.id
+output "application_insights_connection_string" {
+  description = "Application Insights connection string"
+  value       = azurerm_application_insights.functions.connection_string
+  sensitive   = true
 }
