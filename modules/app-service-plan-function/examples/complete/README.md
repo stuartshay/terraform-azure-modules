@@ -1,6 +1,6 @@
 # Complete App Service Function Example
 
-This example demonstrates all available configuration options for the `app-service-function` module, showcasing advanced features and production-ready configurations. The Function App itself is intentionally NOT created here and should be deployed separately using the plan produced by this example.
+This example demonstrates all available configuration options for the `app-service-plan-function` module, showcasing advanced features and production-ready configurations. The Function App itself is intentionally NOT created here and should be deployed separately using the plan produced by this example.
 
 ## What This Example Creates
 
@@ -185,6 +185,8 @@ resource "azurerm_app_service_virtual_network_swift_connection" "example" {
 | [azurerm_application_insights.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
 | [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [azurerm_storage_account.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
+| [azurerm_subnet.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource |
+| [azurerm_virtual_network.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource |
 
 ## Inputs
 

@@ -25,7 +25,7 @@ This Terraform module creates an Azure App Service Plan specifically designed fo
 
 ```hcl
 module "function_app_service_plan" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
@@ -51,7 +51,7 @@ module "function_app_service_plan" {
 
 ```hcl
 module "function_app_service_plan" {
-  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   # Required variables
@@ -76,7 +76,7 @@ module "function_app_service_plan" {
 
 ```hcl
 module "function_app_service_plan" {
-  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   # Required variables
@@ -108,7 +108,7 @@ After creating the App Service Plan, you can create Function Apps that use it:
 ```hcl
 # Create the App Service Plan
 module "function_app_service_plan" {
-  source = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
@@ -310,6 +310,7 @@ No modules.
 | <a name="input_os_type"></a> [os\_type](#input\_os\_type) | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration (required for App Service Plan) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
 

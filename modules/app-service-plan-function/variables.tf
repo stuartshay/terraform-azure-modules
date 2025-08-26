@@ -40,6 +40,10 @@ variable "sku_name" {
   }
 }
 
+variable "subnet_id" {
+  description = "The subnet ID for VNET integration (required for App Service Plan)"
+  type        = string
+}
 
 variable "maximum_elastic_worker_count" {
   description = "Maximum number of elastic workers for Elastic Premium SKUs"

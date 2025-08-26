@@ -1,6 +1,6 @@
 # Basic App Service Function Example
 
-This example demonstrates the minimal configuration required to deploy an Azure Function App using the `app-service-function` module.
+This example demonstrates the minimal configuration required to deploy an Azure App Service Plan for Functions using the `app-service-plan-function` module.
 
 ## What This Example Creates
 
@@ -87,6 +87,8 @@ For more advanced configurations, see the [complete example](../complete/).
 | Name | Type |
 |------|------|
 | [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_subnet.functions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource |
+| [azurerm_virtual_network.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource |
 
 ## Inputs
 
