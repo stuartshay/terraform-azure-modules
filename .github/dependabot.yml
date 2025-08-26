@@ -26,7 +26,7 @@ updates:
     assignees:
       - 'stuartshay'
 
-# Trigger: touch config to enqueue Dependabot re-run (2025-08-26)
+  # Trigger: touch config to enqueue Dependabot re-run (2025-08-26)
 
   - package-ecosystem: 'terraform'
     directory: '/modules/app-service-web'
