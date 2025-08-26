@@ -440,24 +440,107 @@ network_rules_subnet_ids     = [
 
 ### Data Protection
 
-- **Blob Versioning**: Track changes to blob data
-- **Soft Delete**: Recover accidentally deleted blobs and containers
-- **Change Feed**: Audit trail of all changes
-- **Immutability Policies**: WORM (Write Once, Read Many) compliance
+The module provides comprehensive data protection capabilities with enhanced defaults:
+
+#### Blob Versioning and Change Feed
+```hcl
+# Enhanced blob protection (new defaults)
+enable_blob_properties          = true
+enable_blob_versioning          = true   # Now defaults to true
+enable_change_feed              = true   # Now defaults to true
+change_feed_retention_days      = 30
+blob_delete_retention_days      = 14     # Updated default from 7 days
+container_delete_retention_days = 7
+```
+
+#### Container Immutability Policies
+For compliance and regulatory requirements, you can enable immutability policies on specific containers:
+
+```hcl
+# Container immutability for compliance
+enable_container_immutability = true
+container_immutability_days   = 30
+immutable_containers          = ["audit", "compliance", "legal-hold"]
+```
+
+This creates Write-Once-Read-Many (WORM) protection for specified containers, preventing modification or deletion for the configured period.
+
+#### SAS Token and Key Vault Integration
+Securely generate and store SAS tokens in Azure Key Vault:
+
+```hcl
+# SAS token integration
+enable_sas_secret      = true
+key_vault_id           = azurerm_key_vault.example.id
+key_vault_secret_name  = "storage-sas-token"
+sas_services           = "bqtf"    # blob, queue, table, file
+sas_resource_types     = "sco"     # service, container, object
+sas_permissions        = "rwdl"    # read, write, delete, list
+sas_ttl_hours          = 24
+sas_https_only         = true
+sas_ip_addresses       = "203.0.113.0/24"  # Optional IP restriction
+```
+
+**Security Features:**
+- SAS tokens are never exposed in Terraform outputs or logs
+- Tokens are stored securely in Azure Key Vault with appropriate content type
+- Configurable TTL and IP restrictions
+- HTTPS-only enforcement available
+- Principle of least privilege permissions
+
+Key features:
+- **Blob Versioning**: Track changes to blob data (now enabled by default)
+- **Soft Delete**: Recover accidentally deleted blobs (14-day default) and containers (7-day default)
+- **Change Feed**: Audit trail of all changes (now enabled by default)
+- **Immutability Policies**: WORM (Write Once, Read Many) compliance for specified containers
+- **SAS Token Management**: Secure generation and Key Vault storage with configurable permissions and restrictions
 
 ## Monitoring and Diagnostics
 
-### Diagnostic Settings
+### Enhanced Diagnostic Settings
 
+The module now provides comprehensive diagnostic logging for all storage services with individual control and retention policies:
 
 ```hcl
+# New enhanced diagnostics (recommended)
+enable_diagnostics              = true
+log_analytics_workspace_id      = "/subscriptions/.../workspaces/law-example"
+diagnostics_retention_days      = 30
+```
+
+```hcl
+# Legacy diagnostic settings (for backwards compatibility)
 enable_diagnostic_settings = true
 log_analytics_workspace_id = "/subscriptions/.../workspaces/law-example"
 diagnostic_metrics        = ["Transaction", "Capacity"]
 ```
 
-> **Logging Requirements:**
-> Logging for Blob, Table, and Queue services is always enabled for the following categories: `StorageRead`, `StorageWrite`, and `StorageDelete`. These log categories are enforced by the module and cannot be disabled or changed. This ensures that all read, write, and delete actions for Blob, Table, and Queue are always logged for compliance and audit purposes.
+### Per-Service Diagnostic Settings
+
+The enhanced diagnostic settings create separate monitors for each storage service:
+- **Blob Service**: `/blobServices/default` - Monitors blob operations
+- **File Service**: `/fileServices/default` - Monitors file share operations  
+- **Queue Service**: `/queueServices/default` - Monitors queue operations
+- **Table Service**: `/tableServices/default` - Monitors table operations
+
+Each service captures:
+- `StorageRead`: All read operations
+- `StorageWrite`: All write operations  
+- `StorageDelete`: All delete operations
+
+### Retention and Destinations
+
+Diagnostic logs support multiple destinations:
+- **Log Analytics Workspace**: For querying and alerting
+- **Storage Account**: For long-term archival
+- **Event Hub**: For real-time streaming
+
+Retention policies:
+- Configurable retention period (1-365 days)
+- Disabled retention (infinite retention) when set to 0
+
+> **Enhanced Logging:**
+> The new enhanced diagnostics (`enable_diagnostics = true`) creates dedicated diagnostic settings for each storage service subresource. This provides better organization, individual retention control, and improved monitoring capabilities compared to the legacy account-level diagnostics.
 
 ### Available Log Categories
 
@@ -502,7 +585,8 @@ Balance cost and availability:
 See the `examples/` directory for:
 
 - **Basic**: Minimal configuration for getting started
-- **Complete**: Full configuration with all features enabled
+- **Complete**: Full configuration with all features enabled  
+- **Complete-Enhanced**: Demonstrates all new features including per-service diagnostics, blob versioning, container immutability, and SAS token integration with Key Vault
 
 ## Integration with Other Modules
 
@@ -563,14 +647,21 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [azurerm_key_vault_secret.sas_token](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
+| [azurerm_monitor_diagnostic_setting.blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
+| [azurerm_monitor_diagnostic_setting.file](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_monitor_diagnostic_setting.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
+| [azurerm_monitor_diagnostic_setting.queue](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
+| [azurerm_monitor_diagnostic_setting.table](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_private_endpoint.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [azurerm_storage_account.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
+| [azurerm_storage_container_immutability_policy.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container_immutability_policy) | resource |
 | [azurerm_storage_management_policy.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_management_policy) | resource |
 | [azurerm_storage_queue.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_queue) | resource |
 | [azurerm_storage_share.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_share) | resource |
 | [azurerm_storage_table.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_table) | resource |
+| [azurerm_storage_account_sas.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account_sas) | data source |
 
 ## Inputs
 
@@ -588,22 +679,26 @@ No modules.
 | <a name="input_azure_files_ad_netbios_domain_name"></a> [azure\_files\_ad\_netbios\_domain\_name](#input\_azure\_files\_ad\_netbios\_domain\_name) | NetBIOS domain name for Active Directory authentication | `string` | `null` | no |
 | <a name="input_azure_files_ad_storage_sid"></a> [azure\_files\_ad\_storage\_sid](#input\_azure\_files\_ad\_storage\_sid) | Storage SID for Active Directory authentication | `string` | `null` | no |
 | <a name="input_azure_files_authentication_directory_type"></a> [azure\_files\_authentication\_directory\_type](#input\_azure\_files\_authentication\_directory\_type) | Directory type for Azure Files authentication | `string` | `"AADDS"` | no |
-| <a name="input_blob_containers"></a> [blob\_containers](#input\_blob\_containers) | Map of blob containers to create. All containers are always private (CKV\_AZURE\_34 enforced). The 'access\_type' field is not used and any value is ignored; containers are always created with private access only. | <pre>map(object({<br/>    metadata = optional(map(string), null)<br/>  }))</pre> | `{}` | no |
-| <a name="input_blob_delete_retention_days"></a> [blob\_delete\_retention\_days](#input\_blob\_delete\_retention\_days) | Blob delete retention in days (0 to disable) | `number` | `7` | no |
+| <a name="input_blob_containers"></a> [blob\_containers](#input\_blob\_containers) | Map of blob containers to create. All containers are always private (CKV\_AZURE\_34 enforced). The 'access\_type' field is not used and any value is ignored; containers are always created with private access only. | <pre>map(object({<br>    metadata = optional(map(string), null)<br>  }))</pre> | `{}` | no |
+| <a name="input_blob_delete_retention_days"></a> [blob\_delete\_retention\_days](#input\_blob\_delete\_retention\_days) | Blob delete retention in days (0 to disable) | `number` | `14` | no |
 | <a name="input_change_feed_retention_days"></a> [change\_feed\_retention\_days](#input\_change\_feed\_retention\_days) | Change feed retention in days | `number` | `7` | no |
 | <a name="input_container_delete_retention_days"></a> [container\_delete\_retention\_days](#input\_container\_delete\_retention\_days) | Container delete retention in days (0 to disable) | `number` | `7` | no |
-| <a name="input_cors_rules"></a> [cors\_rules](#input\_cors\_rules) | CORS rules for blob service | <pre>list(object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  }))</pre> | `[]` | no |
+| <a name="input_container_immutability_days"></a> [container\_immutability\_days](#input\_container\_immutability\_days) | Immutability period in days for container policies | `number` | `30` | no |
+| <a name="input_cors_rules"></a> [cors\_rules](#input\_cors\_rules) | CORS rules for blob service | <pre>list(object({<br>    allowed_headers    = list(string)<br>    allowed_methods    = list(string)<br>    allowed_origins    = list(string)<br>    exposed_headers    = list(string)<br>    max_age_in_seconds = number<br>  }))</pre> | `[]` | no |
 | <a name="input_customer_managed_key_user_assigned_identity_id"></a> [customer\_managed\_key\_user\_assigned\_identity\_id](#input\_customer\_managed\_key\_user\_assigned\_identity\_id) | User assigned identity ID for customer managed key | `string` | `null` | no |
 | <a name="input_customer_managed_key_vault_key_id"></a> [customer\_managed\_key\_vault\_key\_id](#input\_customer\_managed\_key\_vault\_key\_id) | Key Vault key ID for customer managed key | `string` | `null` | no |
-| <a name="input_diagnostic_metrics"></a> [diagnostic\_metrics](#input\_diagnostic\_metrics) | List of diagnostic metric categories to enable | `list(string)` | <pre>[<br/>  "Transaction"<br/>]</pre> | no |
+| <a name="input_diagnostic_metrics"></a> [diagnostic\_metrics](#input\_diagnostic\_metrics) | List of diagnostic metric categories to enable | `list(string)` | <pre>[<br>  "Transaction"<br>]</pre> | no |
 | <a name="input_diagnostic_storage_account_id"></a> [diagnostic\_storage\_account\_id](#input\_diagnostic\_storage\_account\_id) | Storage account ID for diagnostic settings | `string` | `null` | no |
+| <a name="input_diagnostics_retention_days"></a> [diagnostics\_retention\_days](#input\_diagnostics\_retention\_days) | Retention days for diagnostic logs | `number` | `30` | no |
 | <a name="input_enable_azure_files_authentication"></a> [enable\_azure\_files\_authentication](#input\_enable\_azure\_files\_authentication) | Enable Azure Files authentication | `bool` | `false` | no |
 | <a name="input_enable_blob_properties"></a> [enable\_blob\_properties](#input\_enable\_blob\_properties) | Enable blob properties configuration | `bool` | `true` | no |
-| <a name="input_enable_blob_versioning"></a> [enable\_blob\_versioning](#input\_enable\_blob\_versioning) | Enable blob versioning | `bool` | `false` | no |
-| <a name="input_enable_change_feed"></a> [enable\_change\_feed](#input\_enable\_change\_feed) | Enable change feed | `bool` | `false` | no |
+| <a name="input_enable_blob_versioning"></a> [enable\_blob\_versioning](#input\_enable\_blob\_versioning) | Enable blob versioning | `bool` | `true` | no |
+| <a name="input_enable_change_feed"></a> [enable\_change\_feed](#input\_enable\_change\_feed) | Enable change feed | `bool` | `true` | no |
+| <a name="input_enable_container_immutability"></a> [enable\_container\_immutability](#input\_enable\_container\_immutability) | Enable container immutability policies | `bool` | `false` | no |
 | <a name="input_enable_cross_tenant_replication"></a> [enable\_cross\_tenant\_replication](#input\_enable\_cross\_tenant\_replication) | Enable cross-tenant replication | `bool` | `false` | no |
 | <a name="input_enable_data_lake_gen2"></a> [enable\_data\_lake\_gen2](#input\_enable\_data\_lake\_gen2) | Enable Data Lake Gen2 (Hierarchical Namespace) | `bool` | `false` | no |
-| <a name="input_enable_diagnostic_settings"></a> [enable\_diagnostic\_settings](#input\_enable\_diagnostic\_settings) | Enable diagnostic settings | `bool` | `false` | no |
+| <a name="input_enable_diagnostic_settings"></a> [enable\_diagnostic\_settings](#input\_enable\_diagnostic\_settings) | Enable diagnostic settings (legacy - use enable\_diagnostics) | `bool` | `false` | no |
+| <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics) | Enable Azure Monitor diagnostic logs for all storage services | `bool` | `true` | no |
 | <a name="input_enable_https_traffic_only"></a> [enable\_https\_traffic\_only](#input\_enable\_https\_traffic\_only) | Enable HTTPS traffic only | `bool` | `true` | no |
 | <a name="input_enable_immutability_policy"></a> [enable\_immutability\_policy](#input\_enable\_immutability\_policy) | Enable immutability policy | `bool` | `false` | no |
 | <a name="input_enable_infrastructure_encryption"></a> [enable\_infrastructure\_encryption](#input\_enable\_infrastructure\_encryption) | Enable infrastructure encryption | `bool` | `false` | no |
@@ -617,31 +712,35 @@ No modules.
 | <a name="input_enable_queue_minute_metrics"></a> [enable\_queue\_minute\_metrics](#input\_enable\_queue\_minute\_metrics) | Enable queue minute metrics | `bool` | `false` | no |
 | <a name="input_enable_queue_properties"></a> [enable\_queue\_properties](#input\_enable\_queue\_properties) | Enable queue properties configuration | `bool` | `false` | no |
 | <a name="input_enable_routing_preference"></a> [enable\_routing\_preference](#input\_enable\_routing\_preference) | Enable routing preference | `bool` | `false` | no |
+| <a name="input_enable_sas_secret"></a> [enable\_sas\_secret](#input\_enable\_sas\_secret) | Enable SAS token generation and storage in Key Vault | `bool` | `false` | no |
 | <a name="input_enable_share_properties"></a> [enable\_share\_properties](#input\_enable\_share\_properties) | Enable share properties configuration | `bool` | `false` | no |
 | <a name="input_enable_smb_settings"></a> [enable\_smb\_settings](#input\_enable\_smb\_settings) | Enable SMB settings configuration | `bool` | `false` | no |
 | <a name="input_enable_static_website"></a> [enable\_static\_website](#input\_enable\_static\_website) | Enable static website hosting | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (dev, staging, prod) | `string` | n/a | yes |
 | <a name="input_eventhub_authorization_rule_id"></a> [eventhub\_authorization\_rule\_id](#input\_eventhub\_authorization\_rule\_id) | Event Hub authorization rule ID for diagnostic settings | `string` | `null` | no |
 | <a name="input_eventhub_name"></a> [eventhub\_name](#input\_eventhub\_name) | Event Hub name for diagnostic settings | `string` | `null` | no |
-| <a name="input_file_shares"></a> [file\_shares](#input\_file\_shares) | Map of file shares to create | <pre>map(object({<br/>    quota_gb         = number<br/>    enabled_protocol = optional(string, "SMB")<br/>    access_tier      = optional(string, "TransactionOptimized")<br/>    metadata         = optional(map(string), null)<br/>    acl = optional(list(object({<br/>      id = string<br/>      access_policy = optional(object({<br/>        permissions = string<br/>        start       = string<br/>        expiry      = string<br/>      }), null)<br/>    })), null)<br/>  }))</pre> | `{}` | no |
+| <a name="input_file_shares"></a> [file\_shares](#input\_file\_shares) | Map of file shares to create | <pre>map(object({<br>    quota_gb         = number<br>    enabled_protocol = optional(string, "SMB")<br>    access_tier      = optional(string, "TransactionOptimized")<br>    metadata         = optional(map(string), null)<br>    acl = optional(list(object({<br>      id = string<br>      access_policy = optional(object({<br>        permissions = string<br>        start       = string<br>        expiry      = string<br>      }), null)<br>    })), null)<br>  }))</pre> | `{}` | no |
 | <a name="input_identity_ids"></a> [identity\_ids](#input\_identity\_ids) | List of user assigned identity IDs | `list(string)` | `[]` | no |
 | <a name="input_identity_type"></a> [identity\_type](#input\_identity\_type) | Type of managed identity | `string` | `null` | no |
 | <a name="input_immutability_allow_protected_append_writes"></a> [immutability\_allow\_protected\_append\_writes](#input\_immutability\_allow\_protected\_append\_writes) | Allow protected append writes in immutability policy | `bool` | `false` | no |
 | <a name="input_immutability_period_days"></a> [immutability\_period\_days](#input\_immutability\_period\_days) | Immutability period in days | `number` | `7` | no |
 | <a name="input_immutability_state"></a> [immutability\_state](#input\_immutability\_state) | Immutability policy state | `string` | `"Unlocked"` | no |
-| <a name="input_lifecycle_rules"></a> [lifecycle\_rules](#input\_lifecycle\_rules) | Lifecycle management rules | <pre>list(object({<br/>    name    = string<br/>    enabled = bool<br/>    filters = object({<br/>      prefix_match = list(string)<br/>      blob_types   = list(string)<br/>      match_blob_index_tag = optional(list(object({<br/>        name      = string<br/>        operation = string<br/>        value     = string<br/>      })), null)<br/>    })<br/>    actions = object({<br/>      base_blob = optional(object({<br/>        tier_to_cool_after_days    = optional(number, null)<br/>        tier_to_archive_after_days = optional(number, null)<br/>        delete_after_days          = optional(number, null)<br/>      }), null)<br/>      snapshot = optional(object({<br/>        tier_to_cool_after_days    = optional(number, null)<br/>        tier_to_archive_after_days = optional(number, null)<br/>        delete_after_days          = optional(number, null)<br/>      }), null)<br/>      version = optional(object({<br/>        tier_to_cool_after_days    = optional(number, null)<br/>        tier_to_archive_after_days = optional(number, null)<br/>        delete_after_days          = optional(number, null)<br/>      }), null)<br/>    })<br/>  }))</pre> | `[]` | no |
+| <a name="input_immutable_containers"></a> [immutable\_containers](#input\_immutable\_containers) | List of container names to apply immutability policies to | `list(string)` | `[]` | no |
+| <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | Azure Key Vault ID for storing SAS token | `string` | `null` | no |
+| <a name="input_key_vault_secret_name"></a> [key\_vault\_secret\_name](#input\_key\_vault\_secret\_name) | Name of the Key Vault secret for storing SAS token | `string` | `null` | no |
+| <a name="input_lifecycle_rules"></a> [lifecycle\_rules](#input\_lifecycle\_rules) | Lifecycle management rules | <pre>list(object({<br>    name    = string<br>    enabled = bool<br>    filters = object({<br>      prefix_match = list(string)<br>      blob_types   = list(string)<br>      match_blob_index_tag = optional(list(object({<br>        name      = string<br>        operation = string<br>        value     = string<br>      })), null)<br>    })<br>    actions = object({<br>      base_blob = optional(object({<br>        tier_to_cool_after_days    = optional(number, null)<br>        tier_to_archive_after_days = optional(number, null)<br>        delete_after_days          = optional(number, null)<br>      }), null)<br>      snapshot = optional(object({<br>        tier_to_cool_after_days    = optional(number, null)<br>        tier_to_archive_after_days = optional(number, null)<br>        delete_after_days          = optional(number, null)<br>      }), null)<br>      version = optional(object({<br>        tier_to_cool_after_days    = optional(number, null)<br>        tier_to_archive_after_days = optional(number, null)<br>        delete_after_days          = optional(number, null)<br>      }), null)<br>    })<br>  }))</pre> | `[]` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure region for storage account | `string` | n/a | yes |
 | <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the Azure region | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | Log Analytics workspace ID for diagnostic settings | `string` | `null` | no |
 | <a name="input_min_tls_version"></a> [min\_tls\_version](#input\_min\_tls\_version) | Minimum TLS version | `string` | `"TLS1_2"` | no |
-| <a name="input_network_rules_bypass"></a> [network\_rules\_bypass](#input\_network\_rules\_bypass) | Bypass network rules for Azure services | `list(string)` | <pre>[<br/>  "AzureServices"<br/>]</pre> | no |
+| <a name="input_network_rules_bypass"></a> [network\_rules\_bypass](#input\_network\_rules\_bypass) | Bypass network rules for Azure services | `list(string)` | <pre>[<br>  "AzureServices"<br>]</pre> | no |
 | <a name="input_network_rules_default_action"></a> [network\_rules\_default\_action](#input\_network\_rules\_default\_action) | Default action for network rules | `string` | `"Allow"` | no |
 | <a name="input_network_rules_ip_rules"></a> [network\_rules\_ip\_rules](#input\_network\_rules\_ip\_rules) | IP rules for network access | `list(string)` | `[]` | no |
 | <a name="input_network_rules_subnet_ids"></a> [network\_rules\_subnet\_ids](#input\_network\_rules\_subnet\_ids) | Subnet IDs for network access | `list(string)` | `[]` | no |
-| <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints) | Map of private endpoints to create | <pre>map(object({<br/>    subnet_id            = string<br/>    subresource_name     = string<br/>    private_dns_zone_ids = optional(list(string), null)<br/>  }))</pre> | `{}` | no |
-| <a name="input_private_link_access_rules"></a> [private\_link\_access\_rules](#input\_private\_link\_access\_rules) | Private link access rules | <pre>list(object({<br/>    endpoint_resource_id = string<br/>    endpoint_tenant_id   = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints) | Map of private endpoints to create | <pre>map(object({<br>    subnet_id            = string<br>    subresource_name     = string<br>    private_dns_zone_ids = optional(list(string), null)<br>  }))</pre> | `{}` | no |
+| <a name="input_private_link_access_rules"></a> [private\_link\_access\_rules](#input\_private\_link\_access\_rules) | Private link access rules | <pre>list(object({<br>    endpoint_resource_id = string<br>    endpoint_tenant_id   = string<br>  }))</pre> | `[]` | no |
 | <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled) | Enable public network access | `bool` | `true` | no |
-| <a name="input_queue_cors_rules"></a> [queue\_cors\_rules](#input\_queue\_cors\_rules) | CORS rules for queue service | <pre>list(object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  }))</pre> | `[]` | no |
+| <a name="input_queue_cors_rules"></a> [queue\_cors\_rules](#input\_queue\_cors\_rules) | CORS rules for queue service | <pre>list(object({<br>    allowed_headers    = list(string)<br>    allowed_methods    = list(string)<br>    allowed_origins    = list(string)<br>    exposed_headers    = list(string)<br>    max_age_in_seconds = number<br>  }))</pre> | `[]` | no |
 | <a name="input_queue_logging_delete"></a> [queue\_logging\_delete](#input\_queue\_logging\_delete) | Log delete operations for queues | `bool` | `false` | no |
 | <a name="input_queue_logging_read"></a> [queue\_logging\_read](#input\_queue\_logging\_read) | Log read operations for queues | `bool` | `false` | no |
 | <a name="input_queue_logging_retention_days"></a> [queue\_logging\_retention\_days](#input\_queue\_logging\_retention\_days) | Queue logging retention in days | `number` | `7` | no |
@@ -658,17 +757,24 @@ No modules.
 | <a name="input_routing_publish_microsoft_endpoints"></a> [routing\_publish\_microsoft\_endpoints](#input\_routing\_publish\_microsoft\_endpoints) | Publish Microsoft endpoints | `bool` | `false` | no |
 | <a name="input_sas_expiration_action"></a> [sas\_expiration\_action](#input\_sas\_expiration\_action) | SAS expiration action (Log) | `string` | `"Log"` | no |
 | <a name="input_sas_expiration_period"></a> [sas\_expiration\_period](#input\_sas\_expiration\_period) | SAS expiration period (e.g., '1.00:00:00' for 1 day) | `string` | `null` | no |
-| <a name="input_share_cors_rules"></a> [share\_cors\_rules](#input\_share\_cors\_rules) | CORS rules for file share service | <pre>list(object({<br/>    allowed_headers    = list(string)<br/>    allowed_methods    = list(string)<br/>    allowed_origins    = list(string)<br/>    exposed_headers    = list(string)<br/>    max_age_in_seconds = number<br/>  }))</pre> | `[]` | no |
+| <a name="input_sas_https_only"></a> [sas\_https\_only](#input\_sas\_https\_only) | Restrict SAS token to HTTPS only | `bool` | `true` | no |
+| <a name="input_sas_ip_addresses"></a> [sas\_ip\_addresses](#input\_sas\_ip\_addresses) | Allowed IP addresses for SAS token | `string` | `null` | no |
+| <a name="input_sas_permissions"></a> [sas\_permissions](#input\_sas\_permissions) | SAS permissions (r=read, w=write, d=delete, l=list) | `string` | `"rwdl"` | no |
+| <a name="input_sas_resource_types"></a> [sas\_resource\_types](#input\_sas\_resource\_types) | SAS resource types (s=service, c=container, o=object) | `string` | `"sco"` | no |
+| <a name="input_sas_services"></a> [sas\_services](#input\_sas\_services) | SAS services (b=blob, q=queue, t=table, f=file) | `string` | `"bqtf"` | no |
+| <a name="input_sas_ttl_hours"></a> [sas\_ttl\_hours](#input\_sas\_ttl\_hours) | SAS token time-to-live in hours | `number` | `24` | no |
+| <a name="input_share_cors_rules"></a> [share\_cors\_rules](#input\_share\_cors\_rules) | CORS rules for file share service | <pre>list(object({<br>    allowed_headers    = list(string)<br>    allowed_methods    = list(string)<br>    allowed_origins    = list(string)<br>    exposed_headers    = list(string)<br>    max_age_in_seconds = number<br>  }))</pre> | `[]` | no |
 | <a name="input_share_retention_days"></a> [share\_retention\_days](#input\_share\_retention\_days) | File share retention in days (0 to disable) | `number` | `0` | no |
 | <a name="input_shared_access_key_enabled"></a> [shared\_access\_key\_enabled](#input\_shared\_access\_key\_enabled) | Enable shared access key | `bool` | `true` | no |
-| <a name="input_smb_authentication_types"></a> [smb\_authentication\_types](#input\_smb\_authentication\_types) | SMB authentication types | `list(string)` | <pre>[<br/>  "NTLMv2",<br/>  "Kerberos"<br/>]</pre> | no |
-| <a name="input_smb_channel_encryption_type"></a> [smb\_channel\_encryption\_type](#input\_smb\_channel\_encryption\_type) | SMB channel encryption type | `list(string)` | <pre>[<br/>  "AES-128-CCM",<br/>  "AES-128-GCM",<br/>  "AES-256-GCM"<br/>]</pre> | no |
-| <a name="input_smb_kerberos_ticket_encryption_type"></a> [smb\_kerberos\_ticket\_encryption\_type](#input\_smb\_kerberos\_ticket\_encryption\_type) | SMB Kerberos ticket encryption type | `list(string)` | <pre>[<br/>  "RC4-HMAC",<br/>  "AES-256"<br/>]</pre> | no |
+| <a name="input_smb_authentication_types"></a> [smb\_authentication\_types](#input\_smb\_authentication\_types) | SMB authentication types | `list(string)` | <pre>[<br>  "NTLMv2",<br>  "Kerberos"<br>]</pre> | no |
+| <a name="input_smb_channel_encryption_type"></a> [smb\_channel\_encryption\_type](#input\_smb\_channel\_encryption\_type) | SMB channel encryption type | `list(string)` | <pre>[<br>  "AES-128-CCM",<br>  "AES-128-GCM",<br>  "AES-256-GCM"<br>]</pre> | no |
+| <a name="input_smb_kerberos_ticket_encryption_type"></a> [smb\_kerberos\_ticket\_encryption\_type](#input\_smb\_kerberos\_ticket\_encryption\_type) | SMB Kerberos ticket encryption type | `list(string)` | <pre>[<br>  "RC4-HMAC",<br>  "AES-256"<br>]</pre> | no |
 | <a name="input_smb_multichannel_enabled"></a> [smb\_multichannel\_enabled](#input\_smb\_multichannel\_enabled) | Enable SMB multichannel | `bool` | `false` | no |
-| <a name="input_smb_versions"></a> [smb\_versions](#input\_smb\_versions) | SMB protocol versions | `list(string)` | <pre>[<br/>  "SMB2.1",<br/>  "SMB3.0",<br/>  "SMB3.1.1"<br/>]</pre> | no |
+| <a name="input_smb_versions"></a> [smb\_versions](#input\_smb\_versions) | SMB protocol versions | `list(string)` | <pre>[<br>  "SMB2.1",<br>  "SMB3.0",<br>  "SMB3.1.1"<br>]</pre> | no |
+| <a name="input_start_time_offset_minutes"></a> [start\_time\_offset\_minutes](#input\_start\_time\_offset\_minutes) | Start time offset in minutes for SAS token (negative for past time) | `number` | `-5` | no |
 | <a name="input_static_website_error_404_document"></a> [static\_website\_error\_404\_document](#input\_static\_website\_error\_404\_document) | Error 404 document for static website | `string` | `"404.html"` | no |
 | <a name="input_static_website_index_document"></a> [static\_website\_index\_document](#input\_static\_website\_index\_document) | Index document for static website | `string` | `"index.html"` | no |
-| <a name="input_table_acl"></a> [table\_acl](#input\_table\_acl) | ACL for tables | <pre>list(object({<br/>    id = string<br/>    access_policy = optional(object({<br/>      permissions = string<br/>      start       = string<br/>      expiry      = string<br/>    }), null)<br/>  }))</pre> | `[]` | no |
+| <a name="input_table_acl"></a> [table\_acl](#input\_table\_acl) | ACL for tables | <pre>list(object({<br>    id = string<br>    access_policy = optional(object({<br>      permissions = string<br>      start       = string<br>      expiry      = string<br>    }), null)<br>  }))</pre> | `[]` | no |
 | <a name="input_tables"></a> [tables](#input\_tables) | List of table names to create | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all storage account resources | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | Workload name for resource naming | `string` | n/a | yes |
@@ -680,15 +786,18 @@ No modules.
 | <a name="output_blob_container_ids"></a> [blob\_container\_ids](#output\_blob\_container\_ids) | Map of blob container names to their IDs |
 | <a name="output_blob_container_names"></a> [blob\_container\_names](#output\_blob\_container\_names) | Map of blob container keys to their actual names |
 | <a name="output_blob_container_urls"></a> [blob\_container\_urls](#output\_blob\_container\_urls) | Map of blob container names to their URLs |
+| <a name="output_blob_versioning_enabled"></a> [blob\_versioning\_enabled](#output\_blob\_versioning\_enabled) | Whether blob versioning is enabled |
 | <a name="output_compliance_info"></a> [compliance\_info](#output\_compliance\_info) | Information for compliance and governance |
 | <a name="output_connectivity_info"></a> [connectivity\_info](#output\_connectivity\_info) | Information for connecting to the storage account |
 | <a name="output_cost_optimization_info"></a> [cost\_optimization\_info](#output\_cost\_optimization\_info) | Information for cost optimization |
-| <a name="output_diagnostic_setting_id"></a> [diagnostic\_setting\_id](#output\_diagnostic\_setting\_id) | ID of the diagnostic setting (if enabled) |
+| <a name="output_diagnostic_setting_id"></a> [diagnostic\_setting\_id](#output\_diagnostic\_setting\_id) | ID of the diagnostic setting (if enabled) - legacy |
+| <a name="output_diagnostic_setting_ids"></a> [diagnostic\_setting\_ids](#output\_diagnostic\_setting\_ids) | Map of diagnostic setting IDs for each storage service |
 | <a name="output_file_share_ids"></a> [file\_share\_ids](#output\_file\_share\_ids) | Map of file share names to their IDs |
 | <a name="output_file_share_names"></a> [file\_share\_names](#output\_file\_share\_names) | Map of file share keys to their actual names |
 | <a name="output_file_share_urls"></a> [file\_share\_urls](#output\_file\_share\_urls) | Map of file share names to their URLs |
 | <a name="output_identity"></a> [identity](#output\_identity) | Identity block of the storage account |
 | <a name="output_integration_info"></a> [integration\_info](#output\_integration\_info) | Information for integrating with other modules |
+| <a name="output_key_vault_sas_secret_id"></a> [key\_vault\_sas\_secret\_id](#output\_key\_vault\_sas\_secret\_id) | ID of the Key Vault secret containing the SAS token (if enabled) |
 | <a name="output_lifecycle_management_policy_id"></a> [lifecycle\_management\_policy\_id](#output\_lifecycle\_management\_policy\_id) | ID of the lifecycle management policy (if enabled) |
 | <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | Primary access key of the storage account |
 | <a name="output_primary_blob_connection_string"></a> [primary\_blob\_connection\_string](#output\_primary\_blob\_connection\_string) | Primary blob connection string of the storage account |
