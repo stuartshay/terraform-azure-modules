@@ -8,8 +8,8 @@ on:
         required: true
         type: choice
         options:
+          - app-service-plan-function
           - app-service-web
-          - app-service-function
           - monitoring
           - networking
           - storage-account
@@ -74,7 +74,7 @@ jobs:
       - name: Validate inputs
         run: |
           # Validate module name
-          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-web|app-service-function|monitoring|networking|storage-account)$ ]]; then
+          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-web|app-service-plan-function|monitoring|networking|storage-account)$ ]]; then
             echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
             exit 1
           fi

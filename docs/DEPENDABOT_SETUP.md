@@ -9,7 +9,7 @@ Dependabot is configured to automatically check for Terraform provider updates a
 ## Current Configuration
 
 The `.github/dependabot.yml` file is configured to scan the following modules weekly:
-- `modules/app-service-function`
+- `modules/app-service-plan-function`
 - `modules/app-service-web`
 - `modules/monitoring`
 - `modules/networking`
@@ -53,7 +53,7 @@ registries:
 
 updates:
   - package-ecosystem: 'terraform'
-    directory: '/modules/app-service-function'
+    directory: '/modules/app-service-plan-function'
     registries:
       - terraform-cloud
     # ... rest of configuration

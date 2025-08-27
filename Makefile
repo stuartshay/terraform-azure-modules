@@ -31,7 +31,7 @@ endif
 .PHONY: help setup clean install status \
 	modules module-list module-validate module-test module-docs module-examples \
 	terraform terraform-fmt terraform-validate terraform-init terraform-plan terraform-apply \
-	terraform-fmt-check terraform-lint terraform-version terraform-docs \
+	terraform-fmt-check terraform-lint terraform-version terraform-docs terraform-test terraform-test-module terraform-test-file \
 	quality pre-commit pre-commit-install pre-commit-update lint lint-terraform \
 	security security-scan security-tfsec security-checkov \
 	cost cost-breakdown cost-diff \
@@ -267,6 +267,48 @@ terraform-docs: ## Generate Terraform documentation for all modules
 		cd "$$module" && terraform-docs markdown table --output-file README.md --output-mode inject .; \
 	done
 	@echo "$(GREEN)Terraform documentation generation completed$(RESET)"
+
+terraform-test: ## Run Terraform tests for all modules
+	@echo "$(YELLOW)Running Terraform tests...$(RESET)"
+	@find $(MODULES_PATH) -name "*.tftest.hcl" -exec dirname {} \; | sort -u | while read -r test_dir; do \
+		module_dir=$$(echo "$$test_dir" | sed 's|/tests||'); \
+		module_name=$$(basename "$$module_dir"); \
+		echo "$(BLUE)Testing module: $$module_name$(RESET)"; \
+		cd "$$module_dir" && terraform test; \
+	done
+	@echo "$(GREEN)Terraform tests completed$(RESET)"
+
+terraform-test-module: ## Run Terraform tests for a specific module (usage: make terraform-test-module MODULE=app-service-plan-function)
+	@if [ -z "$(MODULE)" ]; then \
+		echo "$(RED)Error: MODULE parameter required$(RESET)"; \
+		echo "Usage: make terraform-test-module MODULE=app-service-plan-function"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(MODULES_PATH)/$(MODULE)" ]; then \
+		echo "$(RED)Error: Module $(MODULE) not found$(RESET)"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(MODULES_PATH)/$(MODULE)/tests" ]; then \
+		echo "$(RED)Error: No tests found for module $(MODULE)$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)Running Terraform tests for module: $(MODULE)$(RESET)"
+	@cd $(MODULES_PATH)/$(MODULE) && terraform test
+	@echo "$(GREEN)Terraform tests completed for module $(MODULE)$(RESET)"
+
+terraform-test-file: ## Run a specific Terraform test file (usage: make terraform-test-file MODULE=app-service-plan-function FILE=basic.tftest.hcl)
+	@if [ -z "$(MODULE)" ] || [ -z "$(FILE)" ]; then \
+		echo "$(RED)Error: MODULE and FILE parameters required$(RESET)"; \
+		echo "Usage: make terraform-test-file MODULE=app-service-plan-function FILE=basic.tftest.hcl"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(MODULES_PATH)/$(MODULE)/tests/$(FILE)" ]; then \
+		echo "$(RED)Error: Test file $(FILE) not found for module $(MODULE)$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)Running Terraform test file: $(FILE) for module $(MODULE)$(RESET)"
+	@cd $(MODULES_PATH)/$(MODULE) && terraform test -filter="tests/$(FILE)"
+	@echo "$(GREEN)Terraform test file $(FILE) completed$(RESET)"
 
 ##@ Quality Assurance
 

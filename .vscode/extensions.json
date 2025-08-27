@@ -1,30 +1,16 @@
 {
-    "recommendations": [
-        "Azurite.azurite",
-        "ms-azuretools.vscode-azurefunctions",
-        "ms-azuretools.vscode-azureterraform",
-        "ms-azuretools.vscode-azureresourcegroups",
-        "ms-azuretools.vscode-azurestorage",
-        "ms-azuretools.vscode-azure-github-copilot",
-        "ms-python.python",
-        "ms-python.pylint",
-        "ms-python.black-formatter",
-        "ms-python.mypy-type-checker",
-        "ms-python.pytest",
-        "ms-python.isort",
-        "ms-python.debugpy",
-        "ms-python.flake8",
-        "ms-vscode.azurecli",
-        "ms-vscode.vscode-json",
-        "ms-vscode.powershell",
-        "redhat.vscode-yaml",
-        "GitHub.vscode-pull-request-github",
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "saoudrizwan.claude-dev",
-        "xargsuk.checkov-prismaless",
-        "hashicorp.terraform",
-        "mermaidchart.vscode-mermaid-chart"
-    ],
-    "unwantedRecommendations": []
+  "recommendations": [
+    "hashicorp.terraform",
+    "ms-vscode.test-adapter-converter",
+    "hbenl.vscode-test-explorer",
+    "formulahendry.terminal",
+    "ms-vscode.makefile-tools",
+    "redhat.vscode-yaml",
+    "ms-vscode.vscode-json",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.powershell",
+    "ms-azuretools.vscode-azureterraform",
+    "ms-azuretools.vscode-azureresourcegroups"
+  ],
+  "unwantedRecommendations": []
 }
