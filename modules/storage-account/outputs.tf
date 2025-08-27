@@ -256,17 +256,17 @@ output "lifecycle_management_policy_id" {
 # Diagnostic Settings Output
 output "diagnostic_setting_id" {
   description = "ID of the diagnostic setting (if enabled) - legacy"
-  value       = var.enable_diagnostic_settings ? azurerm_monitor_diagnostic_setting.main[0].id : null
+  value       = var.enable_diagnostic_settings && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.main[0].id : null
 }
 
 # New Diagnostic Settings Outputs
 output "diagnostic_setting_ids" {
   description = "Map of diagnostic setting IDs for each storage service"
   value = {
-    blob  = var.enable_diagnostics ? azurerm_monitor_diagnostic_setting.blob[0].id : null
-    file  = var.enable_diagnostics ? azurerm_monitor_diagnostic_setting.file[0].id : null
-    queue = var.enable_diagnostics ? azurerm_monitor_diagnostic_setting.queue[0].id : null
-    table = var.enable_diagnostics ? azurerm_monitor_diagnostic_setting.table[0].id : null
+    blob  = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.blob[0].id : null
+    file  = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.file[0].id : null
+    queue = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.queue[0].id : null
+    table = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.table[0].id : null
   }
 }
 
@@ -379,13 +379,14 @@ output "resource_names" {
       for pe_name, pe in azurerm_private_endpoint.main : pe_name => pe.name
     }
     lifecycle_policy_name   = var.enable_lifecycle_management ? azurerm_storage_management_policy.main[0].id : null
-    diagnostic_setting_name = var.enable_diagnostic_settings ? azurerm_monitor_diagnostic_setting.main[0].name : null
+    diagnostic_setting_name = var.enable_diagnostic_settings && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.main[0].name : null
   }
 }
 
 # Integration Information for Other Modules
 output "integration_info" {
   description = "Information for integrating with other modules"
+  sensitive   = true
   value = {
     # For App Service integration
     storage_account_name = azurerm_storage_account.main.name

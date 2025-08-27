@@ -466,7 +466,7 @@ resource "azurerm_private_endpoint" "main" {
 
 # Legacy Diagnostic Settings (for backwards compatibility)
 resource "azurerm_monitor_diagnostic_setting" "main" {
-  count = var.enable_diagnostic_settings ? 1 : 0
+  count = var.enable_diagnostic_settings && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? 1 : 0
 
   name                           = "diag-${local.storage_account_name}"
   target_resource_id             = azurerm_storage_account.main.id
@@ -498,7 +498,7 @@ resource "azurerm_monitor_diagnostic_setting" "main" {
 # New Diagnostic Settings for individual storage services
 # Blob Service Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "blob" {
-  count = var.enable_diagnostics ? 1 : 0
+  count = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? 1 : 0
 
   name                           = "diag-${local.storage_account_name}-blob"
   target_resource_id             = "${azurerm_storage_account.main.id}/blobServices/default"
@@ -532,7 +532,7 @@ resource "azurerm_monitor_diagnostic_setting" "blob" {
 
 # File Service Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "file" {
-  count = var.enable_diagnostics ? 1 : 0
+  count = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? 1 : 0
 
   name                           = "diag-${local.storage_account_name}-file"
   target_resource_id             = "${azurerm_storage_account.main.id}/fileServices/default"
@@ -566,7 +566,7 @@ resource "azurerm_monitor_diagnostic_setting" "file" {
 
 # Queue Service Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "queue" {
-  count = var.enable_diagnostics ? 1 : 0
+  count = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? 1 : 0
 
   name                           = "diag-${local.storage_account_name}-queue"
   target_resource_id             = "${azurerm_storage_account.main.id}/queueServices/default"
@@ -600,7 +600,7 @@ resource "azurerm_monitor_diagnostic_setting" "queue" {
 
 # Table Service Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "table" {
-  count = var.enable_diagnostics ? 1 : 0
+  count = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? 1 : 0
 
   name                           = "diag-${local.storage_account_name}-table"
   target_resource_id             = "${azurerm_storage_account.main.id}/tableServices/default"

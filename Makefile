@@ -274,7 +274,7 @@ terraform-test: ## Run Terraform tests for all modules
 		module_dir=$$(echo "$$test_dir" | sed 's|/tests||'); \
 		module_name=$$(basename "$$module_dir"); \
 		echo "$(BLUE)Testing module: $$module_name$(RESET)"; \
-		cd "$$module_dir" && terraform test; \
+		(cd "$$module_dir" && terraform test); \
 	done
 	@echo "$(GREEN)Terraform tests completed$(RESET)"
 
