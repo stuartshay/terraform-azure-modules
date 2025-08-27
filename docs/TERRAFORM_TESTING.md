@@ -22,7 +22,7 @@ modules/{module-name}/
 │   ├── basic.tftest.hcl      # Basic functionality tests
 │   ├── validation.tftest.hcl # Input validation tests
 │   ├── outputs.tftest.hcl    # Output validation tests
-│   └── setup.tftest.hcl      # Provider configuration (optional)
+│   └── setup.tftest.hcl      # Optional, for documentation
 ```
 
 ## Running Tests
@@ -206,14 +206,21 @@ run "verify_all_outputs" {
 
 ### Provider Configuration
 
-Each test file includes provider configuration to avoid authentication requirements:
+Each test file requires its own provider configuration. Use the modern `mock_provider` syntax for clean, authentication-free testing:
 
 ```hcl
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-}
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {}
 ```
+
+**Key Benefits of mock_provider:**
+- ✅ No Azure authentication required
+- ✅ Clean, modern syntax  
+- ✅ Avoids deprecated configuration options
+- ✅ Fast test execution
+- ✅ Works consistently across environments
+
+**Note**: Terraform's test framework requires each test file to have its own provider configuration. Attempts to centralize provider configuration in a shared setup file are not currently supported by the framework.
 
 ### Test Commands
 
@@ -285,19 +292,18 @@ mkdir -p modules/{module-name}/tests
 
 ### 2. Create Test Files
 
-Create the three main test files:
-- `basic.tftest.hcl`
-- `validation.tftest.hcl`
-- `outputs.tftest.hcl`
+Create the test files using the mock provider pattern:
+- `basic.tftest.hcl` (basic functionality)
+- `validation.tftest.hcl` (input validation) 
+- `outputs.tftest.hcl` (output validation)
+- `setup.tftest.hcl` (optional, for documentation)
 
 ### 3. Add Provider Configuration
 
 Include in each test file:
 ```hcl
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-}
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {}
 ```
 
 ### 4. Write Test Cases
@@ -341,8 +347,8 @@ Add testing information to the module's README.md.
 ### Common Issues
 
 1. **Provider Configuration Missing**
-   - Ensure each test file has the azurerm provider block
-   - Include `skip_provider_registration = true`
+   - Ensure each test file has `mock_provider "azurerm" {}` at the top
+   - Each test file must have its own provider configuration
 
 2. **Test Failures**
    - Check assertion conditions carefully

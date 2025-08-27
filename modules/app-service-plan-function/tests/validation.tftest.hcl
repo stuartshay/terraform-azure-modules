@@ -2,9 +2,7 @@
 # Tests input validation rules and error conditions
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test invalid OS type validation
 run "invalid_os_type" {

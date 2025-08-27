@@ -24,10 +24,21 @@ modules/{module-name}/
     ├── basic.tftest.hcl      # Copy and customize
     ├── validation.tftest.hcl # Copy and customize
     ├── outputs.tftest.hcl    # Copy and customize
-    └── setup.tftest.hcl      # Optional, use if needed
+    └── setup.tftest.hcl      # Optional, for documentation
 ```
 
 ## Test File Templates
+
+### 0. Provider Configuration Pattern
+
+Each test file requires its own provider configuration. Use the `mock_provider` approach for clean, modern syntax:
+
+```hcl
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {}
+```
+
+**Note**: Terraform's test framework requires each test file to have its own provider configuration. Shared provider configuration through `setup.tftest.hcl` is not currently supported.
 
 ### 1. Basic Functionality Tests Template
 
@@ -38,9 +49,7 @@ modules/{module-name}/
 # Tests the core functionality of {module description}
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test basic resource creation with default values
 run "basic_{resource_type}_creation" {
@@ -113,9 +122,7 @@ run "custom_{resource_type}_configuration" {
 # Tests input validation rules and error conditions
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test invalid parameter validation
 run "invalid_{parameter_name}" {
@@ -197,9 +204,7 @@ run "valid_{parameter_name}_values" {
 # Tests that all outputs are correctly populated and formatted
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test all outputs are populated correctly
 run "verify_all_outputs" {
@@ -309,7 +314,8 @@ This module includes comprehensive Terraform tests to ensure reliability and cor
 tests/
 ├── basic.tftest.hcl      # Basic functionality tests
 ├── validation.tftest.hcl # Input validation tests
-└── outputs.tftest.hcl    # Output validation tests
+├── outputs.tftest.hcl    # Output validation tests
+└── setup.tftest.hcl      # Optional, for documentation only
 ```
 
 ### Running Tests

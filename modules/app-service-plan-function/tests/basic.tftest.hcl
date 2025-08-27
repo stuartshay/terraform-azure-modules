@@ -2,9 +2,7 @@
 # Tests the core functionality of creating an Azure App Service Plan for Functions
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test basic App Service Plan creation with default values
 run "basic_app_service_plan_creation" {

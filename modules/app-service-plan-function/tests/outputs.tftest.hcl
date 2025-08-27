@@ -2,9 +2,7 @@
 # Tests that all outputs are correctly populated and formatted
 
 # Mock the AzureRM provider to avoid authentication requirements
-mock_provider "azurerm" {
-  # Mock provider configuration
-}
+mock_provider "azurerm" {}
 
 # Test all outputs are populated correctly
 run "verify_outputs" {
