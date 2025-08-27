@@ -203,6 +203,118 @@ resource "azurerm_linux_function_app" "worker" {
 - [Basic](examples/basic/) - Minimal configuration for Linux App Service Plan
 - [Complete](examples/complete/) - Full configuration with Windows and scaling options
 
+## Testing
+
+This module includes comprehensive Terraform tests to ensure reliability and correctness. The tests are located in the `tests/` directory and use Terraform's native testing framework.
+
+### Test Structure
+
+```
+tests/
+├── basic.tftest.hcl      # Basic functionality tests
+├── validation.tftest.hcl # Input validation tests
+└── outputs.tftest.hcl    # Output validation tests
+```
+
+### Running Tests
+
+#### Run All Tests for This Module
+```bash
+# From the project root
+make terraform-test-module MODULE=app-service-plan-function
+
+# Or from the module directory
+cd modules/app-service-plan-function
+terraform test
+```
+
+#### Run Specific Test Files
+```bash
+# Run only basic functionality tests
+make terraform-test-file MODULE=app-service-plan-function FILE=basic.tftest.hcl
+
+# Run only validation tests
+make terraform-test-file MODULE=app-service-plan-function FILE=validation.tftest.hcl
+
+# Run only output tests
+make terraform-test-file MODULE=app-service-plan-function FILE=outputs.tftest.hcl
+```
+
+#### Run All Module Tests
+```bash
+# Run tests for all modules that have tests
+make terraform-test
+```
+
+### Test Coverage
+
+#### Basic Functionality Tests (`basic.tftest.hcl`)
+- ✅ App Service Plan creation with default values
+- ✅ Windows OS type configuration
+- ✅ Premium SKU (EP3) with custom worker count
+- ✅ All supported SKU types (EP1, EP2, EP3)
+- ✅ Tag application and validation
+- ✅ Naming convention compliance
+
+#### Validation Tests (`validation.tftest.hcl`)
+- ✅ Invalid OS type rejection (e.g., "MacOS")
+- ✅ Invalid SKU name rejection (e.g., "S1")
+- ✅ Worker count boundary validation (min: 1, max: 20)
+- ✅ Valid OS type acceptance (Linux, Windows)
+- ✅ Valid SKU acceptance (EP1, EP2, EP3)
+
+#### Output Tests (`outputs.tftest.hcl`)
+- ✅ All outputs populated correctly
+- ✅ Output values match resource attributes
+- ✅ Output format validation (Azure resource ID format)
+- ✅ Non-null/non-empty output verification
+- ✅ Cross-platform output consistency
+
+### Test Benefits
+
+1. **Validation**: Ensures input validation rules work correctly
+2. **Regression Prevention**: Catches breaking changes before deployment
+3. **Documentation**: Tests serve as executable documentation
+4. **Confidence**: Provides confidence in module reliability
+5. **Fast Feedback**: Tests run quickly without requiring Azure resources
+
+### Mock Testing
+
+The tests use Terraform's plan-only mode, which means:
+- ✅ No Azure resources are created during testing
+- ✅ Tests run quickly and don't require Azure credentials
+- ✅ Validation logic is thoroughly tested
+- ✅ Resource configuration is verified
+- ✅ Safe to run in CI/CD pipelines
+
+### Adding New Tests
+
+When contributing new features, please add corresponding tests:
+
+1. **Basic functionality**: Add test cases to `basic.tftest.hcl`
+2. **Input validation**: Add validation tests to `validation.tftest.hcl`
+3. **New outputs**: Add output tests to `outputs.tftest.hcl`
+
+Example test structure:
+```hcl
+run "test_new_feature" {
+  command = plan
+
+  variables {
+    workload            = "test"
+    environment         = "dev"
+    resource_group_name = "rg-test-dev-001"
+    location            = "East US"
+    # Add your test-specific variables
+  }
+
+  assert {
+    condition     = # Your assertion here
+    error_message = "Descriptive error message"
+  }
+}
+```
+
 ## SKU Options (Approved Only)
 
 This module restricts SKU options to Elastic Premium tiers only to ensure consistent performance and security:
@@ -277,7 +389,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.40 |
 
 ## Providers

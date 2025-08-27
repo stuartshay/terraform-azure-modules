@@ -43,6 +43,25 @@ repos:
           - --args=--config-file=${PWD}/.checkov.yaml
         exclude: '(.*/examples/.*|examples/.*)'
 
+  # Terraform testing
+  - repo: local
+    hooks:
+      - id: terraform-test
+        name: Terraform Test (All Modules)
+        entry: make terraform-test
+        language: system
+        files: '\.tf$|\.tftest\.hcl$'
+        pass_filenames: false
+        always_run: false
+        description: 'Run Terraform tests for all modules'
+      - id: terraform-test-changed
+        name: Terraform Test (Changed Modules Only)
+        entry: scripts/pre-commit-terraform-test.sh
+        language: system
+        files: '^modules/.*\.(tf|tftest\.hcl)$'
+        pass_filenames: true
+        description: 'Run Terraform tests only for modules with changed files'
+
   # Security scanning
   - repo: https://github.com/aquasecurity/tfsec
     rev: v1.28.14

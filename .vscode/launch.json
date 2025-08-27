@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Terraform Test - Current File",
+      "type": "node",
+      "request": "launch",
+      "program": "terraform",
+      "args": ["test", "${relativeFile}"],
+      "cwd": "${fileDirname}/../..",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Debug Terraform Test - App Service Plan Function",
+      "type": "node",
+      "request": "launch",
+      "program": "terraform",
+      "args": ["test"],
+      "cwd": "${workspaceFolder}/modules/app-service-plan-function",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Debug Terraform Validate",
+      "type": "node",
+      "request": "launch",
+      "program": "terraform",
+      "args": ["validate"],
+      "cwd": "${fileDirname}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}

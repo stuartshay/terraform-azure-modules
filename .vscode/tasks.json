@@ -1,0 +1,150 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Terraform: Test All Modules",
+      "type": "shell",
+      "command": "make",
+      "args": ["terraform-test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run Terraform tests for all modules"
+    },
+    {
+      "label": "Terraform: Test App Service Plan Function",
+      "type": "shell",
+      "command": "make",
+      "args": ["terraform-test-module", "MODULE=app-service-plan-function"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run Terraform tests for app-service-plan-function module"
+    },
+    {
+      "label": "Terraform: Test Basic Functionality",
+      "type": "shell",
+      "command": "make",
+      "args": ["terraform-test-file", "MODULE=app-service-plan-function", "FILE=basic.tftest.hcl"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run basic functionality tests for app-service-plan-function"
+    },
+    {
+      "label": "Terraform: Test Validation",
+      "type": "shell",
+      "command": "make",
+      "args": ["terraform-test-file", "MODULE=app-service-plan-function", "FILE=validation.tftest.hcl"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run validation tests for app-service-plan-function"
+    },
+    {
+      "label": "Terraform: Test Outputs",
+      "type": "shell",
+      "command": "make",
+      "args": ["terraform-test-file", "MODULE=app-service-plan-function", "FILE=outputs.tftest.hcl"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run output tests for app-service-plan-function"
+    },
+    {
+      "label": "Terraform: Test Current File",
+      "type": "shell",
+      "command": "terraform",
+      "args": ["test", "${relativeFile}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "options": {
+        "cwd": "${fileDirname}/../.."
+      },
+      "problemMatcher": [],
+      "detail": "Run the currently open test file"
+    },
+    {
+      "label": "Terraform: Validate Module",
+      "type": "shell",
+      "command": "terraform",
+      "args": ["validate"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "detail": "Validate the current Terraform module"
+    },
+    {
+      "label": "Terraform: Format Files",
+      "type": "shell",
+      "command": "terraform",
+      "args": ["fmt", "-recursive", "."],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Format all Terraform files"
+    }
+  ]
+}
