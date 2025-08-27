@@ -37,10 +37,9 @@ modules/{module-name}/
 # Basic functionality tests for {module-name} module
 # Tests the core functionality of {module description}
 
-# Provider configuration for tests
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {
+  # Mock provider configuration
 }
 
 # Test basic resource creation with default values
@@ -113,10 +112,9 @@ run "custom_{resource_type}_configuration" {
 # Validation tests for {module-name} module
 # Tests input validation rules and error conditions
 
-# Provider configuration for tests
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {
+  # Mock provider configuration
 }
 
 # Test invalid parameter validation
@@ -198,10 +196,9 @@ run "valid_{parameter_name}_values" {
 # Output validation tests for {module-name} module
 # Tests that all outputs are correctly populated and formatted
 
-# Provider configuration for tests
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
+# Mock the AzureRM provider to avoid authentication requirements
+mock_provider "azurerm" {
+  # Mock provider configuration
 }
 
 # Test all outputs are populated correctly
