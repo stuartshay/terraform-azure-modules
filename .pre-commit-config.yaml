@@ -28,6 +28,7 @@ repos:
         args:
           - --args=-json
           - --args=-no-color
+        exclude: '(.*/examples/.*|examples/.*)'
       - id: terraform_docs
         args:
           - --hook-config=--path-to-file=README.md

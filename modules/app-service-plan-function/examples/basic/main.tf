@@ -1,5 +1,5 @@
-# Basic App Service Function Example
-# This example demonstrates the minimal configuration required for the app-service-function module
+# Basic App Service Plan for Functions Example
+# This example demonstrates the minimal configuration required for the app-service-plan-function module
 
 terraform {
   required_version = ">= 1.5"
@@ -17,7 +17,7 @@ provider "azurerm" {
 
 # Create a resource group for this example
 resource "azurerm_resource_group" "example" {
-  name     = "rg-app-service-function-basic-example"
+  name     = "rg-app-service-plan-function-basic-example"
   location = "East US"
 
   tags = local.common_tags
@@ -30,7 +30,7 @@ locals {
 
   common_tags = {
     Environment = local.environment
-    Project     = "app-service-function-example"
+    Project     = "app-service-plan-function-example"
     Owner       = "platform-team"
     Example     = "basic"
   }
@@ -63,29 +63,25 @@ resource "azurerm_subnet" "functions" {
   }
 }
 
-# Basic function app module configuration
-module "function_app" {
+# Basic App Service Plan for Functions
+module "function_app_service_plan" {
   source = "../../"
 
   # Required variables
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
-  location_short      = "eus" # East US short name
   workload            = local.workload
   environment         = local.environment
-  subnet_id           = azurerm_subnet.functions.id
 
   # Use EP1 SKU (default - Elastic Premium for production readiness)
   sku_name = "EP1"
+  os_type  = "Linux"
 
   # This creates:
-  # - Storage Account for Function App state
   # - App Service Plan with EP1 SKU (Elastic Premium)
-  # - Linux Function App with Python 3.13
-  # - VNET integration for network isolation
-  # - Application Insights for monitoring
-  # - HTTPS only enabled
-  # - Always on enabled for EP1
+  # - Linux operating system support
+  # - Elastic scaling capabilities
+  # - Ready for Function App deployment supporting VNET integration
 
   tags = local.common_tags
 }

@@ -47,7 +47,7 @@ applyTo: '**'
 - Dependabot now configured to access HCP Terraform private registry via `registries`:
 	- Added `tfc-private` with `type: terraform-registry`, `url: https://app.terraform.io`, and `token: ${{secrets.DEPENDABOT_TF_API_TOKEN}}`.
 	- Each Terraform `updates` entry for module directories includes `registries: [tfc-private]` so private modules/providers can be resolved.
-- Required secret: Create repository secret `DEPENDABOT_TF_API_TOKEN` with a valid HCP Terraform user/team token that has access to the private modules used by the modules in this repo (e.g., app-service-function depends on storage-account).
+- Required secret: Create repository secret `DEPENDABOT_TF_API_TOKEN` with a valid HCP Terraform user/team token that has access to the private modules used by the modules in this repo (e.g., app-service-plan-function depends on storage-account).
 
 ## Conversation History
 - Investigated VS Code settings for Terraform MCP Server

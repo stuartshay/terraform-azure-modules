@@ -18,13 +18,13 @@ A comprehensive collection of enterprise-grade Terraform modules for Azure infra
 
 ## Available Modules
 
-### App Service Module - Function
+### App Service Plan Module - Function
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-function/azurerm/)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-plan-function/azurerm/)
 
 Azure Function App resources including Storage Account, App Service Plan, and Function App with VNET integration and restricted SKU options.
 
-- **Path**: `modules/app-service-function`
+- **Path**: `modules/app-service-plan-function`
 - **Provider**: `azurerm`
 - **Version**: `>= 4.40`
 
@@ -32,26 +32,20 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 
 - **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
 - **VNET Integration**: Function App deployed with VNET integration for network isolation
-- **Security**: HTTPS-only, secure storage account configuration, network isolation
 - **Performance**: Configurable scaling with always-ready instances for Elastic Premium
-- **Monitoring**: Optional Application Insights integration
-- **Storage**: Dedicated storage account with security configurations
-- Linux Function App with Python runtime
-- Configurable app settings
 - Resource tagging support
 
 #### Quick Start
 
 ```hcl
-module "app-service-function" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+module "app-service-plan-function" {
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
   location           = "East US"
   environment        = "dev"
   workload           = "myapp"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # SKU must be EP1, EP2, or EP3
   sku_name = "EP1"
@@ -64,9 +58,7 @@ module "app-service-function" {
 ```
 
 
-
-
-### App Service Module - Web
+### App Service Plan Module - Web
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
 
@@ -334,7 +326,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web, app-service-function, networking, storage-account, or monitoring)
+- **Module selection** (app-service-web, app-service-plan-function, networking, storage-account, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -350,7 +342,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service-web, app-service-function, or monitoring)
+3. Select module (app-service-web, app-service-plan-function, or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -374,7 +366,7 @@ module "app_service" {
 }
 
 module "function_app" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-function/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
   version = "1.0.0"
   # configuration...
 }

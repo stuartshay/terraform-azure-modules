@@ -11,7 +11,7 @@ registries:
 updates:
   # Scan each module subdirectory
   - package-ecosystem: 'terraform'
-    directory: '/modules/app-service-function'
+    directory: '/modules/app-service-plan-function'
     registries:
       - tfc-private
     schedule:
