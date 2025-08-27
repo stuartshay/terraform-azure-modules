@@ -183,7 +183,6 @@ resource "azurerm_linux_function_app" "worker" {
 | environment | The environment name | `string` | n/a | yes |
 | resource_group_name | The name of the resource group | `string` | n/a | yes |
 | location | The Azure region | `string` | n/a | yes |
-| subnet_id | The subnet ID for VNET integration (required for App Service Plan) | `string` | n/a | yes |
 | os_type | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
 | sku_name | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
 | maximum_elastic_worker_count | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
