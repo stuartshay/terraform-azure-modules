@@ -32,7 +32,6 @@ module "function_app_service_plan" {
   location           = "East US"
   environment        = "dev"
   workload           = "myapp"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # Only EP1, EP2, or EP3 are allowed
   sku_name = "EP1"
@@ -59,7 +58,6 @@ module "function_app_service_plan" {
   location           = "East US"
   workload           = "myapp"
   environment        = "dev"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # Configuration
   sku_name = "EP1"
@@ -84,8 +82,7 @@ module "function_app_service_plan" {
   location           = "East US"
   workload           = "myapp"
   environment        = "prod"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
-
+  
   # Configuration
   sku_name = "EP2"
   os_type  = "Windows"
@@ -310,7 +307,6 @@ No modules.
 | <a name="input_os_type"></a> [os\_type](#input\_os\_type) | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
 | <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
-| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | The subnet ID for VNET integration (required for App Service Plan) | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
 

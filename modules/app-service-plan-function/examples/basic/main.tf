@@ -72,7 +72,6 @@ module "function_app_service_plan" {
   location            = azurerm_resource_group.example.location
   workload            = local.workload
   environment         = local.environment
-  subnet_id           = azurerm_subnet.functions.id
 
   # Use EP1 SKU (default - Elastic Premium for production readiness)
   sku_name = "EP1"
@@ -82,7 +81,7 @@ module "function_app_service_plan" {
   # - App Service Plan with EP1 SKU (Elastic Premium)
   # - Linux operating system support
   # - Elastic scaling capabilities
-  # - Ready for Function App deployment with VNET integration
+  # - Ready for Function App deployment supporting VNET integration
 
   tags = local.common_tags
 }

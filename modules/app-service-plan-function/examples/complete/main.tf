@@ -73,7 +73,6 @@ module "function_app_service_plan" {
   location            = azurerm_resource_group.example.location
   workload            = local.workload
   environment         = local.environment
-  subnet_id           = azurerm_subnet.functions.id
 
   # Use EP2 SKU with Windows OS for this example
   sku_name = "EP2"

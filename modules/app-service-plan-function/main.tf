@@ -12,8 +12,5 @@ resource "azurerm_service_plan" "functions" {
   # Elastic Premium specific configurations
   maximum_elastic_worker_count = var.maximum_elastic_worker_count
 
-  tags = merge(var.tags, {
-    # Document the subnet requirement for Function Apps that will use this plan
-    VNetIntegrationSubnet = var.subnet_id
-  })
+  tags = var.tags
 }

@@ -44,7 +44,6 @@ module "app-service-plan-function" {
   location           = "East US"
   environment        = "dev"
   workload           = "myapp"
-  subnet_id          = "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-example/subnets/subnet-functions"
 
   # SKU must be EP1, EP2, or EP3
   sku_name = "EP1"
@@ -57,7 +56,7 @@ module "app-service-plan-function" {
 ```
 
 
-### App Service PlanModule - Web
+### App Service Plan Module - Web
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
 
