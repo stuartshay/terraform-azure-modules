@@ -20,7 +20,14 @@ for file in "${changed_files[@]}"; do
         # Check if module has tests directory with .tftest.hcl files
         if [[ -d "modules/$module_name/tests" ]] && find "modules/$module_name/tests" -name "*.tftest.hcl" -type f | grep -q .; then
             # Add to array if not already present
-            if [[ ! "${modules_to_test[*]}" =~ $module_name ]]; then
+            already_present=false
+            for existing_module in "${modules_to_test[@]}"; do
+                if [[ "$existing_module" == "$module_name" ]]; then
+                    already_present=true
+                    break
+                fi
+            done
+            if [[ "$already_present" == false ]]; then
                 modules_to_test+=("$module_name")
             fi
         else
