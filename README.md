@@ -31,7 +31,7 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 #### Features
 
 - **Restricted SKUs**: Only EP1, EP2, and EP3 (Elastic Premium) SKUs allowed for consistent performance and security
-- **VNET Integration**: Function App deployed with VNET integration for network isolation
+- **VNET Integration**: App Service Plan deployed with VNET integration for network isolation
 - **Performance**: Configurable scaling with always-ready instances for Elastic Premium
 - Resource tagging support
 
