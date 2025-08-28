@@ -50,11 +50,12 @@ applyTo: '**'
 - Required secret: Create repository secret `DEPENDABOT_TF_API_TOKEN` with a valid HCP Terraform user/team token that has access to the private modules used by the modules in this repo (e.g., app-service-plan-function depends on storage-account).
 
 ## Conversation History
-- Investigated VS Code settings for Terraform MCP Server
-- Analyzed VS Code Output integration (no custom output channel, relies on Terraform language server)
-- Reviewed monitoring module structure, outputs, and variables
-- Confirmed best practices for outputs, secrets, and documentation
 
+## Function App Module Security/Compliance Fixes (Aug 2025)
+- Issue: Lint error due to incorrect placement of azurerm_private_endpoint resource (was nested inside azurerm_storage_account block)
+- Fix: Moved azurerm_private_endpoint "storage" resource to the top level of main.tf, referencing the storage account and subnet correctly, and conditioned on enable_storage_network_rules and subnet presence
+- Outcome: All validation and linting checks now pass; configuration is valid and secure
+- Note: This pattern should be followed for all future private endpoint resources—never nest resource blocks inside other resource blocks in Terraform
 ## Notes
 	- .vscode/settings.json is well-configured for Terraform and Azure development
 	- No MCP Server-specific files found in the repo; MCP Server context is via environment variables and language server integration
