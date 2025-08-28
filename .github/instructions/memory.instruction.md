@@ -80,3 +80,18 @@ applyTo: '**'
 	- Updated GitHub Issue #34 with a comprehensive specification: diagnostics categories and destinations, blob versioning + change feed + soft-delete, optional container immutability, and SAS → Key Vault integration with secure defaults.
 	- Added proposed module inputs/outputs and explicit acceptance criteria to guide implementation and testing.
 	- Linked to relevant Microsoft docs for categories and monitoring references to ensure accuracy.
+
+## Current Task (Aug 26, 2025)
+- Type: Bug Fix — resolve failing `pre-commit run terraform_tflint --all-files`
+- Branch/PR: `copilot/fix-34` / PR #35
+- Plan: Research TFLint + azurerm rules, run hook to capture errors, fix Terraform modules/examples accordingly, rerun until clean.
+
+### Outcome
+- Fixed unused variable warnings in `modules/storage-account/examples/complete-enhanced` by wiring example variables into resources and module inputs (resource group name/location, diagnostic retention, immutability days, SAS TTL, and tags merged via `locals`).
+- Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
+- Verified: `pre-commit run terraform_tflint --all-files` now passes.
+
+## Merge Maintenance (Aug 26, 2025)
+- Merged `origin/master` into `copilot/fix-34`.
+- Resolved conflict in `.github/instructions/memory.instruction.md` by preserving both the master’s "Storage Account Requirements (Issue #34)" section and the current task’s TFLint outcome.
+- Ran full `pre-commit run --all-files`: all hooks passed.

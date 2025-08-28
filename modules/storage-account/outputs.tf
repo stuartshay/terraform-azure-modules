@@ -255,8 +255,19 @@ output "lifecycle_management_policy_id" {
 
 # Diagnostic Settings Output
 output "diagnostic_setting_id" {
-  description = "ID of the diagnostic setting (if enabled)"
-  value       = var.enable_diagnostic_settings ? azurerm_monitor_diagnostic_setting.main[0].id : null
+  description = "ID of the diagnostic setting (if enabled) - legacy"
+  value       = var.enable_diagnostic_settings && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.main[0].id : null
+}
+
+# New Diagnostic Settings Outputs
+output "diagnostic_setting_ids" {
+  description = "Map of diagnostic setting IDs for each storage service"
+  value = {
+    blob  = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.blob[0].id : null
+    file  = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.file[0].id : null
+    queue = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.queue[0].id : null
+    table = var.enable_diagnostics && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.table[0].id : null
+  }
 }
 
 # Storage Account Configuration Summary
@@ -368,13 +379,14 @@ output "resource_names" {
       for pe_name, pe in azurerm_private_endpoint.main : pe_name => pe.name
     }
     lifecycle_policy_name   = var.enable_lifecycle_management ? azurerm_storage_management_policy.main[0].id : null
-    diagnostic_setting_name = var.enable_diagnostic_settings ? azurerm_monitor_diagnostic_setting.main[0].name : null
+    diagnostic_setting_name = var.enable_diagnostic_settings && (var.log_analytics_workspace_id != null || var.diagnostic_storage_account_id != null || var.eventhub_authorization_rule_id != null) ? azurerm_monitor_diagnostic_setting.main[0].name : null
   }
 }
 
 # Integration Information for Other Modules
 output "integration_info" {
   description = "Information for integrating with other modules"
+  sensitive   = true
   value = {
     # For App Service integration
     storage_account_name = azurerm_storage_account.main.name
@@ -462,4 +474,16 @@ output "compliance_info" {
       cross_region_restore = contains(["RAGRS", "RAGZRS"], azurerm_storage_account.main.account_replication_type)
     }
   }
+}
+
+# Blob Versioning Status Output
+output "blob_versioning_enabled" {
+  description = "Whether blob versioning is enabled"
+  value       = var.enable_blob_properties ? var.enable_blob_versioning : false
+}
+
+# Key Vault SAS Secret Output
+output "key_vault_sas_secret_id" {
+  description = "ID of the Key Vault secret containing the SAS token (if enabled)"
+  value       = var.enable_sas_secret && var.key_vault_id != null && var.key_vault_secret_name != null ? azurerm_key_vault_secret.sas_token[0].id : null
 }
