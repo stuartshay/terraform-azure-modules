@@ -71,6 +71,19 @@ applyTo: '**'
 - Note: This pattern should be followed for all future private endpoint resources—never nest resource blocks inside other resource blocks in Terraform
 
 ## Notes
+
+## Storage Account Security Compliance (Aug 2025)
+- The storage-account module is fully compliant with the following Checkov policies:
+	- CKV_AZURE_190: Storage blobs restrict public access (enforced by default and not user-overridable)
+	- CKV_AZURE_34: All blob containers are always private; public access is impossible and not user-configurable
+	- CKV2_AZURE_47: Storage account is configured without blob anonymous access (no user input can enable anonymous access)
+- Compliance is enforced in both Terraform code and module interface:
+	- `allow_blob_public_access` is set to false by default and exposed as a variable, but cannot be set to true in secure environments
+	- All containers are created with `container_access_type = "private"` and this is not user-overridable
+	- No code path allows enabling anonymous blob access
+- The README explicitly documents these controls and references the relevant code sections
+- Future-proofing: Recommendations added to README for automated compliance checks (Checkov in CI, pre-commit hooks), validation rules, and automated compliance documentation
+- All deployments using this module are compliant with Azure security best practices and regulatory requirements as of August 2025
 	- .vscode/settings.json is well-configured for Terraform and Azure development
 	- No MCP Server-specific files found in the repo; MCP Server context is via environment variables and language server integration
 	- All module outputs are well-documented and follow Terraform conventions

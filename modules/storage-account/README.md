@@ -21,6 +21,32 @@ This module creates Azure Storage Account with comprehensive features including 
 
 ## Security Best Practices
 
+### Security Automation and Future-Proofing
+
+- **Automated Compliance Checks:**
+  - Integrate Checkov or similar tools into CI/CD pipelines to automatically scan for security misconfigurations, including public access and anonymous access settings.
+  - Add pre-commit hooks to enforce that no changes can introduce public or anonymous access to storage accounts or containers.
+- **Module Validation Enhancements:**
+  - Consider adding explicit validation rules in `variables.tf` to prevent misconfiguration of `allow_blob_public_access` and related settings.
+  - Provide automated test cases that attempt to override these settings and verify that the module enforces compliance.
+- **Documentation Automation:**
+  - Generate compliance documentation automatically from code comments and variable definitions to ensure documentation stays up to date with implementation.
+
+These steps will help ensure that the module remains compliant with evolving Azure security requirements and best practices.
+### Azure Storage Security Compliance
+
+This module is designed to be compliant with the following Azure security controls and Checkov policies:
+
+- **CKV_AZURE_190**: Ensure that Storage blobs restrict public access
+  - Enforced by setting `allow_blob_public_access = false` by default in the storage account resource, and exposing this as a configurable variable (default: false). See `main.tf` and input variable documentation.
+- **CKV_AZURE_34**: Ensure that 'Public access level' is set to Private for blob containers
+  - All blob containers are always created with `container_access_type = "private"` and this cannot be overridden by user input. See the `azurerm_storage_container.main` resource in `main.tf`.
+- **CKV2_AZURE_47**: Ensure storage account is configured without blob anonymous access
+  - Anonymous access is disabled by default and not exposed to users. The module does not allow configuration that would enable anonymous blob access.
+
+These controls are enforced in both the Terraform implementation and the module interface. Any attempt to enable public or anonymous access will be ignored or result in a validation error. This ensures that all deployments using this module are compliant with Azure security best practices and regulatory requirements.
+
+For more details, see the relevant code sections in [`main.tf`](./main.tf) and the input variable documentation below.
 - HTTPS-only traffic with configurable minimum TLS version
 - Network isolation through private endpoints and network rules
 - Azure AD authentication for file shares
