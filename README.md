@@ -57,13 +57,59 @@ module "app-service-plan-function" {
 }
 ```
 
-### Function App  
+### Function App Module
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/function-app/azurerm/)
 
+Azure Function App with comprehensive features including cross-platform support, VNet integration, Application Insights, deployment slots, and advanced security configurations. Decoupled from App Service Plans for flexible deployments.
 
-<REAMEDME HERE>
+- **Path**: `modules/function-app`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
 
+#### Features
+
+- **Cross-Platform Support**: Both Linux and Windows Function Apps with multiple runtime support
+- **Runtime Support**: Python, Node.js, .NET, Java, PowerShell, and custom runtimes
+- **Deployment Slots**: Staging and production deployment slots for safe deployments
+- **VNet Integration**: Optional VNet integration for secure network connectivity
+- **Security Features**: HTTPS enforcement, client certificates, managed identity, and IP restrictions
+- **Storage Account**: Dedicated storage account with security best practices and retention policies
+- **Application Insights**: Built-in monitoring and telemetry with workspace integration
+- **Flexible Configuration**: Extensive customization options for all Function App aspects
+
+#### Quick Start
+
+```hcl
+module "function_app" {
+  source  = "app.terraform.io/azure-policy-cloud/function-app/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  workload            = "myapp"
+  environment         = "dev"
+  resource_group_name = "rg-example"
+  location           = "East US"
+  service_plan_id    = module.app_service_plan.app_service_plan_id
+
+  # Runtime configuration
+  runtime_name    = "python"
+  runtime_version = "3.11"
+
+  # VNet integration
+  enable_vnet_integration    = true
+  vnet_integration_subnet_id = data.azurerm_subnet.functions.id
+
+  # Application Insights
+  enable_application_insights = true
+  log_analytics_workspace_id  = data.azurerm_log_analytics_workspace.main.id
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 ### App Service Plan Module - Web
 
