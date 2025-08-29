@@ -30,7 +30,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref || github.ref }}
 
+      - name: Cache system dependencies
+        uses: actions/cache@v4
+        id: cache-system-deps
+        with:
+          path: |
+            /usr/bin/jq
+            /usr/bin/shellcheck
+          key: system-deps-${{ runner.os }}-v1
+          restore-keys: |
+            system-deps-${{ runner.os }}-
+
       - name: Install system dependencies
+        if: steps.cache-system-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y jq shellcheck
@@ -74,31 +86,77 @@ jobs:
             echo "Exported TF_TOKEN_app_terraform_io for Terraform CLI consumers."
           fi
 
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        id: cache-python-packages
+        with:
+          path: ~/.cache/pip
+          key: python-packages-${{ runner.os }}-checkov-3.2.456
+          restore-keys: |
+            python-packages-${{ runner.os }}-checkov-
+            python-packages-${{ runner.os }}-
+
+      - name: Cache binary tools
+        uses: actions/cache@v4
+        id: cache-binary-tools
+        with:
+          path: |
+            /usr/local/bin/tflint
+            /usr/local/bin/terraform-docs
+            /usr/local/bin/tfsec
+          key: binary-tools-${{ runner.os }}-tflint-latest-terraform-docs-0.20.0-tfsec-latest
+          restore-keys: |
+            binary-tools-${{ runner.os }}-
+
       - name: Install TFLint
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
         run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          if ! command -v tflint &> /dev/null; then
+            echo "Installing TFLint..."
+            curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          else
+            echo "TFLint already installed"
+          fi
 
       - name: Install Checkov
         # Pin Checkov to a stable version to avoid CI/local drift and known bugs
         run: |
-          pip install checkov==3.2.456
-          # If you update this version, test both locally and in CI to avoid breaking changes
+          if ! command -v checkov &> /dev/null; then
+            echo "Installing Checkov..."
+            pip install checkov==3.2.456
+            # If you update this version, test both locally and in CI to avoid breaking changes
+          else
+            echo "Checkov already installed, checking version..."
+            checkov --version
+          fi
 
       - name: Install terraform-docs
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
         run: |
-          # Install terraform-docs for automatic documentation generation
-          curl -sSLo terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/v0.20.0/terraform-docs-v0.20.0-linux-amd64.tar.gz"
-          tar -xzf terraform-docs.tar.gz
-          sudo mv terraform-docs /usr/local/bin/
-          rm terraform-docs.tar.gz
-          # Verify installation
-          terraform-docs --version
-          echo "terraform-docs installed successfully"
+          if ! command -v terraform-docs &> /dev/null; then
+            echo "Installing terraform-docs..."
+            # Install terraform-docs for automatic documentation generation
+            curl -sSLo terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/v0.20.0/terraform-docs-v0.20.0-linux-amd64.tar.gz"
+            tar -xzf terraform-docs.tar.gz
+            sudo mv terraform-docs /usr/local/bin/
+            rm terraform-docs.tar.gz
+            # Verify installation
+            terraform-docs --version
+            echo "terraform-docs installed successfully"
+          else
+            echo "terraform-docs already installed"
+          fi
 
       - name: Install tfsec
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
         run: |
-          # Install tfsec for additional security scanning
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          if ! command -v tfsec &> /dev/null; then
+            echo "Installing tfsec..."
+            # Install tfsec for additional security scanning
+            curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          else
+            echo "tfsec already installed"
+          fi
 
       - name: Initialize Terraform modules for documentation
         run: |
@@ -148,8 +206,13 @@ jobs:
 
       - name: Install pre-commit
         run: |
-          pip install --upgrade pip
-          pip install pre-commit
+          if ! command -v pre-commit &> /dev/null; then
+            echo "Installing pre-commit..."
+            pip install --upgrade pip
+            pip install pre-commit
+          else
+            echo "pre-commit already installed, checking version..."
+          fi
           # Verify pre-commit installation
           pre-commit --version
 
