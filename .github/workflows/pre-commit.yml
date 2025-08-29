@@ -79,8 +79,10 @@ jobs:
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
       - name: Install Checkov
+        # Pin Checkov to a stable version to avoid CI/local drift and known bugs
         run: |
-          pip install checkov
+          pip install checkov==3.2.456
+          # If you update this version, test both locally and in CI to avoid breaking changes
 
       - name: Install terraform-docs
         run: |
