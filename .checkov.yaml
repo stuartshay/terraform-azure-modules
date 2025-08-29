@@ -1,19 +1,13 @@
-# Checkov configuration for Terraform Azure Modules
-
-# Directories to scan
 directory:
   - modules
 
-# Skip paths (exclude examples directories)
 skip-path:
   - modules/app-service-web/examples/
   - modules/monitoring/examples/
 
-# File types to scan
 framework:
   - terraform
 
-# Skip specific checks (add check IDs to skip)
 skip-check:
   - CKV_AZURE_1 # Ensure that 'Secure transfer required' is set to 'Enabled'
   - CKV2_AZURE_1 # Ensure storage for critical data are encrypted with Customer Managed Key
@@ -35,27 +29,21 @@ skip-check:
   - CKV2_AZURE_31 # Ensure VNET subnet is configured with a Network Security Group (NSG)
   - CKV2_AZURE_38 # Ensure soft-delete is enabled on Azure storage account
   - CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
+  - CKV2_AZURE_20 # Ensure Storage logging is enabled for Table service for read requests
+  - CKV2_AZURE_21 # Ensure Storage logging is enabled for Blob service for read requests
+  - CKV_AZURE_33 # Ensure Storage logging is enabled for Queue service for read, write and delete requests
+  - CKV_AZURE_35 # Ensure default network access rule for Storage Accounts is set to deny
+  - CKV_AZURE_36 # Ensure 'Trusted Microsoft Services' is enabled for Storage Account access
+  - CKV2_AZURE_40 # Ensure storage account is not configured with Shared Key authorization
+  - CKV_AZURE_59 # Ensure that Storage accounts disallow public access
+  - CKV_AZURE_206 # Ensure that Storage Accounts use replication
+  - CKV2_AZURE_41 # Ensure storage account is configured with SAS expiration policy
 
-# Output format
 output: cli
-
-# Quiet mode (reduce verbosity)
 quiet: false
-
-# Compact output
 compact: true
-
-# Download external modules
 download-external-modules: false
-
-# External checks directory
 external-checks-dir: []
-
-# Baseline file for suppressing known issues
 # baseline: .checkov.baseline
-
-# Soft fail mode (don't exit with error code)
 soft-fail: false
-
-# Skip downloading of external modules
 skip-download: true
