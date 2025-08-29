@@ -5,16 +5,16 @@ applyTo: '**'
 # User Memory
 
 ## User Preferences
-- Programming languages: Terraform, HCL
-- Code style preferences: Follows Terraform best practices, uses variables and outputs, prefers modular design
-- Development environment: VS Code on Linux, zsh shell, uses recommended extensions for Azure and Terraform
-- Communication style: Concise, actionable, prefers clear recommendations
+- Programming languages: Terraform, HCL, Bash, YAML
+- Code style preferences: Follows Terraform best practices, uses variables and outputs, prefers modular design, explicit version pinning, robust error handling, clear comments
+- Development environment: VS Code on Linux, zsh shell, uses recommended extensions for Azure and Terraform, GitHub Actions, pre-commit, Terraform Cloud
+- Communication style: Concise, actionable, prefers clear recommendations, step-by-step, prefers root-cause analysis
 
 ## Project Context
 - Current project type: Terraform Azure modules (infrastructure as code)
-- Tech stack: Terraform, AzureRM provider, VS Code, GitHub Actions
-- Architecture patterns: Modular Terraform, reusable modules, example-driven
-- Key requirements: Output documentation, CI/CD validation, secure secrets, Azure integration
+- Tech stack: Terraform, AzureRM provider, VS Code, GitHub Actions, pre-commit, Checkov, TFLint, tfsec, shellcheck
+- Architecture patterns: Modular Terraform, reusable modules, example-driven, CI/CD with pre-commit and GitHub Actions
+- Key requirements: Output documentation, CI/CD validation, secure secrets, Azure integration, CI reproducibility, security scanning, documentation automation, robust error handling
 	- Enforce Checkov checks: CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, CKV_AZURE_88 for App Service modules
 
 ## Coding Patterns
@@ -22,10 +22,18 @@ applyTo: '**'
 - Validates inputs and outputs, uses sensitive flags for secrets
 - Documents modules and examples
 - Uses .env and .env.template for secrets and environment variables
+- Preferred patterns and practices: Pin tool versions in CI, auto-commit doc changes, validate configs before running checks
+- Code organization preferences: Modular, clear separation of concerns, comments for rationale
+- Testing approaches: Pre-commit hooks, CI validation, local/CI parity
+- Documentation style: Inline comments, auto-generated docs, summary reports
 
 ## Context7 Research History
 - Terraform CLI credentials and GitHub Actions: Confirmed from hashicorp/setup-terraform README that `cli_config_credentials_token` configures HCP Terraform credentials; environment variable alternative `TF_TOKEN_app_terraform_io` supported (Terraform >=1.2) per CLI config docs.
 - Connection guidance: HashiCorp docs recommend providing credentials then running non-interactive commands; private module registry access requires valid user/team token (not org token).
+- Libraries researched on Context7: Checkov, pre-commit, GitHub Actions best practices
+- Best practices discovered: Pinning Checkov to avoid version drift/bugs, auto-committing terraform-docs changes, robust error handling in workflows
+- Implementation patterns used: Version pinning, config validation, auto-commit/push for doc changes
+- Version-specific findings: Checkov 3.2.456 is stable; newer versions may have breaking changes
 
 ## Shellcheck Issues and Fixes (Aug 2025)
 - SC2086: Added double quotes to all variable expansions in .github/workflows/terraform-cloud-deploy.yml to prevent globbing and word splitting.
@@ -42,6 +50,7 @@ applyTo: '**'
 - Fix implemented: In `.github/workflows/terraform.yml`, added `cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}` to setup-terraform step, plus an explicit verification step hitting `https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION` with the token to fail fast if invalid. Also enforced `-input=false` during init.
 - Manual trigger: Added `workflow_dispatch` to the workflow so runs can be started manually from the Actions tab for on-demand validation.
  - Pre-commit workflow parity: Updated `.github/workflows/pre-commit.yml` to configure HCP Terraform auth with `hashicorp/setup-terraform@v3` using `cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}`, added a verification step using curl against the organizations endpoint, and exported `TF_TOKEN_app_terraform_io` into `$GITHUB_ENV` so hooks like terraform-docs, tflint, and any terraform init during docs generation can access private modules. Avoided using `secrets` in `if:` conditions to satisfy actionlint; used script-level checks instead.
+- Pre-commit workflow CI failure: Checkov bug/version drift caused CI failures; root cause was unpinned Checkov version. Solution: Pin Checkov to 3.2.456 in workflow, add comments for maintainers, robustify workflow. Fix is committed, pushed, and in open PR. Workflow is robust, up to date, and follows best practices for reproducibility and error handling.
 
 ## Dependabot & Private Registry (Aug 2025)
 - Dependabot now configured to access HCP Terraform private registry via `registries`:
@@ -50,18 +59,24 @@ applyTo: '**'
 - Required secret: Create repository secret `DEPENDABOT_TF_API_TOKEN` with a valid HCP Terraform user/team token that has access to the private modules used by the modules in this repo (e.g., app-service-plan-function depends on storage-account).
 
 ## Conversation History
+- Important decisions made: Pin Checkov to 3.2.456, add comments for maintainers, robustify workflow
+- Recurring questions or topics: CI failures due to tool version drift, local vs CI parity, workflow robustness
+- Solutions that worked well: Pinning tool versions, auto-commit for doc changes, explicit config validation
+- Things to avoid or that didn't work: Unpinned tool versions, relying on latest Checkov in CI
 
 ## Function App Module Security/Compliance Fixes (Aug 2025)
 - Issue: Lint error due to incorrect placement of azurerm_private_endpoint resource (was nested inside azurerm_storage_account block)
 - Fix: Moved azurerm_private_endpoint "storage" resource to the top level of main.tf, referencing the storage account and subnet correctly, and conditioned on enable_storage_network_rules and subnet presence
 - Outcome: All validation and linting checks now pass; configuration is valid and secure
 - Note: This pattern should be followed for all future private endpoint resources—never nest resource blocks inside other resource blocks in Terraform
+
 ## Notes
 	- .vscode/settings.json is well-configured for Terraform and Azure development
 	- No MCP Server-specific files found in the repo; MCP Server context is via environment variables and language server integration
 	- All module outputs are well-documented and follow Terraform conventions
 	- Recommend keeping .env out of version control and using .env.template for sharing config structure
 	- CKV_AZURE_213, CKV_AZURE_16, CKV_AZURE_13, and CKV_AZURE_88 are required and must not be skipped in .checkov.yaml for App Service modules. This compliance documentation should be preserved in future changes.
+	- The fix for the pre-commit workflow CI failure is committed, pushed, and in an open PR. The workflow is robust, up to date, and follows best practices for reproducibility and error handling. Checkov is now configured to fail on any finding (not just HIGH/CRITICAL). Next steps: User to review and merge the PR, monitor CI for any further issues.
 
 ## Storage Account Requirements (Issue #34 - Aug 2025)
 - Goal: Refine requirements for the `storage-account` module to enforce diagnostics (StorageRead/Write/Delete) for Blob, File, Queue, Table; enable Blob versioning; and integrate SAS token management with Azure Key Vault.
