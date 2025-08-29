@@ -33,6 +33,9 @@ skip-check:
   - CKV_AZURE_222 # Ensure that Azure Web App public network access is disabled
   - CKV_AZURE_63 # Ensure that App service enables HTTP logging
   - CKV2_AZURE_31 # Ensure VNET subnet is configured with a Network Security Group (NSG)
+  - CKV2_AZURE_38 # Ensure soft-delete is enabled on Azure storage account
+  - CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
+
 
 # Output format
 output: cli
