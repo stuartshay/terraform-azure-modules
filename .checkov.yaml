@@ -36,7 +36,6 @@ skip-check:
   - CKV2_AZURE_38 # Ensure soft-delete is enabled on Azure storage account
   - CKV2_AZURE_33 # Ensure storage account is configured with private endpoint
 
-
 # Output format
 output: cli
 
@@ -57,11 +56,6 @@ external-checks-dir: []
 
 # Soft fail mode (don't exit with error code)
 soft-fail: false
-
-# Hard fail on specific severity levels
-hard-fail-on:
-  - HIGH
-  - CRITICAL
 
 # Skip downloading of external modules
 skip-download: true
