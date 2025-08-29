@@ -57,6 +57,13 @@ module "app-service-plan-function" {
 }
 ```
 
+### Function App  
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/function-app/azurerm/)
+
+
+<REAMEDME HERE>
+
 
 ### App Service Plan Module - Web
 
