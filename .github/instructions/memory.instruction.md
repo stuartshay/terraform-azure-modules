@@ -96,3 +96,15 @@ applyTo: '**'
 	- Updated GitHub Issue #34 with a comprehensive specification: diagnostics categories and destinations, blob versioning + change feed + soft-delete, optional container immutability, and SAS → Key Vault integration with secure defaults.
 	- Added proposed module inputs/outputs and explicit acceptance criteria to guide implementation and testing.
 	- Linked to relevant Microsoft docs for categories and monitoring references to ensure accuracy.
+
+## Pre-commit/Makefile Path Issue (Aug 2025)
+- Issue: 'make terraform-test' and pre-commit fail with '/bin/sh: 5: cd: can't cd to modules/function-app', but the directory exists and is accessible in direct shell.
+- Investigation:
+  - All direct shell and absolute path checks confirm the directory exists and is accessible.
+  - Permissions, casing, and .gitignore are not the cause; directory is not ignored or deleted.
+  - Makefile logic is correct and works for other modules.
+  - The error is reproducible in both Makefile and pre-commit, but not in direct shell.
+  - No symlinks, hidden files, or special characters found in the path.
+  - No evidence of parallelism or race conditions in Makefile or pre-commit config.
+- Hypothesis: The error is likely due to an ephemeral or environmental issue in the pre-commit/Makefile context (e.g., race condition, file lock, or transient FS state). It may also be related to the working directory context or shell environment used by pre-commit or Makefile.
+- Next steps: Consider adding debug output to Makefile/test logic to capture environment state at failure point, or check for parallelism/race conditions in pre-commit or Makefile logic. If the issue persists, try running with 'SHELL=bash make terraform-test' or adding 'pwd' and 'ls' debug lines before the failing 'cd' command in the Makefile.

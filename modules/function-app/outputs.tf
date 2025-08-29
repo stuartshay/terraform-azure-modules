@@ -8,48 +8,49 @@
 
 output "function_app_id" {
   description = "The ID of the Function App"
-  value       = azurerm_linux_function_app.main[0].id
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].id : null
 }
 
 output "function_app_name" {
   description = "The name of the Function App"
-  value       = azurerm_linux_function_app.main[0].name
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].name : null
 }
 
 output "function_app_default_hostname" {
   description = "The default hostname of the Function App"
-  value       = azurerm_linux_function_app.main[0].default_hostname
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].default_hostname : null
 }
 
 output "function_app_kind" {
   description = "The kind of the Function App"
-  value       = azurerm_linux_function_app.main[0].kind
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].kind : null
 }
 
 output "function_app_outbound_ip_addresses" {
   description = "The outbound IP addresses of the Function App"
-  value       = azurerm_linux_function_app.main[0].outbound_ip_addresses
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].outbound_ip_addresses : null
 }
 
 output "function_app_possible_outbound_ip_addresses" {
   description = "The possible outbound IP addresses of the Function App"
-  value       = azurerm_linux_function_app.main[0].possible_outbound_ip_addresses
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].possible_outbound_ip_addresses : null
 }
 
 output "function_app_site_credential" {
   description = "The site credentials for the Function App"
-  value       = azurerm_linux_function_app.main[0].site_credential
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].site_credential : null
   sensitive   = true
 }
 
 output "function_app_custom_domain_verification_id" {
   description = "The custom domain verification ID for the Function App"
-  value       = azurerm_linux_function_app.main[0].custom_domain_verification_id
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].custom_domain_verification_id : null
+  sensitive   = true
 }
 
 output "function_app_hosting_environment_id" {
   description = "The hosting environment ID of the Function App"
-  value       = azurerm_linux_function_app.main[0].hosting_environment_id
+  value       = var.os_type == "Linux" ? azurerm_linux_function_app.main[0].hosting_environment_id : null
 }
 
 

@@ -30,6 +30,10 @@ variable "service_plan_id" {
 variable "os_type" {
   description = "The operating system type for the Function App (Linux or Windows)"
   type        = string
+  validation {
+    condition     = contains(["Linux", "Windows"], var.os_type)
+    error_message = "os_type must be either 'Linux' or 'Windows'."
+  }
 }
 
 variable "runtime_name" {
@@ -56,21 +60,37 @@ variable "enable_vnet_integration" {
 variable "storage_account_tier" {
   description = "The storage account tier (Standard/Premium)"
   type        = string
+  validation {
+    condition     = contains(["Standard", "Premium"], var.storage_account_tier)
+    error_message = "storage_account_tier must be either 'Standard' or 'Premium'."
+  }
 }
 
 variable "storage_account_replication_type" {
-  description = "The storage account replication type (LRS, GRS, etc.)"
+  description = "The storage account replication type (LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS)"
   type        = string
+  validation {
+    condition     = contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.storage_account_replication_type)
+    error_message = "storage_account_replication_type must be one of 'LRS', 'GRS', 'RAGRS', 'ZRS', 'GZRS', or 'RAGZRS'."
+  }
 }
 
 variable "storage_min_tls_version" {
-  description = "The minimum TLS version for the storage account"
+  description = "The minimum TLS version for the storage account. Allowed values: TLS1_0, TLS1_1, TLS1_2, TLS1_3. See https://learn.microsoft.com/en-us/azure/storage/common/storage-require-secure-transfer?tabs=azure-portal#minimum-tls-version"
   type        = string
+  validation {
+    condition     = contains(["TLS1_0", "TLS1_1", "TLS1_2", "TLS1_3"], var.storage_min_tls_version)
+    error_message = "storage_min_tls_version must be one of 'TLS1_0', 'TLS1_1', 'TLS1_2', or 'TLS1_3'."
+  }
 }
 
 variable "storage_blob_delete_retention_days" {
   description = "Days to retain deleted blobs"
   type        = number
+  validation {
+    condition     = var.storage_blob_delete_retention_days >= 1 && var.storage_blob_delete_retention_days <= 365
+    error_message = "storage_blob_delete_retention_days must be between 1 and 365 days."
+  }
 }
 
 variable "storage_container_delete_retention_days" {
@@ -84,8 +104,12 @@ variable "storage_sas_expiration_period" {
 }
 
 variable "storage_sas_expiration_action" {
-  description = "SAS expiration action for storage account"
+  description = "SAS expiration action for storage account. Allowed values: 'Log', 'Block' (case-sensitive). See https://learn.microsoft.com/en-us/rest/api/storagerp/storage-accounts/create?view=rest-storagerp-2024-01-01#expirationaction"
   type        = string
+  validation {
+    condition     = contains(["Log", "Block"], var.storage_sas_expiration_action)
+    error_message = "storage_sas_expiration_action must be either 'Log' or 'Block'."
+  }
 }
 
 variable "enable_storage_network_rules" {
@@ -136,6 +160,10 @@ variable "application_insights_retention_days" {
 variable "application_insights_sampling_percentage" {
   description = "Sampling percentage for Application Insights"
   type        = number
+  validation {
+    condition     = var.application_insights_sampling_percentage >= 0 && var.application_insights_sampling_percentage <= 100
+    error_message = "application_insights_sampling_percentage must be between 0 and 100."
+  }
 }
 
 variable "application_insights_disable_ip_masking" {

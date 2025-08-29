@@ -560,6 +560,96 @@ application_insights_local_auth_disabled = true
 application_insights_disable_ip_masking  = false
 ```
 
+## Testing
+
+This module includes comprehensive Terraform tests to ensure reliability and correctness. The tests are located in the `tests/` directory and use Terraform's native testing framework.
+
+### Test Structure
+
+```
+tests/
+├── basic.tftest.hcl      # Basic functionality tests
+├── validation.tftest.hcl # Input validation tests
+├── outputs.tftest.hcl    # Output validation tests
+└── setup.tftest.hcl      # Documentation and test structure
+```
+
+### Running Tests
+
+#### Run All Tests for This Module
+```bash
+# From the project root
+make terraform-test-module MODULE=function-app
+
+# Or from the module directory
+cd modules/function-app
+terraform test
+```
+
+#### Run Specific Test Files
+```bash
+# Run only basic functionality tests
+terraform test -filter=basic.tftest.hcl
+
+# Run only validation tests
+terraform test -filter=validation.tftest.hcl
+
+# Run only output tests
+terraform test -filter=outputs.tftest.hcl
+```
+
+### Test Coverage
+
+#### Basic Functionality Tests (`basic.tftest.hcl`)
+- ✅ Linux Function App creation with default values
+- ✅ Windows Function App configuration testing
+- ✅ Storage account creation and security configuration
+- ✅ Application Insights integration (enabled/disabled)
+- ✅ Different runtime configurations (Python, Node.js, .NET)
+- ✅ Naming convention compliance
+- ✅ Tag application and validation
+- ✅ Storage blob properties and SAS policies
+
+#### Validation Tests (`validation.tftest.hcl`)
+- ✅ Invalid OS type rejection
+- ✅ Invalid storage account tier rejection
+- ✅ Invalid storage replication type rejection
+- ✅ Invalid TLS version rejection
+- ✅ Invalid client certificate mode rejection
+- ✅ Boundary condition testing (retention days)
+- ✅ Application Insights sampling percentage validation
+- ✅ Valid parameter acceptance verification
+
+#### Output Tests (`outputs.tftest.hcl`)
+- ✅ All Function App outputs populated correctly
+- ✅ Storage Account outputs validation
+- ✅ Application Insights outputs (conditional)
+- ✅ VNet integration outputs
+- ✅ Deployment slots outputs
+- ✅ Configuration summary outputs
+- ✅ Output format validation (naming patterns, URLs)
+- ✅ Non-null/non-empty verification
+
+### Test Execution Environment
+
+All tests use provider mocking (`mock_provider "azurerm" {}`) to avoid requiring actual Azure authentication during test execution. This allows tests to run in:
+
+- CI/CD pipelines without Azure credentials
+- Local development environments
+- Automated testing workflows
+
+### Module-Specific Test Considerations
+
+1. **Conditional Resources**: Tests cover both Linux and Windows Function App scenarios, with the current implementation focusing on Linux Function Apps while validating storage and Application Insights components for Windows configurations.
+
+2. **Application Insights**: Tests validate both enabled and disabled states, ensuring outputs are properly null when disabled and populated when enabled.
+
+3. **VNet Integration**: Tests cover both enabled and disabled VNet integration scenarios.
+
+4. **Storage Account**: Comprehensive testing of storage account configuration including security settings, blob properties, SAS policies, and network rules.
+
+5. **Naming Conventions**: All tests validate that resource names follow the established naming patterns defined in the locals block.
+
 ## Examples
 
 - [Basic](examples/basic/) - Minimal configuration for a Linux Function App
@@ -669,16 +759,16 @@ No modules.
 | <a name="input_runtime_version"></a> [runtime\_version](#input\_runtime\_version) | The runtime version (e.g., 3.9, 16, 6.0) | `string` | n/a | yes |
 | <a name="input_scm_minimum_tls_version"></a> [scm\_minimum\_tls\_version](#input\_scm\_minimum\_tls\_version) | Minimum TLS version for SCM endpoint | `string` | n/a | yes |
 | <a name="input_service_plan_id"></a> [service\_plan\_id](#input\_service\_plan\_id) | The ID of the App Service Plan to use for the Function App | `string` | n/a | yes |
-| <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The storage account replication type (LRS, GRS, etc.) | `string` | n/a | yes |
+| <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The storage account replication type (LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS) | `string` | n/a | yes |
 | <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The storage account tier (Standard/Premium) | `string` | n/a | yes |
 | <a name="input_storage_blob_delete_retention_days"></a> [storage\_blob\_delete\_retention\_days](#input\_storage\_blob\_delete\_retention\_days) | Days to retain deleted blobs | `number` | n/a | yes |
 | <a name="input_storage_container_delete_retention_days"></a> [storage\_container\_delete\_retention\_days](#input\_storage\_container\_delete\_retention\_days) | Days to retain deleted containers | `number` | n/a | yes |
-| <a name="input_storage_min_tls_version"></a> [storage\_min\_tls\_version](#input\_storage\_min\_tls\_version) | The minimum TLS version for the storage account | `string` | n/a | yes |
+| <a name="input_storage_min_tls_version"></a> [storage\_min\_tls\_version](#input\_storage\_min\_tls\_version) | The minimum TLS version for the storage account. Allowed values: TLS1\_0, TLS1\_1, TLS1\_2, TLS1\_3. See https://learn.microsoft.com/en-us/azure/storage/common/storage-require-secure-transfer?tabs=azure-portal#minimum-tls-version | `string` | n/a | yes |
 | <a name="input_storage_network_rules_bypass"></a> [storage\_network\_rules\_bypass](#input\_storage\_network\_rules\_bypass) | Bypass rules for storage network rules | `list(string)` | n/a | yes |
 | <a name="input_storage_network_rules_default_action"></a> [storage\_network\_rules\_default\_action](#input\_storage\_network\_rules\_default\_action) | Default action for storage network rules | `string` | n/a | yes |
 | <a name="input_storage_network_rules_ip_rules"></a> [storage\_network\_rules\_ip\_rules](#input\_storage\_network\_rules\_ip\_rules) | IP rules for storage network rules | `list(string)` | n/a | yes |
 | <a name="input_storage_network_rules_subnet_ids"></a> [storage\_network\_rules\_subnet\_ids](#input\_storage\_network\_rules\_subnet\_ids) | Subnet IDs for storage network rules | `list(string)` | n/a | yes |
-| <a name="input_storage_sas_expiration_action"></a> [storage\_sas\_expiration\_action](#input\_storage\_sas\_expiration\_action) | SAS expiration action for storage account | `string` | n/a | yes |
+| <a name="input_storage_sas_expiration_action"></a> [storage\_sas\_expiration\_action](#input\_storage\_sas\_expiration\_action) | SAS expiration action for storage account. Allowed values: 'Log', 'Block' (case-sensitive). See https://learn.microsoft.com/en-us/rest/api/storagerp/storage-accounts/create?view=rest-storagerp-2024-01-01#expirationaction | `string` | n/a | yes |
 | <a name="input_storage_sas_expiration_period"></a> [storage\_sas\_expiration\_period](#input\_storage\_sas\_expiration\_period) | SAS expiration period for storage account | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources | `map(string)` | n/a | yes |
 | <a name="input_use_32_bit_worker"></a> [use\_32\_bit\_worker](#input\_use\_32\_bit\_worker) | Use 32-bit worker (true/false) | `bool` | n/a | yes |

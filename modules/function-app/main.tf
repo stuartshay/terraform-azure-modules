@@ -22,8 +22,9 @@ locals {
   # Function App naming
   function_app_name = "func-${var.workload}-${var.environment}-${local.location_short}-001"
 
-  # Storage Account naming (must be globally unique and lowercase)
-  storage_account_name = "stfunc${var.workload}${var.environment}${substr(local.location_short, 0, 6)}001"
+  # Storage Account naming (must be globally unique and lowercase, max 24 chars)
+  # Format: stfunc + workload(max 6) + env(max 3) + location(max 6) + 001 = max 24 chars
+  storage_account_name = "stfunc${substr(var.workload, 0, 6)}${substr(var.environment, 0, 3)}${substr(local.location_short, 0, 6)}001"
 
   # Application Insights naming
   app_insights_name = "appi-${var.workload}-functions-${var.environment}-${local.location_short}-001"

@@ -273,8 +273,13 @@ terraform-test: ## Run Terraform tests for all modules
 	@find $(MODULES_PATH) -name "*.tftest.hcl" -exec dirname {} \; | sort -u | while read -r test_dir; do \
 		module_dir=$$(echo "$$test_dir" | sed 's|/tests||'); \
 		module_name=$$(basename "$$module_dir"); \
+		abs_module_dir="$$(pwd)/$$module_dir"; \
 		echo "$(BLUE)Testing module: $$module_name$(RESET)"; \
-		cd "$$module_dir" && terraform test; \
+		echo "[DEBUG] Project root: $$(pwd)"; \
+		echo "[DEBUG] Attempting cd to: $$abs_module_dir"; \
+		ls -ld "$$abs_module_dir" || echo "[DEBUG] ls failed for $$abs_module_dir"; \
+		ls -la "$$abs_module_dir" || echo "[DEBUG] ls -la failed for $$abs_module_dir"; \
+		(cd "$$abs_module_dir" && echo "[DEBUG] cd succeeded: $$(pwd)" && terraform test) || (echo "[DEBUG] cd or terraform test failed for $$abs_module_dir" && exit 1); \
 	done
 	@echo "$(GREEN)Terraform tests completed$(RESET)"
 
