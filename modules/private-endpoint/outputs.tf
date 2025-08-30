@@ -28,13 +28,13 @@ output "subnet_id" {
 
 output "private_service_connection" {
   description = "Private service connection details"
-  value = {
+  value = length(azurerm_private_endpoint.main.private_service_connection) > 0 ? {
     name                           = azurerm_private_endpoint.main.private_service_connection[0].name
     private_connection_resource_id = azurerm_private_endpoint.main.private_service_connection[0].private_connection_resource_id
     subresource_names              = azurerm_private_endpoint.main.private_service_connection[0].subresource_names
     is_manual_connection           = azurerm_private_endpoint.main.private_service_connection[0].is_manual_connection
     private_ip_address             = azurerm_private_endpoint.main.private_service_connection[0].private_ip_address
-  }
+  } : null
 }
 
 output "private_dns_zone_group" {
@@ -65,7 +65,7 @@ output "custom_dns_configs" {
 
 output "private_ip_address" {
   description = "Private IP address of the private endpoint"
-  value       = azurerm_private_endpoint.main.private_service_connection[0].private_ip_address
+  value       = length(azurerm_private_endpoint.main.private_service_connection) > 0 ? azurerm_private_endpoint.main.private_service_connection[0].private_ip_address : null
 }
 
 output "fqdn" {
