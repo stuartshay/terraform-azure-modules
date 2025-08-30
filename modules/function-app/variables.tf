@@ -1,3 +1,8 @@
+variable "app_settings" {
+  description = "Additional app settings for the Function App."
+  type        = map(string)
+  default     = {}
+}
 
 
 # All variables required by main.tf and outputs.tf for the Function App module

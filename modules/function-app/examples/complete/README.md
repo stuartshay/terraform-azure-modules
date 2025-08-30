@@ -530,7 +530,7 @@ Contributions are welcome! Please read the contributing guidelines and submit pu
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.40 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 
@@ -559,29 +559,19 @@ Contributions are welcome! Please read the contributing guidelines and submit pu
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_service_plan_sku"></a> [app\_service\_plan\_sku](#input\_app\_service\_plan\_sku) | The SKU for the App Service Plan | `string` | `"EP1"` | no |
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | Additional app settings for the Function App | `map(string)` | <pre>{<br/>  "API_VERSION": "v1",<br/>  "CUSTOM_SETTING": "example_value",<br/>  "FEATURE_FLAGS": "enabled"<br/>}</pre> | no |
-| <a name="input_auth_settings_active_directory"></a> [auth\_settings\_active\_directory](#input\_auth\_settings\_active\_directory) | Active Directory authentication settings | <pre>object({<br/>    client_id         = string<br/>    client_secret     = string<br/>    allowed_audiences = optional(list(string), [])<br/>  })</pre> | `null` | no |
-| <a name="input_auth_settings_default_provider"></a> [auth\_settings\_default\_provider](#input\_auth\_settings\_default\_provider) | The default authentication provider | `string` | `"AzureActiveDirectory"` | no |
-| <a name="input_auth_settings_token_store_enabled"></a> [auth\_settings\_token\_store\_enabled](#input\_auth\_settings\_token\_store\_enabled) | Whether token store is enabled | `bool` | `false` | no |
-| <a name="input_auth_settings_unauthenticated_client_action"></a> [auth\_settings\_unauthenticated\_client\_action](#input\_auth\_settings\_unauthenticated\_client\_action) | The action to take for unauthenticated clients | `string` | `"RedirectToLoginPage"` | no |
-| <a name="input_backup_storage_account_url"></a> [backup\_storage\_account\_url](#input\_backup\_storage\_account\_url) | The storage account URL for backups | `string` | `null` | no |
 | <a name="input_client_certificate_enabled"></a> [client\_certificate\_enabled](#input\_client\_certificate\_enabled) | Whether client certificates are enabled | `bool` | `true` | no |
 | <a name="input_client_certificate_mode"></a> [client\_certificate\_mode](#input\_client\_certificate\_mode) | The client certificate mode | `string` | `"Optional"` | no |
-| <a name="input_connection_strings"></a> [connection\_strings](#input\_connection\_strings) | Connection strings for the Function App | <pre>list(object({<br/>    name  = string<br/>    type  = string<br/>    value = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_cors_allowed_origins"></a> [cors\_allowed\_origins](#input\_cors\_allowed\_origins) | The allowed origins for CORS | `list(string)` | <pre>[<br/>  "https://portal.azure.com",<br/>  "https://ms.portal.azure.com"<br/>]</pre> | no |
 | <a name="input_cors_support_credentials"></a> [cors\_support\_credentials](#input\_cors\_support\_credentials) | Whether CORS should support credentials | `bool` | `false` | no |
 | <a name="input_cost_center"></a> [cost\_center](#input\_cost\_center) | Cost center for resource billing | `string` | `"engineering"` | no |
 | <a name="input_database_connection_string"></a> [database\_connection\_string](#input\_database\_connection\_string) | Database connection string to store in Key Vault | `string` | `"Server=tcp:example.database.windows.net,1433;Database=example;User ID=admin;Password=SecurePassword123!;Encrypt=true;TrustServerCertificate=false;Connection Timeout=30;"` | no |
 | <a name="input_deployment_slots"></a> [deployment\_slots](#input\_deployment\_slots) | Map of deployment slots to create | <pre>map(object({<br/>    public_network_access_enabled = optional(bool, true)<br/>    app_settings                  = optional(map(string), {})<br/>  }))</pre> | <pre>{<br/>  "staging": {<br/>    "app_settings": {<br/>      "DEBUG_MODE": "true",<br/>      "ENVIRONMENT": "staging",<br/>      "LOG_LEVEL": "DEBUG",<br/>      "SLOT_NAME": "staging"<br/>    },<br/>    "public_network_access_enabled": false<br/>  },<br/>  "testing": {<br/>    "app_settings": {<br/>      "DEBUG_MODE": "true",<br/>      "ENVIRONMENT": "testing",<br/>      "FEATURE_FLAGS": "experimental",<br/>      "LOG_LEVEL": "DEBUG",<br/>      "SLOT_NAME": "testing"<br/>    },<br/>    "public_network_access_enabled": false<br/>  }<br/>}</pre> | no |
 | <a name="input_elastic_instance_minimum"></a> [elastic\_instance\_minimum](#input\_elastic\_instance\_minimum) | The minimum number of elastic instances for Premium plans | `number` | `1` | no |
-| <a name="input_enable_auth_settings"></a> [enable\_auth\_settings](#input\_enable\_auth\_settings) | Whether to enable authentication settings | `bool` | `false` | no |
-| <a name="input_enable_backup"></a> [enable\_backup](#input\_enable\_backup) | Whether to enable backup for the Function App | `bool` | `false` | no |
 | <a name="input_enable_cors"></a> [enable\_cors](#input\_enable\_cors) | Whether to enable CORS | `bool` | `true` | no |
 | <a name="input_enable_storage_network_rules"></a> [enable\_storage\_network\_rules](#input\_enable\_storage\_network\_rules) | Whether to enable network rules for the storage account | `bool` | `true` | no |
 | <a name="input_enable_vnet_integration"></a> [enable\_vnet\_integration](#input\_enable\_vnet\_integration) | Whether to enable VNet integration for the Function App | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | `"dev"` | no |
 | <a name="input_function_app_scale_limit"></a> [function\_app\_scale\_limit](#input\_function\_app\_scale\_limit) | The maximum number of instances for the Function App | `number` | `100` | no |
-| <a name="input_health_check_path"></a> [health\_check\_path](#input\_health\_check\_path) | The health check path for the Function App | `string` | `"/api/health"` | no |
-| <a name="input_ip_restrictions"></a> [ip\_restrictions](#input\_ip\_restrictions) | List of IP restrictions for the Function App | <pre>list(object({<br/>    ip_address                = optional(string)<br/>    service_tag               = optional(string)<br/>    virtual_network_subnet_id = optional(string)<br/>    name                      = string<br/>    priority                  = number<br/>    action                    = string<br/>    headers = optional(object({<br/>      x_azure_fdid      = optional(list(string))<br/>      x_fd_health_probe = optional(list(string))<br/>      x_forwarded_for   = optional(list(string))<br/>      x_forwarded_host  = optional(list(string))<br/>    }))<br/>  }))</pre> | <pre>[<br/>  {<br/>    "action": "Allow",<br/>    "name": "AllowAzurePortal",<br/>    "priority": 100,<br/>    "service_tag": "AzurePortal"<br/>  }<br/>]</pre> | no |
 | <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for the App Service Plan | `number` | `10` | no |
 | <a name="input_os_type"></a> [os\_type](#input\_os\_type) | The operating system type for the Function App | `string` | `"Linux"` | no |
 | <a name="input_owner"></a> [owner](#input\_owner) | Owner of the resources | `string` | `"platform-team"` | no |
@@ -590,8 +580,6 @@ Contributions are welcome! Please read the contributing guidelines and submit pu
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the existing resource group | `string` | `"rg-example-dev-001"` | no |
 | <a name="input_runtime_name"></a> [runtime\_name](#input\_runtime\_name) | The runtime name for the Function App | `string` | `"python"` | no |
 | <a name="input_runtime_version"></a> [runtime\_version](#input\_runtime\_version) | The runtime version for the Function App | `string` | `"3.11"` | no |
-| <a name="input_scm_ip_restrictions"></a> [scm\_ip\_restrictions](#input\_scm\_ip\_restrictions) | List of SCM IP restrictions for the Function App | <pre>list(object({<br/>    ip_address                = optional(string)<br/>    service_tag               = optional(string)<br/>    virtual_network_subnet_id = optional(string)<br/>    name                      = string<br/>    priority                  = number<br/>    action                    = string<br/>    headers = optional(object({<br/>      x_azure_fdid      = optional(list(string))<br/>      x_fd_health_probe = optional(list(string))<br/>      x_forwarded_for   = optional(list(string))<br/>      x_forwarded_host  = optional(list(string))<br/>    }))<br/>  }))</pre> | <pre>[<br/>  {<br/>    "action": "Allow",<br/>    "name": "AllowAzurePortal",<br/>    "priority": 100,<br/>    "service_tag": "AzurePortal"<br/>  }<br/>]</pre> | no |
-| <a name="input_storage_public_network_access_enabled"></a> [storage\_public\_network\_access\_enabled](#input\_storage\_public\_network\_access\_enabled) | Whether public network access is enabled for the storage account | `bool` | `false` | no |
 | <a name="input_subnet_name"></a> [subnet\_name](#input\_subnet\_name) | The name of the existing subnet for VNet integration | `string` | `"snet-functions-dev-001"` | no |
 | <a name="input_use_dotnet_isolated_runtime"></a> [use\_dotnet\_isolated\_runtime](#input\_use\_dotnet\_isolated\_runtime) | Whether to use .NET isolated runtime | `bool` | `false` | no |
 | <a name="input_virtual_network_name"></a> [virtual\_network\_name](#input\_virtual\_network\_name) | The name of the existing virtual network | `string` | `"vnet-example-dev-001"` | no |
@@ -603,7 +591,6 @@ Contributions are welcome! Please read the contributing guidelines and submit pu
 
 | Name | Description |
 |------|-------------|
-| <a name="output_access_information"></a> [access\_information](#output\_access\_information) | Information for accessing and managing the Function App |
 | <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
 | <a name="output_app_service_plan_name"></a> [app\_service\_plan\_name](#output\_app\_service\_plan\_name) | The name of the App Service Plan |
 | <a name="output_app_service_plan_sku"></a> [app\_service\_plan\_sku](#output\_app\_service\_plan\_sku) | The SKU of the App Service Plan |
@@ -614,43 +601,21 @@ Contributions are welcome! Please read the contributing guidelines and submit pu
 | <a name="output_application_insights_name"></a> [application\_insights\_name](#output\_application\_insights\_name) | The name of Application Insights |
 | <a name="output_deployment_slot_count"></a> [deployment\_slot\_count](#output\_deployment\_slot\_count) | Number of deployment slots created |
 | <a name="output_deployment_slot_names"></a> [deployment\_slot\_names](#output\_deployment\_slot\_names) | List of deployment slot names |
-| <a name="output_deployment_slots"></a> [deployment\_slots](#output\_deployment\_slots) | Information about deployment slots |
-| <a name="output_deployment_summary"></a> [deployment\_summary](#output\_deployment\_summary) | Complete deployment summary |
 | <a name="output_diagnostic_settings_enabled"></a> [diagnostic\_settings\_enabled](#output\_diagnostic\_settings\_enabled) | Whether diagnostic settings are enabled |
-| <a name="output_diagnostic_settings_function_app_id"></a> [diagnostic\_settings\_function\_app\_id](#output\_diagnostic\_settings\_function\_app\_id) | The ID of the Function App diagnostic settings |
-| <a name="output_diagnostic_settings_storage_account_id"></a> [diagnostic\_settings\_storage\_account\_id](#output\_diagnostic\_settings\_storage\_account\_id) | The ID of the storage account diagnostic settings |
 | <a name="output_environment"></a> [environment](#output\_environment) | The environment name |
 | <a name="output_function_app_default_hostname"></a> [function\_app\_default\_hostname](#output\_function\_app\_default\_hostname) | The default hostname of the Function App |
 | <a name="output_function_app_id"></a> [function\_app\_id](#output\_function\_app\_id) | The ID of the Function App |
-| <a name="output_function_app_identity"></a> [function\_app\_identity](#output\_function\_app\_identity) | The complete managed identity information of the Function App |
 | <a name="output_function_app_name"></a> [function\_app\_name](#output\_function\_app\_name) | The name of the Function App |
 | <a name="output_function_app_outbound_ip_addresses"></a> [function\_app\_outbound\_ip\_addresses](#output\_function\_app\_outbound\_ip\_addresses) | The outbound IP addresses of the Function App |
 | <a name="output_function_app_possible_outbound_ip_addresses"></a> [function\_app\_possible\_outbound\_ip\_addresses](#output\_function\_app\_possible\_outbound\_ip\_addresses) | The possible outbound IP addresses of the Function App |
-| <a name="output_function_app_principal_id"></a> [function\_app\_principal\_id](#output\_function\_app\_principal\_id) | The principal ID of the Function App's system-assigned managed identity |
 | <a name="output_function_app_summary"></a> [function\_app\_summary](#output\_function\_app\_summary) | Summary of the Function App deployment |
-| <a name="output_function_app_tenant_id"></a> [function\_app\_tenant\_id](#output\_function\_app\_tenant\_id) | The tenant ID of the Function App's managed identity |
-| <a name="output_function_app_url"></a> [function\_app\_url](#output\_function\_app\_url) | The URL of the Function App |
-| <a name="output_key_vault_id"></a> [key\_vault\_id](#output\_key\_vault\_id) | The ID of the Key Vault |
-| <a name="output_key_vault_name"></a> [key\_vault\_name](#output\_key\_vault\_name) | The name of the Key Vault |
-| <a name="output_key_vault_uri"></a> [key\_vault\_uri](#output\_key\_vault\_uri) | The URI of the Key Vault |
 | <a name="output_location"></a> [location](#output\_location) | The Azure region where resources are deployed |
-| <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id) | The ID of the Log Analytics workspace |
-| <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name) | The name of the Log Analytics workspace |
-| <a name="output_log_analytics_workspace_workspace_id"></a> [log\_analytics\_workspace\_workspace\_id](#output\_log\_analytics\_workspace\_workspace\_id) | The workspace ID of the Log Analytics workspace |
 | <a name="output_network_configuration"></a> [network\_configuration](#output\_network\_configuration) | Network configuration of the Function App |
 | <a name="output_performance_configuration"></a> [performance\_configuration](#output\_performance\_configuration) | Performance configuration of the Function App |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the resource group |
 | <a name="output_runtime_configuration"></a> [runtime\_configuration](#output\_runtime\_configuration) | Runtime configuration of the Function App |
 | <a name="output_security_configuration"></a> [security\_configuration](#output\_security\_configuration) | Security configuration of the Function App |
-| <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | The ID of the storage account |
-| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the storage account |
-| <a name="output_storage_account_primary_blob_endpoint"></a> [storage\_account\_primary\_blob\_endpoint](#output\_storage\_account\_primary\_blob\_endpoint) | The primary blob endpoint for the storage account |
-| <a name="output_storage_account_primary_queue_endpoint"></a> [storage\_account\_primary\_queue\_endpoint](#output\_storage\_account\_primary\_queue\_endpoint) | The primary queue endpoint for the storage account |
-| <a name="output_storage_account_primary_table_endpoint"></a> [storage\_account\_primary\_table\_endpoint](#output\_storage\_account\_primary\_table\_endpoint) | The primary table endpoint for the storage account |
-| <a name="output_user_assigned_identity_id"></a> [user\_assigned\_identity\_id](#output\_user\_assigned\_identity\_id) | The ID of the user-assigned managed identity |
-| <a name="output_user_assigned_identity_principal_id"></a> [user\_assigned\_identity\_principal\_id](#output\_user\_assigned\_identity\_principal\_id) | The principal ID of the user-assigned managed identity |
 | <a name="output_vnet_integration_enabled"></a> [vnet\_integration\_enabled](#output\_vnet\_integration\_enabled) | Whether VNet integration is enabled |
-| <a name="output_vnet_integration_id"></a> [vnet\_integration\_id](#output\_vnet\_integration\_id) | The ID of the VNet integration |
 | <a name="output_vnet_integration_subnet_id"></a> [vnet\_integration\_subnet\_id](#output\_vnet\_integration\_subnet\_id) | The subnet ID used for VNet integration |
 | <a name="output_workload"></a> [workload](#output\_workload) | The workload name |
 <!-- END_TF_DOCS -->

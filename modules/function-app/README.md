@@ -725,6 +725,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_always_on"></a> [always\_on](#input\_always\_on) | Enable Always On (true/false) | `bool` | n/a | yes |
+| <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | Additional app settings for the Function App. | `map(string)` | `{}` | no |
 | <a name="input_application_insights_disable_ip_masking"></a> [application\_insights\_disable\_ip\_masking](#input\_application\_insights\_disable\_ip\_masking) | Disable IP masking for Application Insights (true/false) | `bool` | n/a | yes |
 | <a name="input_application_insights_internet_ingestion_enabled"></a> [application\_insights\_internet\_ingestion\_enabled](#input\_application\_insights\_internet\_ingestion\_enabled) | Enable internet ingestion for Application Insights (true/false) | `bool` | n/a | yes |
 | <a name="input_application_insights_internet_query_enabled"></a> [application\_insights\_internet\_query\_enabled](#input\_application\_insights\_internet\_query\_enabled) | Enable internet query for Application Insights (true/false) | `bool` | n/a | yes |

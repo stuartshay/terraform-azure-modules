@@ -37,7 +37,15 @@ module "app_service_plan" {
 
 # Function App
 module "function_app" {
-  source = "../../"
+  websockets_enabled         = false
+  enable_cors                = false
+  cors_allowed_origins       = []
+  cors_support_credentials   = false
+  enable_vnet_integration    = false
+  vnet_integration_subnet_id = null
+  scm_minimum_tls_version    = "1.2"
+  enable_diagnostic_settings = false
+  source                     = "../../"
 
   # Required variables
   workload            = var.workload
@@ -47,8 +55,51 @@ module "function_app" {
   service_plan_id     = module.app_service_plan.app_service_plan_id
 
   # Runtime configuration
-  runtime_name    = "python"
-  runtime_version = "3.11"
+  runtime_name                = "python"
+  runtime_version             = "3.11"
+  os_type                     = "Linux"
+  functions_extension_version = "~4"
+  use_dotnet_isolated_runtime = false
+
+  # Storage account configuration
+  storage_account_tier                    = "Standard"
+  storage_account_replication_type        = "LRS"
+  storage_min_tls_version                 = "TLS1_2"
+  storage_blob_delete_retention_days      = 7
+  storage_container_delete_retention_days = 7
+  storage_sas_expiration_period           = "01.00:00:00"
+  storage_sas_expiration_action           = "Log"
+  enable_storage_network_rules            = false
+  storage_network_rules_default_action    = "Allow"
+  storage_network_rules_bypass            = ["AzureServices"]
+  storage_network_rules_ip_rules          = []
+  storage_network_rules_subnet_ids        = []
+
+  # Application Insights
+  enable_application_insights                     = false
+  application_insights_type                       = "web"
+  application_insights_retention_days             = 90
+  application_insights_sampling_percentage        = 100
+  application_insights_disable_ip_masking         = false
+  application_insights_local_auth_disabled        = true
+  application_insights_internet_ingestion_enabled = true
+  application_insights_internet_query_enabled     = true
+  log_analytics_workspace_id                      = null
+
+  # Security and networking
+  https_only                    = true
+  public_network_access_enabled = true
+  client_certificate_enabled    = false
+  client_certificate_mode       = "Optional"
+  use_32_bit_worker             = false
+  always_on                     = true
+  pre_warmed_instance_count     = 1
+  elastic_instance_minimum      = 1
+  function_app_scale_limit      = 10
+  worker_count                  = 1
+  remote_debugging_enabled      = false
+  remote_debugging_version      = "VS2019"
+  deployment_slots              = {}
 
   # Basic app settings
   app_settings = {

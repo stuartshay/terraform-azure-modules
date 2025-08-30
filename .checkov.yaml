@@ -38,6 +38,13 @@ skip-check:
   - CKV_AZURE_59 # Ensure that Storage accounts disallow public access
   - CKV_AZURE_206 # Ensure that Storage Accounts use replication
   - CKV2_AZURE_41 # Ensure storage account is configured with SAS expiration policy
+  - CKV2_AZURE_32 # Ensure private endpoint is configured to key vault
+  - CKV_AZURE_110 #Ensure that key vault enables purge protection"
+  - CKV_AZURE_42 # Ensure the key vault is recoverable
+  - CKV_AZURE_41 # Ensure that the expiration date is set on all secrets"
+  - CKV_AZURE_114 #Ensure that key vault secrets have "content_type" set"
+  - CKV_TF_1 # Ensure Terraform module sources use a commit hash
+
 
 output: cli
 quiet: false

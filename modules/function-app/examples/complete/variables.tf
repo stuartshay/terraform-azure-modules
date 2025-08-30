@@ -184,11 +184,6 @@ variable "worker_count" {
   }
 }
 
-variable "health_check_path" {
-  description = "The health check path for the Function App"
-  type        = string
-  default     = "/api/health"
-}
 
 #######################
 # Network Configuration
@@ -227,67 +222,12 @@ variable "cors_support_credentials" {
   default     = false
 }
 
-variable "ip_restrictions" {
-  description = "List of IP restrictions for the Function App"
-  type = list(object({
-    ip_address                = optional(string)
-    service_tag               = optional(string)
-    virtual_network_subnet_id = optional(string)
-    name                      = string
-    priority                  = number
-    action                    = string
-    headers = optional(object({
-      x_azure_fdid      = optional(list(string))
-      x_fd_health_probe = optional(list(string))
-      x_forwarded_for   = optional(list(string))
-      x_forwarded_host  = optional(list(string))
-    }))
-  }))
-  default = [
-    {
-      name        = "AllowAzurePortal"
-      service_tag = "AzurePortal"
-      priority    = 100
-      action      = "Allow"
-    }
-  ]
-}
 
-variable "scm_ip_restrictions" {
-  description = "List of SCM IP restrictions for the Function App"
-  type = list(object({
-    ip_address                = optional(string)
-    service_tag               = optional(string)
-    virtual_network_subnet_id = optional(string)
-    name                      = string
-    priority                  = number
-    action                    = string
-    headers = optional(object({
-      x_azure_fdid      = optional(list(string))
-      x_fd_health_probe = optional(list(string))
-      x_forwarded_for   = optional(list(string))
-      x_forwarded_host  = optional(list(string))
-    }))
-  }))
-  default = [
-    {
-      name        = "AllowAzurePortal"
-      service_tag = "AzurePortal"
-      priority    = 100
-      action      = "Allow"
-    }
-  ]
-}
 
 #######################
 # Storage Configuration
 #######################
 
-variable "storage_public_network_access_enabled" {
-  description = "Whether public network access is enabled for the storage account"
-  type        = bool
-  default     = false
-}
 
 variable "enable_storage_network_rules" {
   description = "Whether to enable network rules for the storage account"
@@ -309,15 +249,6 @@ variable "app_settings" {
   }
 }
 
-variable "connection_strings" {
-  description = "Connection strings for the Function App"
-  type = list(object({
-    name  = string
-    type  = string
-    value = string
-  }))
-  default = []
-}
 
 variable "database_connection_string" {
   description = "Database connection string to store in Key Vault"
@@ -363,65 +294,16 @@ variable "deployment_slots" {
 # Authentication Configuration
 #######################
 
-variable "enable_auth_settings" {
-  description = "Whether to enable authentication settings"
-  type        = bool
-  default     = false
-}
 
-variable "auth_settings_default_provider" {
-  description = "The default authentication provider"
-  type        = string
-  default     = "AzureActiveDirectory"
 
-  validation {
-    condition     = contains(["AzureActiveDirectory", "Facebook", "Google", "MicrosoftAccount", "Twitter"], var.auth_settings_default_provider)
-    error_message = "Auth settings default provider must be one of the supported providers."
-  }
-}
 
-variable "auth_settings_unauthenticated_client_action" {
-  description = "The action to take for unauthenticated clients"
-  type        = string
-  default     = "RedirectToLoginPage"
 
-  validation {
-    condition     = contains(["RedirectToLoginPage", "AllowAnonymous"], var.auth_settings_unauthenticated_client_action)
-    error_message = "Auth settings unauthenticated client action must be 'RedirectToLoginPage' or 'AllowAnonymous'."
-  }
-}
-
-variable "auth_settings_token_store_enabled" {
-  description = "Whether token store is enabled"
-  type        = bool
-  default     = false
-}
-
-variable "auth_settings_active_directory" {
-  description = "Active Directory authentication settings"
-  type = object({
-    client_id         = string
-    client_secret     = string
-    allowed_audiences = optional(list(string), [])
-  })
-  default = null
-}
 
 #######################
 # Backup Configuration
 #######################
 
-variable "enable_backup" {
-  description = "Whether to enable backup for the Function App"
-  type        = bool
-  default     = false
-}
 
-variable "backup_storage_account_url" {
-  description = "The storage account URL for backups"
-  type        = string
-  default     = null
-}
 
 #######################
 # Tags and Metadata

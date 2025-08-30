@@ -139,4 +139,7 @@ resource "azurerm_linux_function_app" "main" {
 
   # Application Insights configuration
   # Application Insights connection string and key removed (invalid attributes)
+
+  # App settings
+  app_settings = var.app_settings
 }
