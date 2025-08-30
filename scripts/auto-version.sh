@@ -32,12 +32,12 @@ print_error() {
 # Check arguments
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     print_error "Usage: $0 <module-name> [version-type]"
-    print_error "module-name: app-service-web, monitoring"
+    print_error "module-name: app-service-plan-web, monitoring"
     print_error "version-type: major, minor, patch (default: patch)"
     print_error "Examples:"
-    print_error "  $0 app-service-web patch    # 1.0.0 -> 1.0.1"
+    print_error "  $0 app-service-plan-web patch    # 1.0.0 -> 1.0.1"
     print_error "  $0 monitoring minor     # 1.0.0 -> 1.1.0"
-    print_error "  $0 app-service-web major    # 1.0.0 -> 2.0.0"
+    print_error "  $0 app-service-plan-web major    # 1.0.0 -> 2.0.0"
     exit 1
 fi
 
@@ -45,8 +45,8 @@ MODULE_NAME=$1
 VERSION_TYPE=${2:-patch}
 
 # Validate module name
-if [[ ! "$MODULE_NAME" =~ ^(app-service-web|monitoring)$ ]]; then
-    print_error "Invalid module name. Available modules: app-service-web, monitoring"
+if [[ ! "$MODULE_NAME" =~ ^(app-service-plan-web|monitoring)$ ]]; then
+    print_error "Invalid module name. Available modules: app-service-plan-web, monitoring"
     exit 1
 fi
 

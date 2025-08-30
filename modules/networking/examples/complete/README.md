@@ -129,7 +129,7 @@ This networking setup can be integrated with other Azure services:
 ```hcl
 # Use App Service subnet for web apps
 module "app_service" {
-  source = "../../../app-service-web"
+  source = "../../../app-service-plan-web"
   
   subnet_id = module.networking.app_service_subnet_id
   # ... other configuration

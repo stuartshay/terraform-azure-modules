@@ -17,7 +17,7 @@ provider "azurerm" {
 
 # Create a resource group for this example
 resource "azurerm_resource_group" "example" {
-  name     = "rg-app-service-web-complete-example"
+  name     = "rg-app-service-plan-web-complete-example"
   location = "East US"
 
   tags = local.common_tags
@@ -57,7 +57,7 @@ locals {
 
   common_tags = {
     Environment = local.environment
-    Project     = "app-service-web-complete-example"
+    Project     = "app-service-plan-web-complete-example"
     Owner       = "platform-team"
     Example     = "complete"
     CostCenter  = "engineering"
