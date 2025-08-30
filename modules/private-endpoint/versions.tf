@@ -1,0 +1,13 @@
+# Private Endpoint Module - Provider Requirements
+# This file defines the required Terraform and provider versions
+
+terraform {
+  required_version = ">= 1.5"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
