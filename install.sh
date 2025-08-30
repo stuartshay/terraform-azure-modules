@@ -317,6 +317,7 @@ install_terraform_docs() {
 }
 
 # Function to install Checkov
+# Pin Checkov to version 3.2.456 to match CI and avoid version drift/bugs
 install_checkov() {
   if command -v checkov >/dev/null 2>&1; then
     echo "Checkov is already installed: $(checkov --version)"
@@ -327,11 +328,11 @@ install_checkov() {
 
   # Check if Python 3 is available
   if command -v python3 >/dev/null 2>&1; then
-    # Install using pip3
+    # Install using pip3 - pinned to same version as CI to avoid drift
     if command -v pip3 >/dev/null 2>&1; then
-      pip3 install --user checkov
+      pip3 install --user checkov==3.2.456
     else
-      python3 -m pip install --user checkov
+      python3 -m pip install --user checkov==3.2.456
     fi
   elif [[ "$OS" == "Darwin" ]] && command -v brew >/dev/null 2>&1; then
     # Fallback to Homebrew on macOS

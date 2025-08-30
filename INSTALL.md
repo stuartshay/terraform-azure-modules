@@ -188,6 +188,7 @@ Located in `.checkov.yaml`:
 - Configured for Terraform framework
 - Excludes irrelevant checks for modules
 - Hard fails on HIGH and CRITICAL issues
+- **Version pinned to 3.2.456** for consistency between local and CI environments
 
 ### Pre-commit Hooks
 Located in `.pre-commit-config.yaml`:

@@ -1,16 +1,16 @@
 {
   "recommendations": [
     "hashicorp.terraform",
-    "ms-vscode.test-adapter-converter",
-    "hbenl.vscode-test-explorer",
-    "formulahendry.terminal",
-    "ms-vscode.makefile-tools",
-    "redhat.vscode-yaml",
-    "ms-vscode.vscode-json",
-    "streetsidesoftware.code-spell-checker",
-    "ms-vscode.powershell",
     "ms-azuretools.vscode-azureterraform",
-    "ms-azuretools.vscode-azureresourcegroups"
+    "ms-azuretools.vscode-azureresourcegroups",
+    "ms-vscode.makefile-tools",
+    "ms-vscode.powershell",
+    "ms-vscode.test-adapter-converter",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "hbenl.vscode-test-explorer",
+    "streetsidesoftware.code-spell-checker",
+    "agentity.mcp-audit-extension"
   ],
   "unwantedRecommendations": []
 }
