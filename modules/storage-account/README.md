@@ -543,7 +543,7 @@ module "storage_account" {
 
 # Use storage account in app service module
 module "app_service" {
-  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-web?ref=v1.0.0"
+  source = "github.com/stuartshay/terraform-azure-modules//modules/app-service-plan-web?ref=v1.0.0"
   
   app_settings = {
     "STORAGE_CONNECTION_STRING" = module.storage_account.primary_connection_string

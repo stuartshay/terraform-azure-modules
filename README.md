@@ -113,11 +113,11 @@ module "function_app" {
 
 ### App Service Plan Module - Web
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-plan-web/azurerm/)
 
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
-- **Path**: `modules/app-service-web`
+- **Path**: `modules/app-service-plan-web`
 - **Provider**: `azurerm`
 - **Version**: `>= 4.40`
 
@@ -135,7 +135,7 @@ Azure App Service resources including App Service Plan and Web App with VNET int
 
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-web/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
@@ -379,7 +379,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web, app-service-plan-function, networking, storage-account, or monitoring)
+- **Module selection** (app-service-plan-web, app-service-plan-function, networking, storage-account, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -395,7 +395,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service-web, app-service-plan-function, or monitoring)
+3. Select module (app-service-plan-web, app-service-plan-function, or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -474,7 +474,7 @@ This repository uses semantic versioning with branch-specific formatting to dist
 Each successful deployment creates a Git tag in the format: `{module-name}-v{version}`
 
 Examples:
-- `app-service-web-v1.1.5` (production release from master)
+- `app-service-plan-web-v1.1.5` (production release from master)
 - `monitoring-v1.1.5-beta` (beta release from develop branch)
 
 ### Usage Examples
@@ -482,7 +482,7 @@ Examples:
 **Production version (from master branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service-web/azurerm"
+  source  = "app.terraform.io/your-org/app-service-plan-web/azurerm"
   version = "1.1.5"  # Stable production release
 }
 ```
@@ -490,7 +490,7 @@ module "app_service" {
 **Beta version (from develop branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service-web/azurerm"
+  source  = "app.terraform.io/your-org/app-service-plan-web/azurerm"
   version = "1.1.5-beta"  # Pre-release for testing
 }
 ```

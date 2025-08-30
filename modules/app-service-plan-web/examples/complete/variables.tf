@@ -1,2 +1,2 @@
-# Variables for the basic app-service-web example
+# Variables for the complete app-service-plan-web example
 # This file is required by Terraform standard module structure

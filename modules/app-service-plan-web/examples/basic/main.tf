@@ -1,5 +1,5 @@
 # Basic App Service Example
-# This example demonstrates the minimal configuration required for the app-service-web module
+# This example demonstrates the minimal configuration required for the app-service-plan-web module
 
 terraform {
   required_version = ">= 1.5"
@@ -17,7 +17,7 @@ provider "azurerm" {
 
 # Create a resource group for this example
 resource "azurerm_resource_group" "example" {
-  name     = "rg-app-service-web-basic-example"
+  name     = "rg-app-service-plan-web-basic-example"
   location = "East US"
 
   tags = local.common_tags
@@ -30,7 +30,7 @@ locals {
 
   common_tags = {
     Environment = local.environment
-    Project     = "app-service-web-example"
+    Project     = "app-service-plan-web-example"
     Owner       = "platform-team"
     Example     = "basic"
   }

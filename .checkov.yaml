@@ -2,7 +2,7 @@ directory:
   - modules
 
 skip-path:
-  - modules/app-service-web/examples/
+  - modules/app-service-plan-web/examples/
   - modules/monitoring/examples/
 
 framework:
