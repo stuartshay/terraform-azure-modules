@@ -1,0 +1,13 @@
+* text=auto
+*.tf text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.hcl text eol=lf
+*.json text eol=lf
+*.bat text eol=crlf
+*.ps1 text working-tree-encoding=UTF-16LE eol=crlf
+*.jpg binary
+*.png binary
+*.pdf binary

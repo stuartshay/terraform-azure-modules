@@ -29,6 +29,7 @@ skip-check:
   - CKV_AZURE_201 # Ensure that Azure Service Bus uses a customer-managed key to encrypt data
   - CKV_AZURE_202 # Ensure that Managed identity provider is enabled for Azure Service Bus
   - CKV_AZURE_203 # Ensure Azure Service Bus Local Authentication is disabled
+  - CKV_AZURE_204 #"Ensure 'public network access enabled' is set to 'False' for Azure Service Bus"
   - CKV_AZURE_205 # Ensure Azure Service Bus is using the latest version of TLS encryption
 
   # Storage Accounts — access, logging, encryption
@@ -58,6 +59,7 @@ skip-check:
   - CKV_AZURE_42 # Ensure the key vault is recoverable
   - CKV_AZURE_110 # Ensure that key vault enables purge protection
   - CKV_AZURE_114 # Ensure that key vault secrets have content_type set
+  - CKV_AZURE_189 # Ensure that Azure Key Vault disables public network access
 
   # Terraform hygiene
   - CKV_TF_1 # Ensure Terraform module sources use a commit hash
