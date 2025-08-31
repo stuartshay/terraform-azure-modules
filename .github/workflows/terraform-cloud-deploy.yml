@@ -8,13 +8,14 @@ on:
         required: true
         type: choice
         options:
-         - app-service-plan-function
-         - app-service-plan-web
-         - service-bus
-         - monitoring
-         - networking
-         - storage-account
-         - private-endpoint
+          - app-service-plan-function
+          - app-service-plan-web
+          - function-app
+          - monitoring
+          - networking
+          - private-endpoint
+          - storage-account
+          - service-bus
         default: 'app-service-plan-function'
       major_version:
         description: 'Major version number'
