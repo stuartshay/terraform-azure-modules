@@ -221,6 +221,52 @@ module "networking" {
 }
 ```
 
+### Private Endpoint Module
+
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/private-endpoint/azurerm/)
+
+Azure Private Endpoint module for secure, private connectivity to Azure resources such as Storage Accounts, Key Vaults, and Service Bus. This module automates the creation of private endpoints, network interface associations, DNS zone integrations, and resource-specific configurations for enterprise-grade security and compliance.
+
+- **Path**: `modules/private-endpoint`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Secure Private Connectivity**: Establishes private endpoints for supported Azure resources, eliminating public exposure
+- **DNS Zone Integration**: Automates private DNS zone creation and record management for seamless name resolution
+- **Network Interface Management**: Handles NIC associations and subnet selection for network isolation
+- **Resource Support**: Works with Storage Accounts, Key Vaults, Service Bus, and other supported services
+- **Tagging and Compliance**: Supports resource tagging and adheres to security best practices
+
+#### Quick Start
+
+```hcl
+module "private_endpoint" {
+  source  = "app.terraform.io/azure-policy-cloud/private-endpoint/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location            = "East US"
+  environment         = "dev"
+  workload            = "myapp"
+
+  # Target resource ID (e.g., Storage Account, Key Vault, Service Bus)
+  private_service_resource_id = azurerm_storage_account.example.id
+
+  # Subnet for the private endpoint
+  subnet_id = data.azurerm_subnet.private_endpoints.id
+
+  # Optional DNS zone integration
+  private_dns_zone_name = "privatelink.blob.core.windows.net"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 
 

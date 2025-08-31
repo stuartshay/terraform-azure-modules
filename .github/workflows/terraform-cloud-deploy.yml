@@ -13,8 +13,10 @@ on:
           - function-app
           - monitoring
           - networking
+          - private-endpoint
           - storage-account
-        default: 'app-service-plan-web'
+          - service-bus
+        default: 'app-service-plan-function'
       major_version:
         description: 'Major version number'
         required: false
@@ -75,10 +77,10 @@ jobs:
       - name: Validate inputs
         run: |
           # Validate module name
-          if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-plan-web|app-service-plan-function|function-app|monitoring|networking|storage-account)$ ]]; then
-            echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
-            exit 1
-          fi
+            if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-plan-web|app-service-plan-function|function-app|monitoring|networking|storage-account|private-endpoint|service-bus)$ ]]; then
+              echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
+              exit 1
+            fi
 
           # Validate major version
           if [[ ! "${{ github.event.inputs.major_version }}" =~ ^[0-9]+$ ]]; then
