@@ -129,3 +129,20 @@ updates:
       - 'terraform'
     assignees:
       - 'stuartshay'
+
+  # service-bus
+  - package-ecosystem: 'terraform'
+    directory: '/modules/service-bus'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
