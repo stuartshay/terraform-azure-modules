@@ -334,7 +334,69 @@ module "storage_account" {
 }
 ```
 
+### Service Bus Module
 
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/service-bus/azurerm/)
+
+Azure Service Bus namespace with comprehensive messaging capabilities including queues, topics, subscriptions, authorization rules, private endpoints, and Key Vault integration for enterprise messaging solutions.
+
+- **Path**: `modules/service-bus`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.40`
+
+#### Features
+
+- **Service Bus Namespace**: Support for Basic, Standard, and Premium SKUs with proper validation
+- **Queues and Topics**: Configurable queues and topics with all Azure Service Bus features
+- **Topic Subscriptions**: Support for topic subscriptions with advanced configuration options
+- **Authorization Rules**: Namespace, queue, and topic-level authorization rules for granular access control
+- **Private Endpoint**: Optional private endpoint integration for secure network connectivity
+- **Key Vault Integration**: Secure storage of connection strings in Azure Key Vault
+- **Security Features**: TLS 1.2 enforcement, managed identity support, and network access controls
+- **Monitoring Integration**: Diagnostic settings with Log Analytics, Storage, and Event Hub support
+- **Naming Convention**: Enforced naming convention: `sb-{workload}-{environment}-{location_short}-001`
+
+#### Quick Start
+
+```hcl
+module "service_bus" {
+  source  = "app.terraform.io/azure-policy-cloud/service-bus/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  workload            = "myapp"
+  environment         = "dev"
+  location            = "East US"
+  location_short      = "eastus"
+  resource_group_name = "rg-example"
+
+  # Basic configuration
+  sku = "Standard"
+
+  # Create queues
+  queues = {
+    "notifications" = {
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P3D"
+      max_delivery_count    = 5
+    }
+  }
+
+  # Authorization rules
+  authorization_rules = {
+    "app-access" = {
+      listen = true
+      send   = true
+      manage = false
+    }
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 
 ### Monitoring Module
