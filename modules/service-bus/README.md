@@ -324,7 +324,7 @@ This module is licensed under the MIT License. See [LICENSE](../../LICENSE) for 
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_private_endpoint"></a> [private\_endpoint](#module\_private\_endpoint) | ../private-endpoint | n/a |
+| <a name="module_private_endpoint"></a> [private\_endpoint](#module\_private\_endpoint) | app.terraform.io/azure-policy-cloud/private-endpoint/azurerm | 1.1.42-beta |
 
 ## Resources
 
