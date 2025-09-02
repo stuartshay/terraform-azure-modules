@@ -10,14 +10,6 @@ output "function_app_id" {
   value       = module.function_app.function_app_id
 }
 
-
-# Cleaned up outputs: Only valid outputs from function_app and app_service_plan modules, matching their interfaces
-
-output "function_app_id" {
-  description = "The ID of the Function App"
-  value       = module.function_app.function_app_id
-}
-
 output "function_app_name" {
   description = "The name of the Function App"
   value       = module.function_app.function_app_name
