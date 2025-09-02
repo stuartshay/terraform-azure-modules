@@ -37,7 +37,7 @@ module "app_service" {
 | Name | Version |
 |------|---------|
 | terraform | >= 1.5 |
-| azurerm | ~> 4.40 |
+| azurerm | >= 4.42.0 |
 
 ## Providers
 
@@ -81,13 +81,13 @@ module "app_service" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.40 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.40.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 
