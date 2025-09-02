@@ -26,7 +26,7 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 
 - **Path**: `modules/app-service-plan-function`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -65,7 +65,7 @@ Azure Function App with comprehensive features including cross-platform support,
 
 - **Path**: `modules/function-app`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -119,7 +119,7 @@ Azure App Service resources including App Service Plan and Web App with VNET int
 
 - **Path**: `modules/app-service-plan-web`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42
 
 #### Features
 
@@ -230,7 +230,7 @@ Azure Private Endpoint module for secure, private connectivity to Azure resource
 
 - **Path**: `modules/private-endpoint`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -342,7 +342,7 @@ Azure Service Bus namespace with comprehensive messaging capabilities including 
 
 - **Path**: `modules/service-bus`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -407,7 +407,7 @@ Comprehensive Azure monitoring solution including Log Analytics Workspace, Appli
 
 - **Path**: `modules/monitoring`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
