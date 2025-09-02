@@ -91,7 +91,15 @@ applyTo: '**'
 - Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
 - Verified: `pre-commit run terraform_tflint --all-files` now passes.
 
-## Merge Maintenance (Aug 26, 2025)
-- Merged `origin/master` into `copilot/fix-34`.
-- Resolved conflict in `.github/instructions/memory.instruction.md` by preserving both the master’s "Storage Account Requirements (Issue #34)" section and the current task’s TFLint outcome.
-- Ran full `pre-commit run --all-files`: all hooks passed.
+
+## Merge Maintenance (Sep 2, 2025)
+- Task: Merge latest `master` into `copilot/fix-34` branch.
+- Plan:
+	1. Fetch latest `master` from origin.
+	2. Merge `master` into `copilot/fix-34`.
+	3. Resolve any merge conflicts, prioritizing preservation of both new features and bug fixes.
+	4. Run all tests and pre-commit hooks to ensure stability.
+	5. Update memory with results and any conflict resolutions.
+	6. Document any issues or special handling required.
+
+---
