@@ -327,7 +327,7 @@ After successfully running this complete example:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 4.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 

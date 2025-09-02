@@ -170,7 +170,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "example" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 

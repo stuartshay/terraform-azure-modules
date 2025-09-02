@@ -151,7 +151,7 @@ Estimated monthly cost for low-volume development: $5-20 USD
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 

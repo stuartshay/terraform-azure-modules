@@ -74,7 +74,7 @@ For more advanced configurations, see the [complete example](../complete/).
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 

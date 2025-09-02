@@ -269,13 +269,13 @@ module "function_app" {
 | Name | Version |
 |------|---------|
 | terraform | >= 1.6 |
-| azurerm | >= 4.40 |
+| azurerm | >= 4.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| azurerm | >= 4.40 |
+| azurerm | >= 4.42.0 |
 
 ## Resources
 
@@ -700,13 +700,13 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.40 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 
