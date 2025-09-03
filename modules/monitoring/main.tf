@@ -171,11 +171,11 @@ resource "azurerm_monitor_data_collection_rule" "vm_insights" {
 
 # Diagnostic Settings for the Log Analytics Workspace itself
 resource "azurerm_monitor_diagnostic_setting" "log_analytics" {
-  count = var.enable_workspace_diagnostics ? 1 : 0
+  count = var.enable_workspace_diagnostics && var.enable_storage_monitoring ? 1 : 0
 
   name               = "diag-${local.log_analytics_name}"
   target_resource_id = azurerm_log_analytics_workspace.main.id
-  storage_account_id = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_id : null
+  storage_account_id = module.monitoring_storage[0].storage_account_id
 
   enabled_log {
     category = "Audit"
