@@ -699,7 +699,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 
 ## Providers
