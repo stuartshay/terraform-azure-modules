@@ -389,14 +389,14 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](../../
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.6 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement_azurerm) | >= 4.42.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider_azurerm) | 4.42.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.42.0 |
 
 ## Modules
 
@@ -412,22 +412,22 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_environment"></a> [environment](#input_environment) | The environment name | `string` | n/a | yes |
-| <a name="input_location"></a> [location](#input_location) | The Azure region | `string` | n/a | yes |
-| <a name="input_maximum_elastic_worker_count"></a> [maximum_elastic_worker_count](#input_maximum_elastic_worker_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
-| <a name="input_os_type"></a> [os_type](#input_os_type) | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
-| <a name="input_resource_group_name"></a> [resource_group_name](#input_resource_group_name) | The name of the resource group | `string` | n/a | yes |
-| <a name="input_sku_name"></a> [sku_name](#input_sku_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
-| <a name="input_tags"></a> [tags](#input_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
-| <a name="input_workload"></a> [workload](#input_workload) | The workload name | `string` | n/a | yes |
+| <a name="input_environment"></a> [environment](#input\_environment) | The environment name | `string` | n/a | yes |
+| <a name="input_location"></a> [location](#input\_location) | The Azure region | `string` | n/a | yes |
+| <a name="input_maximum_elastic_worker_count"></a> [maximum\_elastic\_worker\_count](#input\_maximum\_elastic\_worker\_count) | Maximum number of elastic workers for Elastic Premium SKUs | `number` | `3` | no |
+| <a name="input_os_type"></a> [os\_type](#input\_os\_type) | The operating system type for the App Service Plan (Linux or Windows) | `string` | `"Linux"` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
+| <a name="input_sku_name"></a> [sku\_name](#input\_sku\_name) | The SKU name for the App Service Plan (EP1, EP2, or EP3 for Elastic Premium) | `string` | `"EP1"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resource | `map(string)` | `{}` | no |
+| <a name="input_workload"></a> [workload](#input\_workload) | The workload name | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app_service_plan_id"></a> [app_service_plan_id](#output_app_service_plan_id) | The ID of the App Service Plan |
-| <a name="output_app_service_plan_kind"></a> [app_service_plan_kind](#output_app_service_plan_kind) | The kind of App Service Plan |
-| <a name="output_app_service_plan_name"></a> [app_service_plan_name](#output_app_service_plan_name) | The name of the App Service Plan |
-| <a name="output_app_service_plan_os_type"></a> [app_service_plan_os_type](#output_app_service_plan_os_type) | The operating system type of the App Service Plan |
-| <a name="output_app_service_plan_sku"></a> [app_service_plan_sku](#output_app_service_plan_sku) | The SKU of the App Service Plan |
+| <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
+| <a name="output_app_service_plan_kind"></a> [app\_service\_plan\_kind](#output\_app\_service\_plan\_kind) | The kind of App Service Plan |
+| <a name="output_app_service_plan_name"></a> [app\_service\_plan\_name](#output\_app\_service\_plan\_name) | The name of the App Service Plan |
+| <a name="output_app_service_plan_os_type"></a> [app\_service\_plan\_os\_type](#output\_app\_service\_plan\_os\_type) | The operating system type of the App Service Plan |
+| <a name="output_app_service_plan_sku"></a> [app\_service\_plan\_sku](#output\_app\_service\_plan\_sku) | The SKU of the App Service Plan |
 <!-- END_TF_DOCS -->
