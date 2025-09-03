@@ -26,7 +26,7 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 
 - **Path**: `modules/app-service-plan-function`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -57,16 +57,69 @@ module "app-service-plan-function" {
 }
 ```
 
+### Function App Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/function-app/azurerm/)
+
+Azure Function App with comprehensive features including cross-platform support, VNet integration, Application Insights, deployment slots, and advanced security configurations. Decoupled from App Service Plans for flexible deployments.
+
+- **Path**: `modules/function-app`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Cross-Platform Support**: Both Linux and Windows Function Apps with multiple runtime support
+- **Runtime Support**: Python, Node.js, .NET, Java, PowerShell, and custom runtimes
+- **Deployment Slots**: Staging and production deployment slots for safe deployments
+- **VNet Integration**: Optional VNet integration for secure network connectivity
+- **Security Features**: HTTPS enforcement, client certificates, managed identity, and IP restrictions
+- **Storage Account**: Dedicated storage account with security best practices and retention policies
+- **Application Insights**: Built-in monitoring and telemetry with workspace integration
+- **Flexible Configuration**: Extensive customization options for all Function App aspects
+
+#### Quick Start
+
+```hcl
+module "function_app" {
+  source  = "app.terraform.io/azure-policy-cloud/function-app/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  workload            = "myapp"
+  environment         = "dev"
+  resource_group_name = "rg-example"
+  location           = "East US"
+  service_plan_id    = module.app_service_plan.app_service_plan_id
+
+  # Runtime configuration
+  runtime_name    = "python"
+  runtime_version = "3.11"
+
+  # VNet integration
+  enable_vnet_integration    = true
+  vnet_integration_subnet_id = data.azurerm_subnet.functions.id
+
+  # Application Insights
+  enable_application_insights = true
+  log_analytics_workspace_id  = data.azurerm_log_analytics_workspace.main.id
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 ### App Service Plan Module - Web
 
-[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-web/azurerm/)
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/app-service-plan-web/azurerm/)
 
 Azure App Service resources including App Service Plan and Web App with VNET integration and restricted SKU options.
 
-- **Path**: `modules/app-service-web`
+- **Path**: `modules/app-service-plan-web`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42
 
 #### Features
 
@@ -82,7 +135,7 @@ Azure App Service resources including App Service Plan and Web App with VNET int
 
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  source  = "app.terraform.io/azure-policy-cloud/app-service-plan-web/azurerm"
   version = "1.0.0"
 
   resource_group_name = "rg-example"
@@ -168,6 +221,52 @@ module "networking" {
 }
 ```
 
+### Private Endpoint Module
+
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/private-endpoint/azurerm/)
+
+Azure Private Endpoint module for secure, private connectivity to Azure resources such as Storage Accounts, Key Vaults, and Service Bus. This module automates the creation of private endpoints, network interface associations, DNS zone integrations, and resource-specific configurations for enterprise-grade security and compliance.
+
+- **Path**: `modules/private-endpoint`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Secure Private Connectivity**: Establishes private endpoints for supported Azure resources, eliminating public exposure
+- **DNS Zone Integration**: Automates private DNS zone creation and record management for seamless name resolution
+- **Network Interface Management**: Handles NIC associations and subnet selection for network isolation
+- **Resource Support**: Works with Storage Accounts, Key Vaults, Service Bus, and other supported services
+- **Tagging and Compliance**: Supports resource tagging and adheres to security best practices
+
+#### Quick Start
+
+```hcl
+module "private_endpoint" {
+  source  = "app.terraform.io/azure-policy-cloud/private-endpoint/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location            = "East US"
+  environment         = "dev"
+  workload            = "myapp"
+
+  # Target resource ID (e.g., Storage Account, Key Vault, Service Bus)
+  private_service_resource_id = azurerm_storage_account.example.id
+
+  # Subnet for the private endpoint
+  subnet_id = data.azurerm_subnet.private_endpoints.id
+
+  # Optional DNS zone integration
+  private_dns_zone_name = "privatelink.blob.core.windows.net"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 
 
@@ -235,7 +334,69 @@ module "storage_account" {
 }
 ```
 
+### Service Bus Module
 
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/service-bus/azurerm/)
+
+Azure Service Bus namespace with comprehensive messaging capabilities including queues, topics, subscriptions, authorization rules, private endpoints, and Key Vault integration for enterprise messaging solutions.
+
+- **Path**: `modules/service-bus`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Service Bus Namespace**: Support for Basic, Standard, and Premium SKUs with proper validation
+- **Queues and Topics**: Configurable queues and topics with all Azure Service Bus features
+- **Topic Subscriptions**: Support for topic subscriptions with advanced configuration options
+- **Authorization Rules**: Namespace, queue, and topic-level authorization rules for granular access control
+- **Private Endpoint**: Optional private endpoint integration for secure network connectivity
+- **Key Vault Integration**: Secure storage of connection strings in Azure Key Vault
+- **Security Features**: TLS 1.2 enforcement, managed identity support, and network access controls
+- **Monitoring Integration**: Diagnostic settings with Log Analytics, Storage, and Event Hub support
+- **Naming Convention**: Enforced naming convention: `sb-{workload}-{environment}-{location_short}-001`
+
+#### Quick Start
+
+```hcl
+module "service_bus" {
+  source  = "app.terraform.io/azure-policy-cloud/service-bus/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  workload            = "myapp"
+  environment         = "dev"
+  location            = "East US"
+  location_short      = "eastus"
+  resource_group_name = "rg-example"
+
+  # Basic configuration
+  sku = "Standard"
+
+  # Create queues
+  queues = {
+    "notifications" = {
+      max_size_in_megabytes = 1024
+      default_message_ttl   = "P3D"
+      max_delivery_count    = 5
+    }
+  }
+
+  # Authorization rules
+  authorization_rules = {
+    "app-access" = {
+      listen = true
+      send   = true
+      manage = false
+    }
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
 
 
 ### Monitoring Module
@@ -246,7 +407,7 @@ Comprehensive Azure monitoring solution including Log Analytics Workspace, Appli
 
 - **Path**: `modules/monitoring`
 - **Provider**: `azurerm`
-- **Version**: `>= 4.40`
+- **Version**: `>= 4.42`
 
 #### Features
 
@@ -326,7 +487,7 @@ This repository includes automated deployment to Terraform Cloud private registr
 ### Features
 
 - **Manual deployment** via workflow dispatch
-- **Module selection** (app-service-web, app-service-plan-function, networking, storage-account, or monitoring)
+- **Module selection** (app-service-plan-web, app-service-plan-function, networking, storage-account, or monitoring)
 - **Version management** with semantic versioning
 - **Dry run mode** for validation without publishing
 - **Automated validation** and packaging
@@ -342,7 +503,7 @@ To enable Terraform Cloud deployment, configure these repository secrets:
 
 1. Go to **Actions** → **Deploy to Terraform Cloud**
 2. Click **Run workflow**
-3. Select module (app-service-web, app-service-plan-function, or monitoring)
+3. Select module (app-service-plan-web, app-service-plan-function, or monitoring)
 4. Optionally adjust major/minor version (defaults to 1.0)
 5. Choose dry run for testing or uncheck to publish
 
@@ -421,7 +582,7 @@ This repository uses semantic versioning with branch-specific formatting to dist
 Each successful deployment creates a Git tag in the format: `{module-name}-v{version}`
 
 Examples:
-- `app-service-web-v1.1.5` (production release from master)
+- `app-service-plan-web-v1.1.5` (production release from master)
 - `monitoring-v1.1.5-beta` (beta release from develop branch)
 
 ### Usage Examples
@@ -429,7 +590,7 @@ Examples:
 **Production version (from master branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service-web/azurerm"
+  source  = "app.terraform.io/your-org/app-service-plan-web/azurerm"
   version = "1.1.5"  # Stable production release
 }
 ```
@@ -437,7 +598,7 @@ module "app_service" {
 **Beta version (from develop branch):**
 ```hcl
 module "app_service" {
-  source  = "app.terraform.io/your-org/app-service-web/azurerm"
+  source  = "app.terraform.io/your-org/app-service-plan-web/azurerm"
   version = "1.1.5-beta"  # Pre-release for testing
 }
 ```

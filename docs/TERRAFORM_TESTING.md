@@ -277,7 +277,7 @@ expect_failures = [
 ### Other Modules
 
 🔄 **Planned for Future Implementation**
-- app-service-web
+- app-service-plan-web
 - monitoring
 - networking
 - storage-account

@@ -10,6 +10,8 @@ registries:
     token: '${{secrets.TF_API_TOKEN}}'
 updates:
   # Scan each module subdirectory
+
+  # app-service-plan-function
   - package-ecosystem: 'terraform'
     directory: '/modules/app-service-plan-function'
     registries:
@@ -26,10 +28,9 @@ updates:
     assignees:
       - 'stuartshay'
 
-  # Trigger: touch config to enqueue Dependabot re-run (2025-08-26)
-
+  # app-service-plan-web
   - package-ecosystem: 'terraform'
-    directory: '/modules/app-service-web'
+    directory: '/modules/app-service-plan-web'
     registries:
       - tfc-private
     schedule:
@@ -44,6 +45,24 @@ updates:
     assignees:
       - 'stuartshay'
 
+  # function-app
+  - package-ecosystem: 'terraform'
+    directory: '/modules/function-app'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  # monitoring
   - package-ecosystem: 'terraform'
     directory: '/modules/monitoring'
     registries:
@@ -60,6 +79,7 @@ updates:
     assignees:
       - 'stuartshay'
 
+  # networking
   - package-ecosystem: 'terraform'
     directory: '/modules/networking'
     registries:
@@ -76,8 +96,43 @@ updates:
     assignees:
       - 'stuartshay'
 
+  # private-endpoint
+  - package-ecosystem: 'terraform'
+    directory: '/modules/private-endpoint'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  # storage-account
   - package-ecosystem: 'terraform'
     directory: '/modules/storage-account'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+  # service-bus
+  - package-ecosystem: 'terraform'
+    directory: '/modules/service-bus'
     registries:
       - tfc-private
     schedule:

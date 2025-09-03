@@ -257,7 +257,7 @@ module "networking" {
 
 # Use networking outputs in app service module
 module "app_service" {
-  source = "app.terraform.io/azure-policy-cloud/app-service-web/azurerm"
+  source = "app.terraform.io/azure-policy-cloud/app-service-plan-web/azurerm"
   
   subnet_id = module.networking.app_service_subnet_id
   # ... other configuration

@@ -10,7 +10,7 @@ Dependabot is configured to automatically check for Terraform provider updates a
 
 The `.github/dependabot.yml` file is configured to scan the following modules weekly:
 - `modules/app-service-plan-function`
-- `modules/app-service-web`
+- `modules/app-service-plan-web`
 - `modules/monitoring`
 - `modules/networking`
 - `modules/storage-account`

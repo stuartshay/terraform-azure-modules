@@ -84,7 +84,7 @@ jobs:
           for dir in "${DIRS[@]}"; do
             echo "Validating $dir"
             cd "$dir"
-            terraform init -backend=false -input=false
+            terraform init -backend=false -input=false -upgrade
             terraform validate
             cd - > /dev/null
           done
