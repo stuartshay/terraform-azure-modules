@@ -46,6 +46,13 @@ repos:
   # Terraform testing
   - repo: local
     hooks:
+      - id: terraform-version-validation
+        name: Terraform Version Validation
+        entry: scripts/validate-terraform-version.sh
+        language: system
+        files: '\.terraform-version$|modules/.*/versions\.tf$'
+        pass_filenames: false
+        description: 'Validate .terraform-version consistency with module requirements'
       - id: terraform-test
         name: Terraform Test (All Modules)
         entry: make terraform-test

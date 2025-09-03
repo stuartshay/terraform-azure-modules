@@ -127,25 +127,13 @@ This basic setup will incur minimal costs:
 
 Estimated monthly cost for low-volume development: $5-20 USD
 
-## Requirements
-
-| Name | Version |
-|------|---------|
-| terraform | >= 1.5 |
-| azurerm | ~> 4.40 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| azurerm | ~> 4.40 |
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.40 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12.2 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.42 |
 
 ## Providers
 

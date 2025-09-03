@@ -348,6 +348,43 @@ variable "smart_detection_emails" {
   }
 }
 
+# App Service Monitoring Configuration
+variable "monitored_app_services" {
+  description = "Map of App Services to monitor"
+  type = map(object({
+    resource_id = string
+    name        = string
+  }))
+  default = {}
+}
+
+variable "enable_app_service_monitoring" {
+  description = "Enable App Service monitoring and diagnostics"
+  type        = bool
+  default     = false
+}
+
+variable "app_service_log_categories" {
+  description = "List of log categories to enable for App Service diagnostics"
+  type        = list(string)
+  default = [
+    "AppServiceHTTPLogs",
+    "AppServiceConsoleLogs",
+    "AppServiceAppLogs",
+    "AppServiceAuditLogs",
+    "AppServiceIPSecAuditLogs",
+    "AppServicePlatformLogs"
+  ]
+}
+
+variable "app_service_metric_categories" {
+  description = "List of metric categories to enable for App Service diagnostics"
+  type        = list(string)
+  default = [
+    "AllMetrics"
+  ]
+}
+
 # Storage Account Configuration for Enhanced Security
 variable "storage_account_tier" {
   description = "Storage account tier for monitoring data"

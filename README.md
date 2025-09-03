@@ -473,8 +473,8 @@ See the `examples/` directory in each module for detailed usage examples.
 
 ## Requirements
 
-- Terraform >= 1.5
-- Azure Provider >= 4.40
+- Terraform >= 1.13.1
+- Azure Provider >= 4.42
 - Appropriate Azure permissions for resource creation
 ## Terraform Cloud Deployment
 

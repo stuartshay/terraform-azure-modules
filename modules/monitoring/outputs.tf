@@ -166,7 +166,7 @@ output "budget_alert_id" {
 # Diagnostic Settings Outputs
 output "log_analytics_diagnostic_setting_id" {
   description = "ID of the Log Analytics diagnostic setting"
-  value       = var.enable_workspace_diagnostics ? azurerm_monitor_diagnostic_setting.log_analytics[0].id : null
+  value       = var.enable_workspace_diagnostics && var.enable_storage_monitoring ? azurerm_monitor_diagnostic_setting.log_analytics[0].id : null
 }
 
 # Solution Outputs

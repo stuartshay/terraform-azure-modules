@@ -171,11 +171,11 @@ resource "azurerm_monitor_data_collection_rule" "vm_insights" {
 
 # Diagnostic Settings for the Log Analytics Workspace itself
 resource "azurerm_monitor_diagnostic_setting" "log_analytics" {
-  count = var.enable_workspace_diagnostics ? 1 : 0
+  count = var.enable_workspace_diagnostics && var.enable_storage_monitoring ? 1 : 0
 
   name               = "diag-${local.log_analytics_name}"
   target_resource_id = azurerm_log_analytics_workspace.main.id
-  storage_account_id = var.enable_storage_monitoring ? module.monitoring_storage[0].storage_account_id : null
+  storage_account_id = module.monitoring_storage[0].storage_account_id
 
   enabled_log {
     category = "Audit"
@@ -257,7 +257,7 @@ resource "azurerm_application_insights_workbook" "main" {
   name                = random_uuid.workbook[0].result
   resource_group_name = var.resource_group_name
   location            = var.location
-  display_name        = "Function Apps Monitor - Dev Environment"
+  display_name        = "Function Apps Monitor - ${var.environment} Environment"
 
   data_json = jsonencode({
     version = "Notebook/1.0"
@@ -284,4 +284,29 @@ resource "azurerm_application_insights_workbook" "main" {
   })
 
   tags = var.tags
+}
+
+# App Service Diagnostic Settings
+resource "azurerm_monitor_diagnostic_setting" "app_service" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                       = "diag-${each.value.name}"
+  target_resource_id         = each.value.resource_id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  # Enable specified log categories
+  dynamic "enabled_log" {
+    for_each = var.app_service_log_categories
+    content {
+      category = enabled_log.value
+    }
+  }
+
+  # Enable specified metric categories
+  dynamic "enabled_metric" {
+    for_each = var.app_service_metric_categories
+    content {
+      category = enabled_metric.value
+    }
+  }
 }

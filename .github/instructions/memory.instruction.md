@@ -60,6 +60,17 @@ applyTo: '**'
 
 ## Conversation History
 
+## Conversation History
+
+- Working on updating Terraform version validation script to match GitHub Actions workflow
+- Current TF_VERSION in workflow: 1.13.1
+- Task: Update scripts/validate-terraform-version.sh to use same version
+- Enhanced validation script (Sept 2025): Updated scripts/validate-terraform-version.sh to validate consistency not only with module requirements but also with GitHub Actions workflows. The script now:
+  - Checks .terraform-version file against module versions.tf files (existing functionality)
+  - Validates TF_VERSION environment variables in .github/workflows/*.yml files  
+  - Validates terraform_version in setup-terraform action configurations
+  - Provides colored output for better readability with separate reporting for workflow and module inconsistencies
+  - All versions are currently consistent at 1.13.1 across the entire repository
 - 2025-08-XX: All tasks for the new private-endpoint module are complete. This includes:
 	- Ensuring `.github/dependabot.yml` includes all modules (including private-endpoint)
 	- Updating `.github/workflows/terraform-cloud-deploy.yml` to add private-endpoint as a deployment option

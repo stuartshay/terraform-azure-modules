@@ -29,6 +29,224 @@ resource "azurerm_monitor_metric_alert" "function_app_cpu" {
   tags = var.tags
 }
 
+# App Service Metric Alerts
+resource "azurerm_monitor_metric_alert" "app_service_cpu" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                = "alert-${each.key}-cpu-high"
+  resource_group_name = var.resource_group_name
+  scopes              = [each.value.resource_id]
+  description         = "High CPU usage on App Service ${each.key}"
+  severity            = 2
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+  enabled             = true
+
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "CpuPercentage"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = var.cpu_threshold
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_metric_alert" "app_service_memory" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                = "alert-${each.key}-memory-high"
+  resource_group_name = var.resource_group_name
+  scopes              = [each.value.resource_id]
+  description         = "High memory usage on App Service ${each.key}"
+  severity            = 2
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+  enabled             = true
+
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "MemoryPercentage"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = var.memory_threshold
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_metric_alert" "app_service_http_errors" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                = "alert-${each.key}-http-errors"
+  resource_group_name = var.resource_group_name
+  scopes              = [each.value.resource_id]
+  description         = "High number of HTTP errors on App Service ${each.key}"
+  severity            = 1
+  frequency           = "PT1M"
+  window_size         = "PT5M"
+  enabled             = true
+
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "Http5xx"
+    aggregation      = "Total"
+    operator         = "GreaterThan"
+    threshold        = var.error_threshold
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_metric_alert" "app_service_response_time" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                = "alert-${each.key}-response-time"
+  resource_group_name = var.resource_group_name
+  scopes              = [each.value.resource_id]
+  description         = "High response time on App Service ${each.key}"
+  severity            = 2
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+  enabled             = true
+
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "AverageResponseTime"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = var.response_time_threshold
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_metric_alert" "app_service_requests" {
+  for_each = var.enable_app_service_monitoring ? var.monitored_app_services : {}
+
+  name                = "alert-${each.key}-high-requests"
+  resource_group_name = var.resource_group_name
+  scopes              = [each.value.resource_id]
+  description         = "High number of requests on App Service ${each.key}"
+  severity            = 3
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+  enabled             = true
+
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "Requests"
+    aggregation      = "Total"
+    operator         = "GreaterThan"
+    threshold        = 1000 # Configurable threshold for high request volume
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  tags = var.tags
+}
+
+# App Service Log Query Alerts
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "app_service_exceptions" {
+  count = var.enable_log_alerts && var.enable_app_service_monitoring ? 1 : 0
+
+  name                = "alert-app-service-exceptions"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  evaluation_frequency = "PT5M"
+  window_duration      = "PT15M"
+  scopes               = [azurerm_log_analytics_workspace.main.id]
+  severity             = 1
+  description          = "High number of exceptions in App Services"
+  enabled              = true
+
+  criteria {
+    query                   = <<-QUERY
+      AppServiceConsoleLogs
+      | where TimeGenerated > ago(15m)
+      | where ResultDescription contains "Exception" or ResultDescription contains "Error"
+      | summarize count() by _ResourceId
+      | where count_ > ${var.exception_threshold}
+    QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [azurerm_monitor_action_group.main.id]
+  }
+
+  tags = var.tags
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "app_service_availability" {
+  count = var.enable_log_alerts && var.enable_app_service_monitoring ? 1 : 0
+
+  name                = "alert-app-service-availability"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  evaluation_frequency = "PT5M"
+  window_duration      = "PT15M"
+  scopes               = [azurerm_log_analytics_workspace.main.id]
+  severity             = 1
+  description          = "App Service availability issues"
+  enabled              = true
+
+  criteria {
+    query                   = <<-QUERY
+      AppServiceHTTPLogs
+      | where TimeGenerated > ago(15m)
+      | summarize
+          total_requests = count(),
+          failed_requests = countif(ScStatus >= 500)
+          by _ResourceId
+      | extend availability = (total_requests - failed_requests) * 100.0 / total_requests
+      | where availability < ${var.availability_threshold}
+    QUERY
+    time_aggregation_method = "Count"
+    threshold               = 1
+    operator                = "GreaterThanOrEqual"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [azurerm_monitor_action_group.main.id]
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_monitor_metric_alert" "function_app_memory" {
   for_each = var.monitored_function_apps
 
