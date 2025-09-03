@@ -11,6 +11,8 @@ This Terraform module creates a comprehensive monitoring solution for Azure reso
 - **Smart Detection** - AI-powered anomaly detection
 - **Cost Management** - Budget alerts and cost optimization
 - **Security** - Private endpoints and diagnostic settings
+- **App Service Monitoring** - Comprehensive monitoring for Azure App Services
+- **Function App Monitoring** - Specialized monitoring for Azure Functions
 
 
 ## Usage
@@ -218,6 +220,143 @@ The module is designed to integrate with Azure Function Apps:
 3. **Distributed Tracing**: End-to-end request tracking
 4. **Performance Insights**: Detailed performance analysis
 
+## Integration with App Services
+
+The module provides comprehensive monitoring for Azure App Services with:
+
+### Diagnostic Settings
+- **HTTP Logs**: Request/response logging with status codes and response times
+- **Console Logs**: Application console output and error messages
+- **Application Logs**: Custom application logging and traces
+- **Audit Logs**: Security and access audit trails
+- **Platform Logs**: Azure platform-level diagnostic information
+
+### Metric Alerts
+- **CPU Usage**: Monitors CPU percentage with configurable thresholds
+- **Memory Usage**: Tracks memory consumption patterns
+- **HTTP Errors**: Alerts on 5xx server errors
+- **Response Time**: Performance monitoring for user experience
+- **Request Volume**: High traffic detection and capacity planning
+
+### Log Query Alerts
+- **Exception Monitoring**: Detects application exceptions from console logs
+- **Availability Tracking**: Monitors service availability based on HTTP logs
+
+### App Service Example
+
+```hcl
+module "monitoring" {
+  source = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
+
+  # Required variables
+  resource_group_name = "rg-webapp-prod-eastus"
+  location           = "East US"
+  workload           = "webapp"
+  environment        = "prod"
+  location_short     = "eastus"
+  subscription_id    = var.subscription_id
+
+  # App Service monitoring
+  enable_app_service_monitoring = true
+  monitored_app_services = {
+    frontend = {
+      resource_id = "/subscriptions/${var.subscription_id}/resourceGroups/rg-webapp-prod-eastus/providers/Microsoft.Web/sites/app-webapp-frontend-prod-001"
+      name        = "app-webapp-frontend-prod-001"
+    }
+    api = {
+      resource_id = "/subscriptions/${var.subscription_id}/resourceGroups/rg-webapp-prod-eastus/providers/Microsoft.Web/sites/app-webapp-api-prod-001"
+      name        = "app-webapp-api-prod-001"
+    }
+  }
+
+  # Customize App Service log categories
+  app_service_log_categories = [
+    "AppServiceHTTPLogs",
+    "AppServiceConsoleLogs",
+    "AppServiceAppLogs",
+    "AppServiceAuditLogs"
+  ]
+
+  # Production-ready thresholds
+  cpu_threshold           = 70
+  memory_threshold        = 80
+  error_threshold         = 5
+  response_time_threshold = 3
+  exception_threshold     = 3
+  availability_threshold  = 99
+
+  # Comprehensive notifications
+  notification_emails = {
+    admin    = "admin@company.com"
+    oncall   = "oncall@company.com"
+    platform = "platform@company.com"
+  }
+
+  notification_sms = {
+    oncall = {
+      country_code = "1"
+      phone_number = "5551234567"
+    }
+  }
+
+  tags = {
+    Environment = "prod"
+    Project     = "webapp"
+    Owner       = "platform-team"
+    CostCenter  = "engineering"
+  }
+}
+```
+
+### Dynamic App Service Discovery
+
+For environments with multiple App Services, you can use data sources for automatic discovery:
+
+```hcl
+# Data sources to discover App Services
+data "azurerm_linux_web_app" "app_services" {
+  for_each            = toset(["app-webapp-frontend-prod-001", "app-webapp-api-prod-001"])
+  name                = each.value
+  resource_group_name = "rg-webapp-prod-eastus"
+}
+
+# Local values for monitored App Services
+locals {
+  monitored_app_services = {
+    for name, app_service in data.azurerm_linux_web_app.app_services : name => {
+      resource_id = app_service.id
+      name        = app_service.name
+    }
+  }
+}
+
+module "monitoring" {
+  source = "app.terraform.io/azure-policy-cloud/monitoring/azurerm"
+
+  # Basic configuration
+  resource_group_name = "rg-webapp-prod-eastus"
+  location           = "East US"
+  workload           = "webapp"
+  environment        = "prod"
+  location_short     = "eastus"
+  subscription_id    = var.subscription_id
+
+  # App Service monitoring with dynamic discovery
+  enable_app_service_monitoring = true
+  monitored_app_services        = local.monitored_app_services
+
+  # Other configuration...
+  notification_emails = {
+    admin = "admin@company.com"
+  }
+
+  tags = {
+    Environment = "prod"
+    Project     = "webapp"
+  }
+}
+```
+
 ## Security Features
 
 - **Private Endpoints**: Secure network access to monitoring resources
@@ -236,7 +375,7 @@ When `enable_storage_monitoring = true`, the module creates a secure storage acc
 
 #### Comprehensive Logging
 - **Blob Service**: READ, WRITE, DELETE operations logged
-- **File Service**: READ, WRITE, DELETE operations logged  
+- **File Service**: READ, WRITE, DELETE operations logged
 - **Queue Service**: READ, WRITE, DELETE operations logged
 - **Table Service**: READ, WRITE, DELETE operations logged
 - **Retention**: 7-day retention for all logging data
@@ -266,98 +405,13 @@ The module provides comprehensive outputs for integration:
 - `monitoring_configuration` - Complete configuration summary
 - `resource_names` - All created resource names
 
-## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 1.5 |
-| azurerm | ~> 4.40 |
-| random | >= 3.0 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| azurerm | ~> 4.40 |
-| random | >= 3.0 |
-
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| resource_group_name | Name of the resource group | `string` | n/a | yes |
-| location | Azure region for resources | `string` | n/a | yes |
-| workload | Name of the workload or application | `string` | n/a | yes |
-| environment | Environment name (dev, staging, prod) | `string` | n/a | yes |
-| location_short | Short name for the location | `string` | n/a | yes |
-| subscription_id | Azure subscription ID | `string` | n/a | yes |
-| tags | Tags to apply to all resources | `map(string)` | `{}` | no |
-| log_analytics_sku | SKU for Log Analytics Workspace | `string` | `"PerGB2018"` | no |
-| log_retention_days | Number of days to retain logs in Log Analytics | `number` | `30` | no |
-| daily_quota_gb | Daily ingestion quota in GB for Log Analytics (-1 for unlimited) | `number` | `-1` | no |
-| reservation_capacity_gb | Reservation capacity in GB per day for cost optimization | `number` | `null` | no |
-| sampling_percentage | Sampling percentage for Application Insights | `number` | `100` | no |
-| notification_emails | Map of email addresses for notifications | `map(string)` | `{}` | no |
-| notification_sms | Map of SMS numbers for notifications | `map(object({country_code = string, phone_number = string}))` | `{}` | no |
-| notification_webhooks | Map of webhook URLs for notifications | `map(string)` | `{}` | no |
-| cpu_threshold | CPU usage threshold for alerts (percentage) | `number` | `80` | no |
-| memory_threshold | Memory usage threshold for alerts (percentage) | `number` | `85` | no |
-| error_threshold | Number of HTTP errors to trigger alert | `number` | `10` | no |
-| response_time_threshold | Response time threshold in seconds | `number` | `5` | no |
-| exception_threshold | Number of exceptions to trigger alert | `number` | `5` | no |
-| availability_threshold | Availability percentage threshold | `number` | `95` | no |
-| performance_threshold | Performance threshold in milliseconds | `number` | `5000` | no |
-| monitored_function_apps | Map of Function Apps to monitor | `map(object({resource_id = string, name = string}))` | `{}` | no |
-| enable_storage_monitoring | Enable storage account for monitoring data | `bool` | `false` | no |
-| enable_vm_insights | Enable VM Insights data collection | `bool` | `false` | no |
-| enable_workspace_diagnostics | Enable diagnostic settings for Log Analytics workspace | `bool` | `true` | no |
-| enable_private_endpoints | Enable private endpoints for monitoring resources | `bool` | `false` | no |
-| enable_security_center | Enable Security Center solution | `bool` | `true` | no |
-| enable_update_management | Enable Update Management solution | `bool` | `false` | no |
-| enable_workbook | Enable monitoring workbook | `bool` | `true` | no |
-| enable_log_alerts | Enable log query alerts | `bool` | `true` | no |
-| enable_activity_log_alerts | Enable activity log alerts | `bool` | `true` | no |
-| enable_budget_alerts | Enable budget alerts | `bool` | `false` | no |
-| enable_smart_detection | Enable Application Insights smart detection | `bool` | `true` | no |
-| enable_availability_tests | Enable availability test alerts | `bool` | `false` | no |
-| private_endpoint_subnet_id | Subnet ID for private endpoints | `string` | `null` | no |
-| private_dns_zone_ids | List of private DNS zone IDs | `list(string)` | `[]` | no |
-| budget_amount | Budget amount for monitoring resources | `number` | `100` | no |
-| budget_notification_emails | List of email addresses for budget notifications | `list(string)` | `[]` | no |
-| smart_detection_emails | List of email addresses for smart detection notifications | `list(string)` | `[]` | no |
-
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| log_analytics_workspace_id | ID of the Log Analytics Workspace |
-| log_analytics_workspace_name | Name of the Log Analytics Workspace |
-| application_insights_id | ID of the Application Insights instance |
-| application_insights_name | Name of the Application Insights instance |
-| application_insights_connection_string | Connection string for Application Insights |
-| application_insights_instrumentation_key | Instrumentation key for Application Insights |
-| application_insights_app_id | App ID for Application Insights |
-| action_group_id | ID of the monitoring action group |
-| action_group_name | Name of the monitoring action group |
-| monitoring_configuration | Summary of monitoring configuration |
-| resource_names | Names of created monitoring resources |
-
-## Examples
-
-See the [examples](./examples/) directory for complete usage examples:
-
-- [Basic](./examples/basic/) - Minimal monitoring setup
-- [Complete](./examples/complete/) - Full-featured monitoring with all options
-
-## License
-
-This module is licensed under the Apache License 2.0 - see the [LICENSE](../../LICENSE) file for details.
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12.2 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.0 |
 
@@ -391,12 +445,20 @@ This module is licensed under the Apache License 2.0 - see the [LICENSE](../../L
 | [azurerm_monitor_activity_log_alert.resource_health](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_activity_log_alert) | resource |
 | [azurerm_monitor_activity_log_alert.service_health](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_activity_log_alert) | resource |
 | [azurerm_monitor_data_collection_rule.vm_insights](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_data_collection_rule) | resource |
+| [azurerm_monitor_diagnostic_setting.app_service](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_monitor_diagnostic_setting.log_analytics](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) | resource |
 | [azurerm_monitor_metric_alert.app_insights_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.app_service_cpu](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.app_service_http_errors](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.app_service_memory](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.app_service_requests](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_metric_alert.app_service_response_time](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.function_app_cpu](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.function_app_errors](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.function_app_memory](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.function_app_response_time](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.app_service_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
+| [azurerm_monitor_scheduled_query_rules_alert_v2.app_service_exceptions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert_v2.function_availability](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert_v2.function_exceptions](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
 | [azurerm_monitor_scheduled_query_rules_alert_v2.function_performance](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_scheduled_query_rules_alert_v2) | resource |
@@ -407,12 +469,15 @@ This module is licensed under the Apache License 2.0 - see the [LICENSE](../../L
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_app_service_log_categories"></a> [app\_service\_log\_categories](#input\_app\_service\_log\_categories) | List of log categories to enable for App Service diagnostics | `list(string)` | <pre>[<br/>  "AppServiceHTTPLogs",<br/>  "AppServiceConsoleLogs",<br/>  "AppServiceAppLogs",<br/>  "AppServiceAuditLogs",<br/>  "AppServiceIPSecAuditLogs",<br/>  "AppServicePlatformLogs"<br/>]</pre> | no |
+| <a name="input_app_service_metric_categories"></a> [app\_service\_metric\_categories](#input\_app\_service\_metric\_categories) | List of metric categories to enable for App Service diagnostics | `list(string)` | <pre>[<br/>  "AllMetrics"<br/>]</pre> | no |
 | <a name="input_availability_threshold"></a> [availability\_threshold](#input\_availability\_threshold) | Availability percentage threshold | `number` | `95` | no |
 | <a name="input_budget_amount"></a> [budget\_amount](#input\_budget\_amount) | Budget amount for monitoring resources | `number` | `100` | no |
 | <a name="input_budget_notification_emails"></a> [budget\_notification\_emails](#input\_budget\_notification\_emails) | List of email addresses for budget notifications | `list(string)` | `[]` | no |
 | <a name="input_cpu_threshold"></a> [cpu\_threshold](#input\_cpu\_threshold) | CPU usage threshold for alerts (percentage) | `number` | `80` | no |
 | <a name="input_daily_quota_gb"></a> [daily\_quota\_gb](#input\_daily\_quota\_gb) | Daily ingestion quota in GB for Log Analytics (-1 for unlimited) | `number` | `-1` | no |
 | <a name="input_enable_activity_log_alerts"></a> [enable\_activity\_log\_alerts](#input\_enable\_activity\_log\_alerts) | Enable activity log alerts | `bool` | `true` | no |
+| <a name="input_enable_app_service_monitoring"></a> [enable\_app\_service\_monitoring](#input\_enable\_app\_service\_monitoring) | Enable App Service monitoring and diagnostics | `bool` | `false` | no |
 | <a name="input_enable_availability_tests"></a> [enable\_availability\_tests](#input\_enable\_availability\_tests) | Enable availability test alerts | `bool` | `false` | no |
 | <a name="input_enable_budget_alerts"></a> [enable\_budget\_alerts](#input\_enable\_budget\_alerts) | Enable budget alerts | `bool` | `false` | no |
 | <a name="input_enable_comprehensive_logging"></a> [enable\_comprehensive\_logging](#input\_enable\_comprehensive\_logging) | Enable comprehensive logging for all storage services (Blob, File, Queue, Table) | `bool` | `true` | no |
@@ -435,6 +500,7 @@ This module is licensed under the Apache License 2.0 - see the [LICENSE](../../L
 | <a name="input_log_analytics_sku"></a> [log\_analytics\_sku](#input\_log\_analytics\_sku) | SKU for Log Analytics Workspace | `string` | `"PerGB2018"` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days to retain logs in Log Analytics | `number` | `30` | no |
 | <a name="input_memory_threshold"></a> [memory\_threshold](#input\_memory\_threshold) | Memory usage threshold for alerts (percentage) | `number` | `85` | no |
+| <a name="input_monitored_app_services"></a> [monitored\_app\_services](#input\_monitored\_app\_services) | Map of App Services to monitor | <pre>map(object({<br/>    resource_id = string<br/>    name        = string<br/>  }))</pre> | `{}` | no |
 | <a name="input_monitored_function_apps"></a> [monitored\_function\_apps](#input\_monitored\_function\_apps) | Map of Function Apps to monitor | <pre>map(object({<br/>    resource_id = string<br/>    name        = string<br/>  }))</pre> | `{}` | no |
 | <a name="input_notification_emails"></a> [notification\_emails](#input\_notification\_emails) | Map of email addresses for notifications | `map(string)` | `{}` | no |
 | <a name="input_notification_sms"></a> [notification\_sms](#input\_notification\_sms) | Map of SMS numbers for notifications | <pre>map(object({<br/>    country_code = string<br/>    phone_number = string<br/>  }))</pre> | `{}` | no |

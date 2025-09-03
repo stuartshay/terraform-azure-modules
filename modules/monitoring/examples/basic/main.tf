@@ -2,11 +2,11 @@
 # This example demonstrates the minimal configuration required for the monitoring module
 
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.12.2"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.40"
+      version = "~> 4.42"
     }
   }
 }
