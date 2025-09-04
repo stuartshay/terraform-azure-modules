@@ -128,18 +128,73 @@ applyTo: '**'
 	- Table logs categories: https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/microsoft-storage-storageaccounts-tableservices-logs
 	- Service monitoring overviews: Blob https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage, Queue https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage, Table https://learn.microsoft.com/azure/storage/tables/monitor-table-storage, Files https://learn.microsoft.com/azure/storage/files/storage-files-monitoring
 	- Classic logging note retained for context: https://learn.microsoft.com/azure/storage/common/manage-storage-analytics-logs
-
 	### Outcome
 	- Updated GitHub Issue #34 with a comprehensive specification: diagnostics categories and destinations, blob versioning + change feed + soft-delete, optional container immutability, and SAS → Key Vault integration with secure defaults.
 	- Added proposed module inputs/outputs and explicit acceptance criteria to guide implementation and testing.
 	- Linked to relevant Microsoft docs for categories and monitoring references to ensure accuracy.
 
+<<<<<<< HEAD
+## Current Task (Aug 26, 2025)
+- Type: Bug Fix — resolve failing `pre-commit run terraform_tflint --all-files`
+- Branch/PR: `copilot/fix-34` / PR #35
+- Plan: Research TFLint + azurerm rules, run hook to capture errors, fix Terraform modules/examples accordingly, rerun until clean.
+
+### Outcome
+- Fixed unused variable warnings in `modules/storage-account/examples/complete-enhanced` by wiring example variables into resources and module inputs (resource group name/location, diagnostic retention, immutability days, SAS TTL, and tags merged via `locals`).
+- Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
+- Verified: `pre-commit run terraform_tflint --all-files` now passes.
+
+
+## Merge Maintenance (Sep 2, 2025)
+- Task: Merge latest `master` into `copilot/fix-34` branch.
+- Plan:
+	1. Fetch latest `master` from origin.
+	2. Merge `master` into `copilot/fix-34`.
+## Current Task (Aug 26, 2025)
+- Type: Bug Fix — resolve failing `pre-commit run terraform_tflint --all-files`
+- Branch/PR: `copilot/fix-34` / PR #35
+- Plan: Research TFLint + azurerm rules, run hook to capture errors, fix Terraform modules/examples accordingly, rerun until clean.
+
+### Outcome
+- Fixed unused variable warnings in `modules/storage-account/examples/complete-enhanced` by wiring example variables into resources and module inputs (resource group name/location, diagnostic retention, immutability days, SAS TTL, and tags merged via `locals`).
+- Replaced `//` comments with `#` in HCL to satisfy `terraform_comment_syntax` rule.
+- Verified: `pre-commit run terraform_tflint --all-files` now passes.
+
 ## Pre-commit/Makefile Path Issue (Aug 2025)
 - Issue: 'make terraform-test' and pre-commit fail with '/bin/sh: 5: cd: can't cd to modules/function-app', but the directory exists and is accessible in direct shell.
 - Investigation:
-  - All direct shell and absolute path checks confirm the directory exists and is accessible.
-  - Permissions, casing, and .gitignore are not the cause; directory is not ignored or deleted.
-  - Makefile logic is correct and works for other modules.
+	- All direct shell and absolute path checks confirm the directory exists and is accessible.
+	- Permissions, casing, and .gitignore are not the cause; directory is not ignored or deleted.
+	- Makefile logic is correct and works for other modules.
+	- The error is reproducible in both Makefile and pre-commit, but not in direct shell.
+	- No symlinks, hidden files, or special characters found in the path.
+	- No evidence of parallelism or race conditions in Makefile or pre-commit config.
+- Hypothesis: The error is likely due to an ephemeral or environmental issue in the pre-commit/Makefile context (e.g., race condition, file lock, or transient FS state). It may also be related to the working directory context or shell environment used by pre-commit or Makefile.
+- Next steps: Consider adding debug output to Makefile/test logic to capture environment state at failure point, or check for parallelism/race conditions in pre-commit or Makefile logic. If the issue persists, try running with 'SHELL=bash make terraform-test' or adding 'pwd' and 'ls' debug lines before the failing 'cd' command in the Makefile.
+
+## .gitattributes Encoding Enforcement (Aug 2025)
+- Added .gitattributes to repository root to enforce file encoding and line endings:
+		- All files: text=auto (Git normalizes line endings, stores as LF in repo)
+		- *.tf, *.md, *.sh, *.yml, *.yaml, *.hcl, *.json: text eol=lf (explicit LF for cross-platform compatibility)
+		- *.bat: text eol=crlf (Windows batch files)
+		- *.ps1: text working-tree-encoding=UTF-16LE eol=crlf (PowerShell scripts, Windows encoding)
+		- *.jpg, *.png, *.pdf: binary (no normalization, prevents corruption)
+- Follows Git best practices for encoding and line ending normalization (see https://git-scm.com/docs/gitattributes)
+- Ensures all contributors use consistent encoding and line endings, prevents cross-platform issues and binary corruption
+- If files need to be renormalized after adding .gitattributes, run: git add --renormalize .
+- If any files should not be normalized, unset their text attribute (e.g., manual.pdf -text)
+
+## Merge Maintenance (Sep 2, 2025)
+- Task: Merge latest `master` into `copilot/fix-34` branch.
+- Plan:
+	1. Fetch latest `master` from origin.
+	2. Merge `master` into `copilot/fix-34`.
+	3. Resolve any merge conflicts, prioritizing preservation of both new features and bug fixes.
+	4. Run all tests and pre-commit hooks to ensure stability.
+	5. Update memory with results and any conflict resolutions.
+	6. Document any issues or special handling required.
+
+---
   - The error is reproducible in both Makefile and pre-commit, but not in direct shell.
   - No symlinks, hidden files, or special characters found in the path.
   - No evidence of parallelism or race conditions in Makefile or pre-commit config.
@@ -157,3 +212,4 @@ applyTo: '**'
 - Ensures all contributors use consistent encoding and line endings, prevents cross-platform issues and binary corruption
 - If files need to be renormalized after adding .gitattributes, run: git add --renormalize .
 - If any files should not be normalized, unset their text attribute (e.g., manual.pdf -text)
+>>>>>>> origin/master

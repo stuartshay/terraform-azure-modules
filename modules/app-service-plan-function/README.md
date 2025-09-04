@@ -167,7 +167,7 @@ resource "azurerm_linux_function_app" "worker" {
 
 | Name | Version |
 |------|---------|
-| azurerm | >= 4.40 |
+| azurerm | >= 4.42.0 |
 
 ## Resources
 

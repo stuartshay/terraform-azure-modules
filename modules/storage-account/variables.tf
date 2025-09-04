@@ -198,13 +198,13 @@ variable "enable_blob_properties" {
 variable "enable_blob_versioning" {
   description = "Enable blob versioning"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_change_feed" {
   description = "Enable change feed"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "change_feed_retention_days" {
@@ -227,7 +227,7 @@ variable "enable_last_access_time_tracking" {
 variable "blob_delete_retention_days" {
   description = "Blob delete retention in days (0 to disable)"
   type        = number
-  default     = 7
+  default     = 14
 
   validation {
     condition     = var.blob_delete_retention_days >= 0 && var.blob_delete_retention_days <= 365
@@ -244,6 +244,30 @@ variable "container_delete_retention_days" {
     condition     = var.container_delete_retention_days >= 0 && var.container_delete_retention_days <= 365
     error_message = "Container delete retention days must be between 0 and 365."
   }
+}
+
+# Container Immutability Policy
+variable "enable_container_immutability" {
+  description = "Enable container immutability policies"
+  type        = bool
+  default     = false
+}
+
+variable "container_immutability_days" {
+  description = "Immutability period in days for container policies"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.container_immutability_days >= 1 && var.container_immutability_days <= 146000
+    error_message = "Container immutability days must be between 1 and 146000."
+  }
+}
+
+variable "immutable_containers" {
+  description = "List of container names to apply immutability policies to"
+  type        = list(string)
+  default     = []
 }
 
 # CORS Rules
@@ -784,9 +808,15 @@ variable "private_endpoints" {
 
 # Diagnostic Settings
 variable "enable_diagnostic_settings" {
-  description = "Enable diagnostic settings"
+  description = "Enable diagnostic settings (legacy - use enable_diagnostics)"
   type        = bool
   default     = false
+}
+
+variable "enable_diagnostics" {
+  description = "Enable Azure Monitor diagnostic logs for all storage services"
+  type        = bool
+  default     = true
 }
 
 variable "log_analytics_workspace_id" {
@@ -813,9 +843,105 @@ variable "eventhub_name" {
   default     = null
 }
 
+variable "diagnostics_retention_days" {
+  description = "Retention days for diagnostic logs"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.diagnostics_retention_days >= 0 && var.diagnostics_retention_days <= 365
+    error_message = "Diagnostics retention days must be between 0 and 365."
+  }
+}
 
 variable "diagnostic_metrics" {
   description = "List of diagnostic metric categories to enable"
   type        = list(string)
   default     = ["Transaction"]
+}
+
+# SAS Token and Key Vault Integration
+variable "enable_sas_secret" {
+  description = "Enable SAS token generation and storage in Key Vault"
+  type        = bool
+  default     = false
+}
+
+variable "key_vault_id" {
+  description = "Azure Key Vault ID for storing SAS token"
+  type        = string
+  default     = null
+}
+
+variable "key_vault_secret_name" {
+  description = "Name of the Key Vault secret for storing SAS token"
+  type        = string
+  default     = null
+}
+
+variable "sas_services" {
+  description = "SAS services (b=blob, q=queue, t=table, f=file)"
+  type        = string
+  default     = "bqtf"
+
+  validation {
+    condition     = can(regex("^[bqtf]*$", var.sas_services))
+    error_message = "SAS services must contain only: b (blob), q (queue), t (table), f (file)."
+  }
+}
+
+variable "sas_resource_types" {
+  description = "SAS resource types (s=service, c=container, o=object)"
+  type        = string
+  default     = "sco"
+
+  validation {
+    condition     = can(regex("^[sco]*$", var.sas_resource_types))
+    error_message = "SAS resource types must contain only: s (service), c (container), o (object)."
+  }
+}
+
+variable "sas_permissions" {
+  description = "SAS permissions (r=read, w=write, d=delete, l=list)"
+  type        = string
+  default     = "rwdl"
+
+  validation {
+    condition     = can(regex("^[rwdla]*$", var.sas_permissions))
+    error_message = "SAS permissions must contain only: r (read), w (write), d (delete), l (list), a (add)."
+  }
+}
+
+variable "sas_ttl_hours" {
+  description = "SAS token time-to-live in hours"
+  type        = number
+  default     = 24
+
+  validation {
+    condition     = var.sas_ttl_hours >= 1 && var.sas_ttl_hours <= 8760
+    error_message = "SAS TTL hours must be between 1 and 8760 (1 year)."
+  }
+}
+
+variable "sas_ip_addresses" {
+  description = "Allowed IP addresses for SAS token"
+  type        = string
+  default     = null
+}
+
+variable "sas_https_only" {
+  description = "Restrict SAS token to HTTPS only"
+  type        = bool
+  default     = true
+}
+
+variable "start_time_offset_minutes" {
+  description = "Start time offset in minutes for SAS token (negative for past time)"
+  type        = number
+  default     = -5
+
+  validation {
+    condition     = var.start_time_offset_minutes >= -60 && var.start_time_offset_minutes <= 60
+    error_message = "Start time offset must be between -60 and 60 minutes."
+  }
 }
