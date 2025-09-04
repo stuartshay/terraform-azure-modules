@@ -48,7 +48,8 @@ resource "azurerm_application_insights" "main" {
 module "monitoring_storage" {
   count = var.enable_storage_monitoring ? 1 : 0
 
-  source = "../storage-account"
+  source  = "app.terraform.io/azure-policy-cloud/storage-account/azurerm"
+  version = "1.1.68"
 
   # Required variables
   resource_group_name = var.resource_group_name

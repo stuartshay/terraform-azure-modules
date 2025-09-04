@@ -426,7 +426,7 @@ The module provides comprehensive outputs for integration:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_monitoring_storage"></a> [monitoring\_storage](#module\_monitoring\_storage) | ../storage-account | n/a |
+| <a name="module_monitoring_storage"></a> [monitoring\_storage](#module\_monitoring\_storage) | app.terraform.io/azure-policy-cloud/storage-account/azurerm | 1.1.68 |
 
 ## Resources
 
