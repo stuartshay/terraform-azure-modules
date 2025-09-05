@@ -159,7 +159,74 @@ module "app_service" {
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/container-instances/azurerm/)
 
 
+Enterprise-grade Azure Container Instances (ACI) module supporting multi-container groups, secure networking, managed identities, diagnostics, and advanced configuration for production workloads.
 
+- **Path**: `modules/container-instances`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Multi-Container Support**: Deploy multiple containers in a single group with custom resource allocation
+- **VNet Integration**: Private IP, subnet selection, and secure network isolation
+- **Managed Identity**: SystemAssigned and UserAssigned identity support
+- **Environment Variables**: Secure and plain environment variable injection
+- **Volume Mounts**: Azure Files and emptyDir support for persistent and ephemeral storage
+- **Probes**: Liveness and readiness probes for health monitoring
+- **Diagnostics**: Log Analytics, diagnostic logs, and metrics integration
+- **Tagging**: Full Azure tagging support
+
+#### Quick Start
+
+```hcl
+module "container_instances" {
+  source  = "app.terraform.io/azure-policy-cloud/container-instances/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+
+  containers = [
+    {
+      name   = "web"
+      image  = "nginx:alpine"
+      cpu    = 1.0
+      memory = 2.0
+      ports = [{ port = 80, protocol = "TCP" }]
+      environment_variables = { ENV = "dev" }
+      secure_environment_variables = { SECRET = "supersecret" }
+      volume_mounts = [{ name = "web-content", mount_path = "/usr/share/nginx/html", read_only = true }]
+      liveness_probe = {
+        http_get = { path = "/health", port = 80, scheme = "HTTP" }
+        initial_delay_seconds = 30
+        period_seconds        = 10
+        failure_threshold     = 3
+        success_threshold     = 1
+        timeout_seconds       = 5
+      }
+    }
+  ]
+
+  ip_address_type         = "Private"
+  enable_vnet_integration = true
+  subnet_ids              = [data.azurerm_subnet.container.id]
+  exposed_ports           = [{ port = 80, protocol = "TCP" }]
+  identity_type           = "SystemAssigned, UserAssigned"
+  identity_ids            = [data.azurerm_user_assigned_identity.example.id]
+  enable_diagnostic_settings = true
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.example.id
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+---
+
+### Networking Module
 
 
 ### Networking Module
@@ -450,6 +517,53 @@ module "monitoring" {
   }
 }
 ```
+
+### Application Insights Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/application-insights/azurerm/)
+
+Azure Application Insights module for advanced monitoring, analytics, and diagnostics. Supports workspace-based and classic modes, custom retention, and integration with Log Analytics.
+
+- **Path**: `modules/application-insights`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Workspace-Based or Classic**: Choose between workspace-based or classic Application Insights
+- **Custom Retention**: Set data retention period for logs and analytics
+- **Log Analytics Integration**: Seamless integration with Log Analytics Workspace
+- **Multiple Instances**: Deploy multiple Application Insights resources with unique settings
+- **Tagging**: Full Azure tagging support
+
+#### Quick Start
+
+```hcl
+module "application_insights" {
+  source  = "app.terraform.io/azure-policy-cloud/application-insights/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = "rg-example"
+  location           = "East US"
+  environment        = "dev"
+  workload           = "myapp"
+  application_type   = "web"
+  workspace_id       = data.azurerm_log_analytics_workspace.main.id
+  retention_in_days  = 30
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+}
+```
+
+---
+
+
+
+
+
+
 
 ## Usage
 
