@@ -168,7 +168,7 @@ updates:
 
     # Container Instance
   - package-ecosystem: 'terraform'
-    directory: '/modules/container-instance'
+    directory: '/modules/container-instances'
     registries:
       - tfc-private
     schedule:
