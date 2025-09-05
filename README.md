@@ -563,6 +563,94 @@ module "application_insights" {
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/application-insights-network/azurerm/)
 
+Azure Application Insights monitoring and alerting module that creates comprehensive alert rules and dashboards for Application Insights instances. Provides basic alerting capabilities and sample dashboards for monitoring application performance and health.
+
+- **Path**: `modules/application-insights-network`
+- **Provider**: `azurerm`
+- **Version**: `>= 3.0`
+
+#### Features
+
+- **Configurable Alert Rules**: 5 different alert types with customizable thresholds and severities
+  - Response time alerts (default: >5000ms)
+  - Failed request rate alerts (default: >5%)
+  - Exception rate alerts (default: >10 per 5 minutes)
+  - Availability alerts (default: <99%)
+  - Server error alerts (default: >10 per 5 minutes)
+- **Sample Dashboard**: Basic monitoring workbook with essential performance metrics
+- **Flexible Configuration**: All alert thresholds and severities are configurable with sensible defaults
+- **No Notifications**: Alert rules created without action groups (can be added separately)
+- **Log Analytics Integration**: Optional integration with Log Analytics Workspace for advanced queries
+
+#### Quick Start
+
+```hcl
+module "app_insights_monitoring" {
+  source  = "app.terraform.io/azure-policy-cloud/application-insights-network/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  resource_group_name       = "rg-myapp-prod-eus-001"
+  location                 = "East US"
+  application_insights_name = "appi-myapp-prod-eus-001"
+
+  # Optional naming
+  workload       = "myapp"
+  environment    = "prod"
+  location_short = "eus"
+
+  # Custom alert thresholds
+  response_time_threshold_ms     = 3000  # 3 seconds
+  failed_request_rate_threshold  = 2     # 2%
+  availability_threshold_percent = 99.5  # 99.5%
+
+  # Enable dashboard
+  enable_dashboard       = true
+  dashboard_display_name = "MyApp Production Monitoring"
+
+  tags = {
+    Environment = "Production"
+    Project     = "MyApp"
+  }
+}
+```
+
+#### Integration with Application Insights Module
+
+This module is designed to work seamlessly with the Application Insights module:
+
+```hcl
+# Create Application Insights with workspace and Key Vault integration
+module "app_insights" {
+  source = "./modules/application-insights"
+
+  resource_group_name = "rg-myapp-prod-eus-001"
+  location           = "East US"
+  workload           = "myapp"
+  environment        = "prod"
+
+  # Creates workspace-based Application Insights
+  create_workspace = true
+  
+  # Stores connection string in Key Vault
+  key_vault_id = "https://azureconnectedservices.vault.azure.net/"
+}
+
+# Add monitoring and alerting
+module "app_insights_monitoring" {
+  source = "./modules/application-insights-network"
+
+  resource_group_name       = module.app_insights.resource_group_name
+  location                 = module.app_insights.location
+  application_insights_name = module.app_insights.name
+
+  # Reference the created workspace
+  log_analytics_workspace_name = module.app_insights.log_analytics_workspace_name
+
+  depends_on = [module.app_insights]
+}
+```
+
 
 
 
@@ -571,7 +659,18 @@ module "application_insights" {
 
 ### Module Reference
 
-To use a module from this repository, reference it using the GitHub source with a specific version tag:
+To use a module from this repository, reference it using the Terraform Cloud private registry:
+
+```hcl
+module "module_name" {
+  source  = "app.terraform.io/azure-policy-cloud/MODULE_NAME/azurerm"
+  version = "VERSION"
+
+  # Module configuration
+}
+```
+
+**Alternative GitHub Source** (for development or direct repository access):
 
 ```hcl
 module "module_name" {
