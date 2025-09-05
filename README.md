@@ -154,6 +154,9 @@ module "app_service" {
 }
 ```
 
+### Container-Instances Module
+
+[![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/container-instances/azurerm/)
 
 
 
