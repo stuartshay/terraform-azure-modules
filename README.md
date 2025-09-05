@@ -653,8 +653,6 @@ module "app_insights_monitoring" {
 
 
 
-
-
 ## Usage
 
 ### Module Reference
@@ -695,9 +693,6 @@ See the `examples/` directory in each module for detailed usage examples.
 - Azure Provider >= 4.42
 - Appropriate Azure permissions for resource creation
 ## Terraform Cloud Deployment
-
-> **Versioning Requirement:**
-> For **Blob** and **Container** resources, versioning is **required**. This ensures that all changes and deletions can be tracked and recovered, supporting data protection and compliance.
 
 
 This repository includes automated deployment to Terraform Cloud private registry via GitHub Actions.
