@@ -178,11 +178,10 @@ resource "azurerm_monitor_diagnostic_setting" "container_group" {
   }
 
   # Metrics
-  dynamic "metric" {
+  dynamic "enabled_metric" {
     for_each = var.diagnostic_metrics
     content {
-      category = metric.value
-      enabled  = true
+      category = enabled_metric.value
     }
   }
 }

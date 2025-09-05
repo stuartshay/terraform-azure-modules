@@ -509,7 +509,7 @@ run "empty_containers_list" {
   }
 
   expect_failures = [
-    azurerm_container_group.main,
+    var.containers,
   ]
 }
 

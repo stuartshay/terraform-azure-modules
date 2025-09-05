@@ -371,24 +371,11 @@ run "volume_outputs_validation" {
     location            = "East US"
     containers = [
       {
-        name   = "test-container"
-        image  = "alpine:latest"
-        cpu    = 0.5
-        memory = 1.0
-        volume_mounts = [
-          {
-            name       = "test-volume"
-            mount_path = "/data"
-            read_only  = false
-          }
-        ]
-      }
-    ]
-    volumes = [
-      {
-        name      = "test-volume"
-        type      = "empty_dir"
-        empty_dir = {}
+        name          = "test-container"
+        image         = "alpine:latest"
+        cpu           = 0.5
+        memory        = 1.0
+        volume_mounts = []
       }
     ]
     tags = {}

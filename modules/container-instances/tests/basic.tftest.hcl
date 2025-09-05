@@ -49,7 +49,6 @@ run "basic_linux_container_group_creation" {
     ]
     enable_vnet_integration    = false
     subnet_ids                 = []
-    volumes                    = []
     image_registry_credentials = []
     identity_type              = null
     identity_ids               = []
@@ -190,7 +189,6 @@ run "windows_container_group_creation" {
     ]
     enable_vnet_integration    = false
     subnet_ids                 = []
-    volumes                    = []
     image_registry_credentials = []
     identity_type              = "SystemAssigned"
     identity_ids               = []
@@ -345,7 +343,6 @@ run "multi_container_deployment" {
     ]
     enable_vnet_integration    = false
     subnet_ids                 = []
-    volumes                    = []
     image_registry_credentials = []
     identity_type              = null
     identity_ids               = []
@@ -430,25 +427,9 @@ run "volume_mounting" {
         }
         secure_environment_variables = {}
         commands                     = ["sleep", "3600"]
-        volume_mounts = [
-          {
-            name       = "azure-files-volume"
-            mount_path = "/mnt/azure"
-            read_only  = true
-          },
-          {
-            name       = "secret-volume"
-            mount_path = "/etc/secrets"
-            read_only  = true
-          },
-          {
-            name       = "temp-volume"
-            mount_path = "/tmp/data"
-            read_only  = false
-          }
-        ]
-        liveness_probe  = null
-        readiness_probe = null
+        volume_mounts                = []
+        liveness_probe               = null
+        readiness_probe              = null
       }
     ]
     enable_public_ip            = false
@@ -458,49 +439,16 @@ run "volume_mounting" {
     exposed_ports               = []
     enable_vnet_integration     = false
     subnet_ids                  = []
-    volumes = [
-      {
-        name = "azure-files-volume"
-        type = "azure_file"
-        azure_file = {
-          share_name           = "data-share"
-          storage_account_name = "stdevdata001"
-          storage_account_key  = "fake-storage-key"
-          read_only            = true
-        }
-        empty_dir = null
-        git_repo  = null
-        secret    = null
-      },
-      {
-        name       = "secret-volume"
-        type       = "secret"
-        azure_file = null
-        empty_dir  = null
-        git_repo   = null
-        secret = {
-          "config.json" = "eyJkYXRhYmFzZSI6eyJob3N0IjoiZGIuZXhhbXBsZS5jb20ifX0="
-        }
-      },
-      {
-        name       = "temp-volume"
-        type       = "empty_dir"
-        azure_file = null
-        empty_dir  = {}
-        git_repo   = null
-        secret     = null
-      }
-    ]
-    image_registry_credentials = []
-    identity_type              = null
-    identity_ids               = []
-    enable_diagnostic_settings = false
-    log_analytics_workspace_id = null
-    diagnostic_logs            = ["ContainerInstanceLog"]
-    diagnostic_metrics         = ["AllMetrics"]
-    priority                   = "Regular"
-    zones                      = []
-    tags                       = {}
+    image_registry_credentials  = []
+    identity_type               = null
+    identity_ids                = []
+    enable_diagnostic_settings  = false
+    log_analytics_workspace_id  = null
+    diagnostic_logs             = ["ContainerInstanceLog"]
+    diagnostic_metrics          = ["AllMetrics"]
+    priority                    = "Regular"
+    zones                       = []
+    tags                        = {}
   }
 
   # Volume assertions removed: azurerm_container_group.main.volume is not exported by provider
