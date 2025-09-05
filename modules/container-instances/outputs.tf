@@ -1,3 +1,17 @@
+# Volumes and Volume Mounts Outputs
+
+output "volumes" {
+  description = "The list of volumes attached to the container group (input variable, for reference)"
+  value       = var.volumes
+}
+
+output "container_volume_mounts" {
+  description = "A map of container names to their volume mounts (input variable, for reference)"
+  value = {
+    for container in var.containers :
+    container.name => try(container.volume_mounts, [])
+  }
+}
 # Azure Container Instances Module - Outputs
 # This file defines all outputs from the Azure Container Instances module
 

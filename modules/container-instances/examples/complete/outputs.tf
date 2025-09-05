@@ -1,3 +1,14 @@
+# Volumes and Volume Mounts Outputs
+
+output "volumes" {
+  description = "The list of volumes attached to the container group (input variable, for reference)"
+  value       = module.container_instances.volumes
+}
+
+output "container_volume_mounts" {
+  description = "A map of container names to their volume mounts (input variable, for reference)"
+  value       = module.container_instances.container_volume_mounts
+}
 # Complete Example Outputs
 
 output "container_group_id" {
@@ -25,10 +36,6 @@ output "containers" {
   value       = module.container_instances.containers
 }
 
-output "volumes" {
-  description = "Information about all volumes in the group"
-  value       = module.container_instances.volumes
-}
 
 output "identity" {
   description = "The managed identity information"

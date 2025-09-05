@@ -52,6 +52,7 @@ resource "azurerm_container_group" "main" {
     }
   }
 
+
   # Containers
   dynamic "container" {
     for_each = var.containers
@@ -77,14 +78,37 @@ resource "azurerm_container_group" "main" {
         }
       }
 
-      # Volume Mounts (not supported as dynamic block, so omitted)
+      # Volume Mounts
+      dynamic "volume" {
+        for_each = try(container.value.volume_mounts, [])
+        content {
+          name       = volume.value.name
+          mount_path = volume.value.mount_path
+          read_only  = lookup(volume.value, "read_only", false)
+
+          # Find the volume definition from var.volumes based on the name
+          empty_dir            = try([for v in var.volumes : v.empty_dir if v.name == volume.value.name][0], null)
+          storage_account_name = try([for v in var.volumes : v.azure_file.storage_account_name if v.name == volume.value.name && v.azure_file != null][0], null)
+          storage_account_key  = try([for v in var.volumes : v.azure_file.storage_account_key if v.name == volume.value.name && v.azure_file != null][0], null)
+          share_name           = try([for v in var.volumes : v.azure_file.share_name if v.name == volume.value.name && v.azure_file != null][0], null)
+          secret               = try([for v in var.volumes : v.secret.files if v.name == volume.value.name && v.secret != null][0], null)
+
+          # git_repo
+          dynamic "git_repo" {
+            for_each = [for v in var.volumes : v.git_repo if v.name == volume.value.name && v.git_repo != null]
+            content {
+              url       = git_repo.value.repository_url
+              directory = try(git_repo.value.directory, null)
+              revision  = try(git_repo.value.revision, null)
+            }
+          }
+        }
+      }
 
       # Liveness Probe
       dynamic "liveness_probe" {
         for_each = container.value.liveness_probe != null ? [container.value.liveness_probe] : []
         content {
-          # Exec probe (not supported as dynamic block, so omitted)
-
           # HTTP GET probe
           dynamic "http_get" {
             for_each = liveness_probe.value.http_get != null ? [liveness_probe.value.http_get] : []
@@ -107,8 +131,6 @@ resource "azurerm_container_group" "main" {
       dynamic "readiness_probe" {
         for_each = container.value.readiness_probe != null ? [container.value.readiness_probe] : []
         content {
-          # Exec probe (not supported as dynamic block, so omitted)
-
           # HTTP GET probe
           dynamic "http_get" {
             for_each = readiness_probe.value.http_get != null ? [readiness_probe.value.http_get] : []
@@ -129,8 +151,6 @@ resource "azurerm_container_group" "main" {
     }
   }
 
-  # Volumes (not supported as dynamic block, so omitted)
-
   # Image Registry Credentials
   dynamic "image_registry_credential" {
     for_each = var.image_registry_credentials
@@ -150,7 +170,9 @@ resource "azurerm_container_group" "main" {
     }
   }
 
-  # VNet Integration (not supported as dynamic block, so omitted)
+
+  # VNet Integration
+  subnet_ids = var.enable_vnet_integration && length(var.subnet_ids) > 0 ? var.subnet_ids : null
 
   # Priority (for Spot instances)
   priority = var.priority

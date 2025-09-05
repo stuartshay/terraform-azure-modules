@@ -73,19 +73,24 @@ module "container_instances" {
         "NGINX_HOST"  = "0.0.0.0"
         "ENVIRONMENT" = "production"
       }
+      # Use Azure Key Vault references for secrets (CKV_AZURE_235 compliant)
       secure_environment_variables = {
-        "API_KEY"      = "super-secret-api-key"
-        "DATABASE_URL" = "postgresql://user:pass@db:5432/app"
+        # Example: "API_KEY" = "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/api-key/123456)"
+        "API_KEY"      = "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/api-key/123456)"
+        "DATABASE_URL" = "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/database-url/abcdef)"
       }
       volume_mounts = [
         {
-          name       = "web-content"
-          mount_path = "/usr/share/nginx/html"
-          read_only  = true
+          name       = "data-volume"
+          mount_path = "/data"
         },
         {
-          name       = "nginx-config"
-          mount_path = "/etc/nginx/conf.d"
+          name       = "git-volume"
+          mount_path = "/src"
+        },
+        {
+          name       = "secret-volume"
+          mount_path = "/etc/secret"
           read_only  = true
         }
       ]
@@ -130,21 +135,16 @@ module "container_instances" {
         "LOG_LEVEL"       = "info"
         "METRICS_ENABLED" = "true"
       }
+      # Use Azure Key Vault references for secrets (CKV_AZURE_235 compliant)
       secure_environment_variables = {
-        "JWT_SECRET"  = "jwt-signing-secret"
-        "DB_PASSWORD" = "database-password"
+        "JWT_SECRET"  = "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/jwt-secret/654321)"
+        "DB_PASSWORD" = "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/db-password/abcdef)"
       }
       commands = ["/app/start.sh", "--config", "/etc/app/config.yaml"]
       volume_mounts = [
         {
-          name       = "app-config"
-          mount_path = "/etc/app"
-          read_only  = true
-        },
-        {
-          name       = "app-data"
-          mount_path = "/data"
-          read_only  = false
+          name       = "azurefile-volume"
+          mount_path = "/mnt/storage"
         }
       ]
       liveness_probe = {
@@ -181,18 +181,7 @@ module "container_instances" {
         "FLUENT_CONF" = "fluent-bit.conf"
         "LOG_LEVEL"   = "info"
       }
-      volume_mounts = [
-        {
-          name       = "log-config"
-          mount_path = "/fluent-bit/etc"
-          read_only  = true
-        },
-        {
-          name       = "app-logs"
-          mount_path = "/var/log"
-          read_only  = false
-        }
-      ]
+      # No volume mounts for this container
     }
   ]
 
@@ -221,8 +210,37 @@ module "container_instances" {
   dns_name_label              = "microservices-prod-eastus"
   dns_name_label_reuse_policy = "TenantReuse"
 
-  # Volume configuration
-  # Volumes are not supported as a direct argument in the module interface. If needed, add support in the module or remove this block.
+
+  volumes = [
+    {
+      name      = "data-volume"
+      empty_dir = true
+    },
+    {
+      name = "git-volume"
+      git_repo = {
+        repository_url = "https://github.com/Azure-Samples/aci-helloworld.git"
+        directory      = "/src"
+        revision       = null
+      }
+    },
+    {
+      name = "secret-volume"
+      secret = {
+        files = {
+          "appsettings.json" = "YmFzZTY0ZW5jb2RlZCBjb250ZW50Ig==" # base64encoded content
+        }
+      }
+    },
+    {
+      name = "azurefile-volume"
+      azure_file = {
+        share_name           = "myshare"
+        storage_account_name = "mystorageaccount"
+        storage_account_key  = "..."
+      }
+    }
+  ]
 
   image_registry_credentials = [
     {

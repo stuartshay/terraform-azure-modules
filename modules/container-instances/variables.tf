@@ -52,12 +52,15 @@ variable "containers" {
       port     = number
       protocol = optional(string, "TCP")
     })), [])
-    environment_variables        = optional(map(string), {})
+    environment_variables = optional(map(string), {})
+    # secure_environment_variables should reference Azure Key Vault or other secure sources, not hardcoded secrets.
+    # Example: { "DB_PASSWORD" = "@Microsoft.KeyVault(SecretUri=https://<vault-name>.vault.azure.net/secrets/<secret-name>/<version>)" }
     secure_environment_variables = optional(map(string), {})
     commands                     = optional(list(string), [])
+    # Volume mounts for this container. Each entry must reference a volume defined in the top-level 'volumes' variable.
     volume_mounts = optional(list(object({
-      name       = string
-      mount_path = string
+      name       = string # Name of the volume to mount (must match a volume in 'volumes')
+      mount_path = string # Path in the container to mount the volume
       read_only  = optional(bool, false)
     })), [])
     liveness_probe = optional(object({
@@ -149,6 +152,67 @@ variable "subnet_ids" {
 }
 
 # Storage Volumes
+
+# Volumes to be attached to the container group. Each volume must have a unique name and specify one source type (empty_dir, git_repo, secret, or azure_file).
+variable "volumes" {
+  description = <<EOT
+List of volumes to attach to the container group. Each volume must have a unique name and specify one source type. Supported types:
+  - empty_dir: ephemeral storage
+  - git_repo: clone a git repository
+  - secret: mount secrets as files
+  - azure_file: mount an Azure File share
+
+Example:
+[
+  {
+    name      = "data-volume"
+    empty_dir = true
+  },
+  {
+    name = "git-volume"
+    git_repo = {
+      repository_url = "https://github.com/Azure-Samples/aci-helloworld.git"
+      directory      = "/src"
+      revision       = null
+    }
+  },
+  {
+    name = "secret-volume"
+    secret = {
+      files = {
+        "appsettings.json" = "base64encodedstring"
+      }
+    }
+  },
+  {
+    name = "azurefile-volume"
+    azure_file = {
+      share_name           = "myshare"
+      storage_account_name = "mystorageaccount"
+      storage_account_key  = "..."
+    }
+  }
+]
+EOT
+  type = list(object({
+    name      = string
+    empty_dir = optional(bool)
+    git_repo = optional(object({
+      repository_url = string
+      directory      = optional(string)
+      revision       = optional(string)
+    }))
+    secret = optional(object({
+      files = map(string) # filename => base64-encoded content
+    }))
+    azure_file = optional(object({
+      share_name           = string
+      storage_account_name = string
+      storage_account_key  = string
+    }))
+  }))
+  default = []
+}
 
 # Container Registry
 variable "image_registry_credentials" {

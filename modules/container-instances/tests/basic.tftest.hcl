@@ -427,9 +427,20 @@ run "volume_mounting" {
         }
         secure_environment_variables = {}
         commands                     = ["sleep", "3600"]
-        volume_mounts                = []
-        liveness_probe               = null
-        readiness_probe              = null
+        volume_mounts = [
+          {
+            name       = "data-volume"
+            mount_path = "/data"
+          }
+        ]
+        liveness_probe  = null
+        readiness_probe = null
+      }
+    ]
+    volumes = [
+      {
+        name      = "data-volume"
+        empty_dir = true
       }
     ]
     enable_public_ip            = false
@@ -451,7 +462,21 @@ run "volume_mounting" {
     tags                        = {}
   }
 
-  # Volume assertions removed: azurerm_container_group.main.volume is not exported by provider
+  # Verify volume mount is present in the container
+  assert {
+    condition     = length(azurerm_container_group.main.container[0].volume) == 1
+    error_message = "Container should have one volume mount"
+  }
+
+  assert {
+    condition     = azurerm_container_group.main.container[0].volume[0].name == "data-volume"
+    error_message = "Volume mount name should match the defined volume"
+  }
+
+  assert {
+    condition     = azurerm_container_group.main.container[0].volume[0].mount_path == "/data"
+    error_message = "Volume mount path should match the input"
+  }
 
   # Verify IP address type for private deployment
   assert {

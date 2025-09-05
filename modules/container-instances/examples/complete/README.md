@@ -255,6 +255,7 @@ This will remove all container instances and associated resources created by thi
 | <a name="output_container_group_id"></a> [container\_group\_id](#output\_container\_group\_id) | The ID of the Container Group |
 | <a name="output_container_group_name"></a> [container\_group\_name](#output\_container\_group\_name) | The name of the Container Group |
 | <a name="output_container_group_summary"></a> [container\_group\_summary](#output\_container\_group\_summary) | Complete summary of the Container Group deployment |
+| <a name="output_container_volume_mounts"></a> [container\_volume\_mounts](#output\_container\_volume\_mounts) | A map of container names to their volume mounts (input variable, for reference) |
 | <a name="output_containers"></a> [containers](#output\_containers) | Information about all containers in the group |
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | The FQDN of the Container Group |
 | <a name="output_identity"></a> [identity](#output\_identity) | The managed identity information |
@@ -264,5 +265,5 @@ This will remove all container instances and associated resources created by thi
 | <a name="output_principal_id"></a> [principal\_id](#output\_principal\_id) | The principal ID of the managed identity |
 | <a name="output_runtime_configuration"></a> [runtime\_configuration](#output\_runtime\_configuration) | Runtime configuration of the Container Group |
 | <a name="output_security_configuration"></a> [security\_configuration](#output\_security\_configuration) | Security configuration of the Container Group |
-| <a name="output_volumes"></a> [volumes](#output\_volumes) | Information about all volumes in the group |
+| <a name="output_volumes"></a> [volumes](#output\_volumes) | The list of volumes attached to the container group (input variable, for reference) |
 <!-- END_TF_DOCS -->
