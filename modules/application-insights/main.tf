@@ -3,7 +3,29 @@
 
 # Local values for consistent naming
 locals {
-  app_insights_name = var.name != null ? var.name : "appi-${var.workload}-${var.environment}-${var.location_short}-001"
+  app_insights_name  = var.name != null ? var.name : "appi-${var.workload}-${var.environment}-${var.location_short}-001"
+  log_analytics_name = var.log_analytics_name != null ? var.log_analytics_name : "log-${var.workload}-${var.environment}-${var.location_short}-001"
+  workspace_id       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].id : var.workspace_id
+}
+
+# Log Analytics Workspace (optional - created when workspace_id is not provided)
+resource "azurerm_log_analytics_workspace" "main" {
+  count = var.create_workspace ? 1 : 0
+
+  name                = local.log_analytics_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  sku                 = var.log_analytics_sku
+  retention_in_days   = var.log_analytics_retention_days
+
+  # Cost optimization
+  daily_quota_gb                     = var.log_analytics_daily_quota_gb
+  internet_ingestion_enabled         = var.log_analytics_internet_ingestion_enabled
+  internet_query_enabled             = var.log_analytics_internet_query_enabled
+  local_authentication_enabled       = var.log_analytics_local_authentication_enabled
+  reservation_capacity_in_gb_per_day = var.log_analytics_reservation_capacity_gb
+
+  tags = var.tags
 }
 
 # Application Insights (supports both workspace-based and classic modes)
@@ -11,7 +33,7 @@ resource "azurerm_application_insights" "main" {
   name                = local.app_insights_name
   location            = var.location
   resource_group_name = var.resource_group_name
-  workspace_id        = var.workspace_id
+  workspace_id        = local.workspace_id
   application_type    = var.application_type
 
   # Sampling configuration
@@ -38,6 +60,19 @@ resource "azurerm_application_insights" "main" {
   local_authentication_disabled = var.local_authentication_disabled
 
   tags = var.tags
+}
+
+# Key Vault Secret for Application Insights Connection String (optional)
+resource "azurerm_key_vault_secret" "connection_string" {
+  count = var.key_vault_id != null ? 1 : 0
+
+  name         = var.key_vault_secret_name != null ? var.key_vault_secret_name : "APPLICATIONINSIGHTS-CONNECTION-STRING"
+  value        = azurerm_application_insights.main.connection_string
+  key_vault_id = var.key_vault_id
+
+  tags = var.tags
+
+  depends_on = [azurerm_application_insights.main]
 }
 
 # Smart Detection Rules (built-in Application Insights features)

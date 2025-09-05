@@ -39,6 +39,50 @@ output "workspace_id" {
   value       = azurerm_application_insights.main.workspace_id
 }
 
+# Log Analytics Workspace Outputs (when created by this module)
+output "log_analytics_workspace_id" {
+  description = "ID of the Log Analytics Workspace (if created by this module)"
+  value       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].id : null
+}
+
+output "log_analytics_workspace_name" {
+  description = "Name of the Log Analytics Workspace (if created by this module)"
+  value       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].name : null
+}
+
+output "log_analytics_workspace_primary_shared_key" {
+  description = "Primary shared key of the Log Analytics Workspace (if created by this module)"
+  value       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].primary_shared_key : null
+  sensitive   = true
+}
+
+output "log_analytics_workspace_secondary_shared_key" {
+  description = "Secondary shared key of the Log Analytics Workspace (if created by this module)"
+  value       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].secondary_shared_key : null
+  sensitive   = true
+}
+
+output "log_analytics_workspace_workspace_id" {
+  description = "Workspace ID of the Log Analytics Workspace (if created by this module)"
+  value       = var.create_workspace ? azurerm_log_analytics_workspace.main[0].workspace_id : null
+}
+
+# Key Vault Secret Outputs
+output "key_vault_secret_id" {
+  description = "ID of the Key Vault secret containing the Application Insights connection string"
+  value       = var.key_vault_id != null ? azurerm_key_vault_secret.connection_string[0].id : null
+}
+
+output "key_vault_secret_name" {
+  description = "Name of the Key Vault secret containing the Application Insights connection string"
+  value       = var.key_vault_id != null ? azurerm_key_vault_secret.connection_string[0].name : null
+}
+
+output "key_vault_secret_version" {
+  description = "Version of the Key Vault secret containing the Application Insights connection string"
+  value       = var.key_vault_id != null ? azurerm_key_vault_secret.connection_string[0].version : null
+}
+
 # Smart Detection Rule Outputs
 output "smart_detection_rule_ids" {
   description = "Map of smart detection rule IDs"
