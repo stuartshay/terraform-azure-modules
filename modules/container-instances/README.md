@@ -1,5 +1,36 @@
 # Azure Container Instances Module
 
+## Usage
+
+Here is a minimal example of how to use this module:
+
+```hcl
+module "container_instances" {
+  source              = "./modules/container-instances"
+  workload            = "example"
+  environment         = "dev"
+  resource_group_name = "rg-example-dev"
+  location            = "East US"
+
+  containers = [
+    {
+      name   = "nginx"
+      image  = "nginx:latest"
+      cpu    = 0.5
+      memory = 1.0
+      ports = [
+        {
+          port     = 80
+          protocol = "TCP"
+        }
+      ]
+    }
+  ]
+}
+```
+
+For more advanced usage and configuration options, see the [Quick Start](#quick-start) and [Examples](#examples) sections below.
+
 This Terraform module creates Azure Container Instances with comprehensive features including multi-container support, VNet integration, volume mounting, health probes, registry authentication, and monitoring capabilities.
 
 ## Features

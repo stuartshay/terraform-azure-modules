@@ -43,7 +43,10 @@ applyTo: '**'
 	- Added `tfc-private` with `type: terraform-registry`, `url: https://app.terraform.io`, and `token: ${{secrets.DEPENDABOT_TF_API_TOKEN}}`.
 	- Each Terraform `updates` entry for module directories includes `registries: [tfc-private]` so private modules/providers can be resolved.
 
+
 ## Conversation History
+
+	- 2025-09-05: User requested fix for missing Usage section in container-instances README, causing CI failure. Solution: Added Usage section with minimal example at the top of README. All required documentation sections now present; CI should pass.
 
 	- Root cause: GitHub Actions failed due to missing local storage-account directory (symlink error) when running in CI/CD.
 	- Fix: Changed module source in modules/monitoring/main.tf from local path (../storage-account) to private registry, matching the pattern used in other modules and examples.
