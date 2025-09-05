@@ -633,7 +633,7 @@ module "app_insights" {
   create_workspace = true
   
   # Stores connection string in Key Vault
-  key_vault_id = "https://azureconnectedservices.vault.azure.net/"
+  key_vault_id = "https://<key-vault-name>.vault.azure.net/"
 }
 
 # Add monitoring and alerting
