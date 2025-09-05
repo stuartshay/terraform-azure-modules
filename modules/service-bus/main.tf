@@ -204,7 +204,7 @@ resource "azurerm_servicebus_topic_authorization_rule" "main" {
 # Private Endpoint (using the private-endpoint module)
 module "private_endpoint" {
   source  = "app.terraform.io/azure-policy-cloud/private-endpoint/azurerm"
-  version = "1.1.42-beta"
+  version = "1.1.71"
   count   = var.enable_private_endpoint ? 1 : 0
 
   name                           = "pe-${local.service_bus_name}"
