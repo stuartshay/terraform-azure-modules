@@ -146,3 +146,39 @@ updates:
       - 'terraform'
     assignees:
       - 'stuartshay'
+
+
+  # application-insights
+  - package-ecosystem: 'terraform'
+    directory: '/modules/application-insights'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+
+    # Container Instance
+  - package-ecosystem: 'terraform'
+    directory: '/modules/container-instances'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'

@@ -50,9 +50,9 @@ repos:
         name: Terraform Version Validation
         entry: scripts/validate-terraform-version.sh
         language: system
-        files: '\.terraform-version$|modules/.*/versions\.tf$'
+        files: '\.terraform-version$|modules/.*/versions\.tf$|modules/.*/examples/.*/main\.tf$|\.github/workflows/.*\.yml$'
         pass_filenames: false
-        description: 'Validate .terraform-version consistency with module requirements'
+        description: 'Validate .terraform-version consistency with module requirements, example files, and provider versions'
       - id: terraform-test
         name: Terraform Test (All Modules)
         entry: make terraform-test

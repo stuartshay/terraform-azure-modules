@@ -2,11 +2,11 @@
 # This example demonstrates advanced private endpoint setup with DNS integration
 
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.13.1"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      version = ">= 4.42.0"
     }
   }
 }
