@@ -58,7 +58,87 @@ variable "application_type" {
 }
 
 variable "workspace_id" {
-  description = "ID of the Log Analytics Workspace to associate with Application Insights (for workspace-based mode). If null, creates classic Application Insights."
+  description = "ID of the Log Analytics Workspace to associate with Application Insights (for workspace-based mode). If null and create_workspace is false, creates classic Application Insights."
+  type        = string
+  default     = null
+}
+
+variable "create_workspace" {
+  description = "Create a new Log Analytics Workspace for Application Insights. If false, workspace_id must be provided for workspace-based mode."
+  type        = bool
+  default     = true
+}
+
+# Log Analytics Workspace Configuration (when create_workspace is true)
+variable "log_analytics_name" {
+  description = "Custom name for the Log Analytics Workspace. If not provided, will use standard naming convention."
+  type        = string
+  default     = null
+}
+
+variable "log_analytics_sku" {
+  description = "SKU for the Log Analytics Workspace"
+  type        = string
+  default     = "PerGB2018"
+
+  validation {
+    condition = contains([
+      "Free", "Standalone", "PerNode", "PerGB2018"
+    ], var.log_analytics_sku)
+    error_message = "Log Analytics SKU must be one of: Free, Standalone, PerNode, PerGB2018."
+  }
+}
+
+variable "log_analytics_retention_days" {
+  description = "Number of days to retain data in Log Analytics Workspace"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.log_analytics_retention_days >= 30 && var.log_analytics_retention_days <= 730
+    error_message = "Log Analytics retention must be between 30 and 730 days."
+  }
+}
+
+variable "log_analytics_daily_quota_gb" {
+  description = "Daily data cap in GB for Log Analytics Workspace (-1 for unlimited)"
+  type        = number
+  default     = null
+}
+
+variable "log_analytics_internet_ingestion_enabled" {
+  description = "Enable internet ingestion for Log Analytics Workspace"
+  type        = bool
+  default     = true
+}
+
+variable "log_analytics_internet_query_enabled" {
+  description = "Enable internet query for Log Analytics Workspace"
+  type        = bool
+  default     = true
+}
+
+variable "log_analytics_local_authentication_enabled" {
+  description = "Enable local authentication for Log Analytics Workspace"
+  type        = bool
+  default     = true
+}
+
+variable "log_analytics_reservation_capacity_gb" {
+  description = "Reservation capacity in GB per day for Log Analytics Workspace"
+  type        = number
+  default     = null
+}
+
+# Key Vault Configuration
+variable "key_vault_id" {
+  description = "ID of the Azure Key Vault to store the Application Insights connection string. If null, no secret will be created."
+  type        = string
+  default     = null
+}
+
+variable "key_vault_secret_name" {
+  description = "Name of the Key Vault secret for the Application Insights connection string"
   type        = string
   default     = null
 }

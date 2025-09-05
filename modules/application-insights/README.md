@@ -137,6 +137,8 @@ No modules.
 | [azurerm_application_insights_smart_detection_rule.trace_severity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights_smart_detection_rule) | resource |
 | [azurerm_application_insights_standard_web_test.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights_standard_web_test) | resource |
 | [azurerm_application_insights_workbook.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights_workbook) | resource |
+| [azurerm_key_vault_secret.connection_string](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) | resource |
+| [azurerm_log_analytics_workspace.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) | resource |
 | [random_uuid.workbook](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) | resource |
 
 ## Inputs
@@ -147,6 +149,7 @@ No modules.
 | <a name="input_api_key_write_permissions"></a> [api\_key\_write\_permissions](#input\_api\_key\_write\_permissions) | List of write permissions for the API key | `list(string)` | `[]` | no |
 | <a name="input_application_type"></a> [application\_type](#input\_application\_type) | Type of application being monitored | `string` | `"web"` | no |
 | <a name="input_create_api_key"></a> [create\_api\_key](#input\_create\_api\_key) | Create an API key for programmatic access to Application Insights | `bool` | `false` | no |
+| <a name="input_create_workspace"></a> [create\_workspace](#input\_create\_workspace) | Create a new Log Analytics Workspace for Application Insights. If false, workspace\_id must be provided for workspace-based mode. | `bool` | `true` | no |
 | <a name="input_daily_data_cap_gb"></a> [daily\_data\_cap\_gb](#input\_daily\_data\_cap\_gb) | Daily data cap in GB for Application Insights (-1 for unlimited) | `number` | `null` | no |
 | <a name="input_daily_data_cap_notifications_disabled"></a> [daily\_data\_cap\_notifications\_disabled](#input\_daily\_data\_cap\_notifications\_disabled) | Disable daily data cap notifications | `bool` | `false` | no |
 | <a name="input_disable_ip_masking"></a> [disable\_ip\_masking](#input\_disable\_ip\_masking) | Disable IP masking for Application Insights (useful for development environments) | `bool` | `false` | no |
@@ -156,9 +159,19 @@ No modules.
 | <a name="input_force_customer_storage_for_profiler"></a> [force\_customer\_storage\_for\_profiler](#input\_force\_customer\_storage\_for\_profiler) | Force customer storage for profiler (only for classic mode) | `bool` | `false` | no |
 | <a name="input_internet_ingestion_enabled"></a> [internet\_ingestion\_enabled](#input\_internet\_ingestion\_enabled) | Enable internet ingestion for Application Insights | `bool` | `true` | no |
 | <a name="input_internet_query_enabled"></a> [internet\_query\_enabled](#input\_internet\_query\_enabled) | Enable internet query for Application Insights | `bool` | `true` | no |
+| <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | ID of the Azure Key Vault to store the Application Insights connection string. If null, no secret will be created. | `string` | `null` | no |
+| <a name="input_key_vault_secret_name"></a> [key\_vault\_secret\_name](#input\_key\_vault\_secret\_name) | Name of the Key Vault secret for the Application Insights connection string | `string` | `null` | no |
 | <a name="input_local_authentication_disabled"></a> [local\_authentication\_disabled](#input\_local\_authentication\_disabled) | Disable local authentication for Application Insights | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure region for resources | `string` | n/a | yes |
 | <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the location (used in naming convention when name is not provided) | `string` | `"eus"` | no |
+| <a name="input_log_analytics_daily_quota_gb"></a> [log\_analytics\_daily\_quota\_gb](#input\_log\_analytics\_daily\_quota\_gb) | Daily data cap in GB for Log Analytics Workspace (-1 for unlimited) | `number` | `null` | no |
+| <a name="input_log_analytics_internet_ingestion_enabled"></a> [log\_analytics\_internet\_ingestion\_enabled](#input\_log\_analytics\_internet\_ingestion\_enabled) | Enable internet ingestion for Log Analytics Workspace | `bool` | `true` | no |
+| <a name="input_log_analytics_internet_query_enabled"></a> [log\_analytics\_internet\_query\_enabled](#input\_log\_analytics\_internet\_query\_enabled) | Enable internet query for Log Analytics Workspace | `bool` | `true` | no |
+| <a name="input_log_analytics_local_authentication_enabled"></a> [log\_analytics\_local\_authentication\_enabled](#input\_log\_analytics\_local\_authentication\_enabled) | Enable local authentication for Log Analytics Workspace | `bool` | `true` | no |
+| <a name="input_log_analytics_name"></a> [log\_analytics\_name](#input\_log\_analytics\_name) | Custom name for the Log Analytics Workspace. If not provided, will use standard naming convention. | `string` | `null` | no |
+| <a name="input_log_analytics_reservation_capacity_gb"></a> [log\_analytics\_reservation\_capacity\_gb](#input\_log\_analytics\_reservation\_capacity\_gb) | Reservation capacity in GB per day for Log Analytics Workspace | `number` | `null` | no |
+| <a name="input_log_analytics_retention_days"></a> [log\_analytics\_retention\_days](#input\_log\_analytics\_retention\_days) | Number of days to retain data in Log Analytics Workspace | `number` | `30` | no |
+| <a name="input_log_analytics_sku"></a> [log\_analytics\_sku](#input\_log\_analytics\_sku) | SKU for the Log Analytics Workspace | `string` | `"PerGB2018"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Custom name for the Application Insights instance. If not provided, will use standard naming convention. | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group | `string` | n/a | yes |
 | <a name="input_retention_in_days"></a> [retention\_in\_days](#input\_retention\_in\_days) | Number of days to retain data in Application Insights (only for classic mode, ignored for workspace-based) | `number` | `90` | no |
@@ -175,7 +188,7 @@ No modules.
 | <a name="input_workbook_data_json"></a> [workbook\_data\_json](#input\_workbook\_data\_json) | Custom JSON data for the workbook. If not provided, a default dashboard will be created. | `string` | `null` | no |
 | <a name="input_workbook_display_name"></a> [workbook\_display\_name](#input\_workbook\_display\_name) | Display name for the Application Insights workbook | `string` | `null` | no |
 | <a name="input_workload"></a> [workload](#input\_workload) | Name of the workload or application (used in naming convention when name is not provided) | `string` | `"app"` | no |
-| <a name="input_workspace_id"></a> [workspace\_id](#input\_workspace\_id) | ID of the Log Analytics Workspace to associate with Application Insights (for workspace-based mode). If null, creates classic Application Insights. | `string` | `null` | no |
+| <a name="input_workspace_id"></a> [workspace\_id](#input\_workspace\_id) | ID of the Log Analytics Workspace to associate with Application Insights (for workspace-based mode). If null and create\_workspace is false, creates classic Application Insights. | `string` | `null` | no |
 
 ## Outputs
 
@@ -189,7 +202,15 @@ No modules.
 | <a name="output_connection_string"></a> [connection\_string](#output\_connection\_string) | Connection string for Application Insights |
 | <a name="output_id"></a> [id](#output\_id) | ID of the Application Insights instance |
 | <a name="output_instrumentation_key"></a> [instrumentation\_key](#output\_instrumentation\_key) | Instrumentation key for Application Insights |
+| <a name="output_key_vault_secret_id"></a> [key\_vault\_secret\_id](#output\_key\_vault\_secret\_id) | ID of the Key Vault secret containing the Application Insights connection string |
+| <a name="output_key_vault_secret_name"></a> [key\_vault\_secret\_name](#output\_key\_vault\_secret\_name) | Name of the Key Vault secret containing the Application Insights connection string |
+| <a name="output_key_vault_secret_version"></a> [key\_vault\_secret\_version](#output\_key\_vault\_secret\_version) | Version of the Key Vault secret containing the Application Insights connection string |
 | <a name="output_location"></a> [location](#output\_location) | Azure region where Application Insights is deployed |
+| <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id) | ID of the Log Analytics Workspace (if created by this module) |
+| <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name) | Name of the Log Analytics Workspace (if created by this module) |
+| <a name="output_log_analytics_workspace_primary_shared_key"></a> [log\_analytics\_workspace\_primary\_shared\_key](#output\_log\_analytics\_workspace\_primary\_shared\_key) | Primary shared key of the Log Analytics Workspace (if created by this module) |
+| <a name="output_log_analytics_workspace_secondary_shared_key"></a> [log\_analytics\_workspace\_secondary\_shared\_key](#output\_log\_analytics\_workspace\_secondary\_shared\_key) | Secondary shared key of the Log Analytics Workspace (if created by this module) |
+| <a name="output_log_analytics_workspace_workspace_id"></a> [log\_analytics\_workspace\_workspace\_id](#output\_log\_analytics\_workspace\_workspace\_id) | Workspace ID of the Log Analytics Workspace (if created by this module) |
 | <a name="output_name"></a> [name](#output\_name) | Name of the Application Insights instance |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Resource group name where Application Insights is deployed |
 | <a name="output_smart_detection_rule_ids"></a> [smart\_detection\_rule\_ids](#output\_smart\_detection\_rule\_ids) | Map of smart detection rule IDs |
