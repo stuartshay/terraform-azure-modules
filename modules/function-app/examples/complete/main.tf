@@ -2,12 +2,12 @@
 # This example demonstrates all features and configuration options of the Function App module
 
 terraform {
-  required_version = ">= 1.6"
+  required_version = ">= 1.13.1"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.40"
+      version = ">= 4.42.0"
     }
   }
 }

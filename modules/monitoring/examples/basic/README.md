@@ -132,8 +132,8 @@ Estimated monthly cost for low-volume development: $5-20 USD
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.12.2 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.42 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.42.0 |
 
 ## Providers
 

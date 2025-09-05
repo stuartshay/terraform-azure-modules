@@ -53,8 +53,11 @@ for workflow_file in .github/workflows/*.yml; do
     fi
 done
 
-# Find all versions.tf files and check their required_version
+# Find all versions.tf files and check their required_version and provider versions
 inconsistent_modules=()
+inconsistent_examples=()
+REQUIRED_TERRAFORM_VERSION=">= 1.13.1"
+REQUIRED_AZURERM_VERSION=">= 4.42.0"
 
 for versions_file in modules/*/versions.tf; do
     if [[ -f "$versions_file" ]]; then
@@ -76,15 +79,82 @@ for versions_file in modules/*/versions.tf; do
                 fi
             fi
 
-            echo -e "  ${GREEN}✓ $module_name: $required_version${NC}"
+            echo -e "  ${GREEN}✓ $module_name: Terraform $required_version${NC}"
         else
             echo -e "  ${YELLOW}⚠️  $module_name: no required_version found${NC}"
+        fi
+
+        # Check azurerm provider version
+        azurerm_version=$(grep -A 10 'azurerm = {' "$versions_file" | grep -o 'version = "[^"]*"' | head -1 | cut -d'"' -f2)
+
+        if [[ -n "$azurerm_version" ]]; then
+            if [[ "$azurerm_version" == "$REQUIRED_AZURERM_VERSION" ]]; then
+                echo -e "  ${GREEN}✓ $module_name: azurerm $azurerm_version${NC}"
+            else
+                inconsistent_modules+=("$module_name: azurerm version '$azurerm_version', expected '$REQUIRED_AZURERM_VERSION'")
+            fi
+        else
+            # Check if azurerm provider exists at all
+            if grep -q "azurerm = {" "$versions_file"; then
+                inconsistent_modules+=("$module_name: azurerm provider missing version")
+            else
+                inconsistent_modules+=("$module_name: missing azurerm provider")
+            fi
+        fi
+    fi
+done
+
+# Find all example main.tf files and check their required_version and provider versions
+echo -e "${YELLOW}🔍 Validating example files${NC}"
+
+for example_file in modules/*/examples/*/main.tf; do
+    if [[ -f "$example_file" ]]; then
+        # Extract module and example names from path
+        # Path format: modules/MODULE_NAME/examples/EXAMPLE_NAME/main.tf
+        module_name=$(echo "$example_file" | cut -d'/' -f2)
+        example_name=$(echo "$example_file" | cut -d'/' -f4)
+        example_path="$module_name/examples/$example_name"
+
+        # Extract required_version from the file
+        required_version=$(grep -o 'required_version = "[^"]*"' "$example_file" | cut -d'"' -f2)
+
+        if [[ -n "$required_version" ]]; then
+            if [[ "$required_version" == "$REQUIRED_TERRAFORM_VERSION" ]]; then
+                echo -e "  ${GREEN}✓ $example_path: Terraform $required_version${NC}"
+            else
+                inconsistent_examples+=("$example_path: terraform version '$required_version', expected '$REQUIRED_TERRAFORM_VERSION'")
+            fi
+        else
+            # Check if terraform block exists at all
+            if grep -q "terraform {" "$example_file"; then
+                inconsistent_examples+=("$example_path: terraform block missing required_version")
+            else
+                echo -e "  ${YELLOW}⚠️  $example_path: no terraform block found${NC}"
+            fi
+        fi
+
+        # Check azurerm provider version
+        azurerm_version=$(grep -A 10 'azurerm = {' "$example_file" | grep -o 'version = "[^"]*"' | head -1 | cut -d'"' -f2)
+
+        if [[ -n "$azurerm_version" ]]; then
+            if [[ "$azurerm_version" == "$REQUIRED_AZURERM_VERSION" ]]; then
+                echo -e "  ${GREEN}✓ $example_path: azurerm $azurerm_version${NC}"
+            else
+                inconsistent_examples+=("$example_path: azurerm version '$azurerm_version', expected '$REQUIRED_AZURERM_VERSION'")
+            fi
+        else
+            # Check if azurerm provider exists at all
+            if grep -q "azurerm = {" "$example_file"; then
+                inconsistent_examples+=("$example_path: azurerm provider missing version")
+            else
+                inconsistent_examples+=("$example_path: missing azurerm provider")
+            fi
         fi
     fi
 done
 
 # Report results
-if [[ ${#inconsistent_modules[@]} -eq 0 && ${#workflow_inconsistencies[@]} -eq 0 ]]; then
+if [[ ${#inconsistent_modules[@]} -eq 0 && ${#inconsistent_examples[@]} -eq 0 && ${#workflow_inconsistencies[@]} -eq 0 ]]; then
     echo -e "${GREEN}✅ All version requirements are consistent with .terraform-version${NC}"
     exit 0
 else
@@ -93,6 +163,14 @@ else
     if [[ ${#inconsistent_modules[@]} -gt 0 ]]; then
         echo -e "${RED}❌ Found inconsistent module version requirements:${NC}"
         for issue in "${inconsistent_modules[@]}"; do
+            echo -e "  ${RED}• $issue${NC}"
+        done
+        has_errors=true
+    fi
+
+    if [[ ${#inconsistent_examples[@]} -gt 0 ]]; then
+        echo -e "${RED}❌ Found inconsistent example version requirements:${NC}"
+        for issue in "${inconsistent_examples[@]}"; do
             echo -e "  ${RED}• $issue${NC}"
         done
         has_errors=true
@@ -107,7 +185,7 @@ else
     fi
 
     if [[ "$has_errors" == "true" ]]; then
-        echo -e "${YELLOW}💡 To fix: Update .terraform-version and/or workflow TF_VERSION environment variables to match${NC}"
+        echo -e "${YELLOW}💡 To fix: Update version requirements in modules, examples, and/or workflow files to match project standards${NC}"
         exit 1
     fi
 fi

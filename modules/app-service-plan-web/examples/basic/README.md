@@ -24,51 +24,14 @@ $ terraform apply
 
 Note that this example may create resources which cost money. Run `terraform destroy` when you don't need these resources.
 
-## Requirements
-
-| Name | Version |
-|------|---------|
-| terraform | >= 1.5 |
-| azurerm | ~> 4.40 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| azurerm | ~> 4.40 |
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| app_service | ../../ | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| azurerm_resource_group.example | resource |
-
-## Inputs
-
-No inputs.
-
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| app_service_id | The ID of the App Service |
-| app_service_name | The name of the App Service |
-| app_service_default_hostname | The default hostname of the App Service |
-| app_service_plan_id | The ID of the App Service Plan |
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.40 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
 
 ## Providers
 

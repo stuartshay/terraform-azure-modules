@@ -2,11 +2,11 @@
 # This example demonstrates the minimal configuration required for the app-service-plan-function module
 
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.13.1"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.40"
+      version = ">= 4.42.0"
     }
   }
 }
