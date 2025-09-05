@@ -326,7 +326,6 @@ No modules.
 | <a name="input_failed_request_alert_severity"></a> [failed\_request\_alert\_severity](#input\_failed\_request\_alert\_severity) | Severity level for failed request alert (0-4, where 0 is critical) | `number` | `1` | no |
 | <a name="input_failed_request_rate_threshold"></a> [failed\_request\_rate\_threshold](#input\_failed\_request\_rate\_threshold) | Failed request rate threshold (percentage) | `number` | `5` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure region for resources | `string` | n/a | yes |
-| <a name="input_location_short"></a> [location\_short](#input\_location\_short) | Short name for the location (used in naming convention) | `string` | `"eus"` | no |
 | <a name="input_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#input\_log\_analytics\_workspace\_name) | Name of the Log Analytics Workspace (optional, for advanced queries) | `string` | `null` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group | `string` | n/a | yes |
 | <a name="input_response_time_alert_severity"></a> [response\_time\_alert\_severity](#input\_response\_time\_alert\_severity) | Severity level for response time alert (0-4, where 0 is critical) | `number` | `2` | no |

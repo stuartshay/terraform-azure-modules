@@ -30,11 +30,6 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "location_short" {
-  description = "Short name for the location (used in naming convention)"
-  type        = string
-  default     = "eus"
-}
 
 variable "tags" {
   description = "Tags to apply to all resources"

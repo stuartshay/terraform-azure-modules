@@ -3,8 +3,7 @@
 
 # Local values for consistent naming
 locals {
-  alert_prefix   = "alert-${var.workload}-${var.environment}"
-  dashboard_name = "dashboard-${var.workload}-${var.environment}-${var.location_short}-001"
+  alert_prefix = "alert-${var.workload}-${var.environment}"
 }
 
 # Data source to get Application Insights information

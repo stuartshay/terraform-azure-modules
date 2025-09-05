@@ -3,8 +3,8 @@
 
 # Configure the Azure Provider
 terraform {
+  required_version = ">= 1.13.1"
   required_providers {
-    required_version = ">= 1.13.1"
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 4.42.0"
