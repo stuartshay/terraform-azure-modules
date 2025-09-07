@@ -189,7 +189,7 @@ export PATH="$HOME/.tfenv/bin:$PATH"
 echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
 
 # If checkov installation fails  
-pip install --user checkov==3.2.456
+pip install --user checkov==3.2.94
 
 # If tfsec not found
 wget -O /tmp/tfsec https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64
