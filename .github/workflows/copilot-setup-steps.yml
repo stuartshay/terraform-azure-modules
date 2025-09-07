@@ -1,0 +1,381 @@
+name: Copilot Environment Setup
+
+on: 
+  # This workflow runs during Copilot setup phase before firewall is enabled
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TF_VERSION: '1.13.1'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  setup-copilot-environment:
+    name: Setup Copilot Development Environment  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate required secrets are available
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          echo "Validating required secrets for Copilot environment..."
+          
+          # Track missing secrets
+          MISSING_SECRETS=()
+          
+          # Check Terraform Cloud secrets
+          if [ -z "${TF_API_TOKEN:-}" ]; then
+            echo "❌ TF_API_TOKEN is not set"
+            MISSING_SECRETS+=("TF_API_TOKEN")
+          else
+            echo "✅ TF_API_TOKEN is available"
+          fi
+          
+          if [ -z "${TF_CLOUD_ORGANIZATION:-}" ]; then
+            echo "❌ TF_CLOUD_ORGANIZATION is not set"
+            MISSING_SECRETS+=("TF_CLOUD_ORGANIZATION")
+          else
+            echo "✅ TF_CLOUD_ORGANIZATION is available"
+          fi
+          
+          # Check Azure authentication secrets
+          if [ -z "${ARM_CLIENT_ID:-}" ]; then
+            echo "❌ ARM_CLIENT_ID is not set"
+            MISSING_SECRETS+=("ARM_CLIENT_ID")
+          else
+            echo "✅ ARM_CLIENT_ID is available"
+          fi
+          
+          if [ -z "${ARM_CLIENT_SECRET:-}" ]; then
+            echo "❌ ARM_CLIENT_SECRET is not set"
+            MISSING_SECRETS+=("ARM_CLIENT_SECRET")
+          else
+            echo "✅ ARM_CLIENT_SECRET is available"
+          fi
+          
+          if [ -z "${ARM_SUBSCRIPTION_ID:-}" ]; then
+            echo "❌ ARM_SUBSCRIPTION_ID is not set"
+            MISSING_SECRETS+=("ARM_SUBSCRIPTION_ID")
+          else
+            echo "✅ ARM_SUBSCRIPTION_ID is available"
+          fi
+          
+          if [ -z "${ARM_TENANT_ID:-}" ]; then
+            echo "❌ ARM_TENANT_ID is not set" 
+            MISSING_SECRETS+=("ARM_TENANT_ID")
+          else
+            echo "✅ ARM_TENANT_ID is available"
+          fi
+          
+          # Report results
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Missing required secrets:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "  - $secret"
+            done
+            echo ""
+            echo "Please add these secrets to your repository:"
+            echo "1. Go to Settings → Secrets and variables → Actions"
+            echo "2. Click 'New repository secret'"
+            echo "3. Add each missing secret with its appropriate value"
+            exit 1
+          else
+            echo ""
+            echo "✅ All required secrets are available!"
+          fi
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache system packages
+        uses: actions/cache@v4
+        id: cache-system-packages
+        with:
+          path: |
+            /usr/bin/jq
+            /usr/bin/yq
+            /usr/bin/shellcheck
+          key: system-packages-${{ runner.os }}-v1
+          restore-keys: |
+            system-packages-${{ runner.os }}-
+
+      - name: Install system dependencies
+        if: steps.cache-system-packages.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing system dependencies..."
+          sudo apt-get update
+          sudo apt-get install -y \
+            jq \
+            shellcheck \
+            zip \
+            unzip \
+            curl \
+            wget
+          
+          # Install yq (YAML processor)
+          YQ_VERSION="v4.47.1" 
+          YQ_BINARY="yq_linux_amd64"
+          wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /tmp/yq
+          chmod +x /tmp/yq
+          sudo mv /tmp/yq /usr/bin/yq
+          
+          echo "System dependencies installed successfully"
+
+      - name: Setup Terraform with tfenv
+        run: |
+          echo "Setting up Terraform with tfenv..."
+          
+          # Install tfenv
+          git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
+          export PATH="$HOME/.tfenv/bin:$PATH"
+          echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> $GITHUB_ENV
+          
+          # Install Terraform version from .terraform-version
+          tfenv install
+          tfenv use
+          
+          # Verify installation
+          terraform --version
+          echo "Terraform installed successfully"
+
+      - name: Setup Terraform Cloud authentication
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+        run: |
+          echo "Setting up Terraform Cloud authentication..."
+          
+          if [ -n "${TF_API_TOKEN:-}" ] && [ -n "${TF_CLOUD_ORGANIZATION:-}" ]; then
+            # Create Terraform CLI configuration
+            mkdir -p ~/.terraform.d
+            cat > ~/.terraform.d/credentials.tfrc.json << EOF
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "${TF_API_TOKEN}"
+              }
+            }
+          }
+          EOF
+            
+            # Export environment variables for other tools
+            echo "TF_TOKEN_app_terraform_io=${TF_API_TOKEN}" >> $GITHUB_ENV
+            
+            # Verify authentication
+            echo "Verifying Terraform Cloud authentication..."
+            http_code=$(curl -sS -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer ${TF_API_TOKEN}" \
+              -H "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/${TF_CLOUD_ORGANIZATION}")
+            
+            if [ "$http_code" = "200" ]; then
+              echo "✅ Terraform Cloud authentication successful"
+            else
+              echo "⚠️ Terraform Cloud authentication failed (HTTP $http_code)"
+              echo "This may affect private module resolution"
+            fi
+          else
+            echo "⚠️ Terraform Cloud secrets not available - skipping authentication setup"
+          fi
+
+      - name: Cache binary tools
+        uses: actions/cache@v4
+        id: cache-binary-tools  
+        with:
+          path: |
+            /usr/local/bin/tflint
+            /usr/local/bin/terraform-docs
+            /usr/local/bin/tfsec
+          key: binary-tools-${{ runner.os }}-tflint-latest-terraform-docs-0.20.0-tfsec-latest-v2
+          restore-keys: |
+            binary-tools-${{ runner.os }}-
+
+      - name: Install TFLint
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing TFLint..."
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --version
+          echo "TFLint installed successfully"
+
+      - name: Install terraform-docs
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing terraform-docs..."
+          TERRAFORM_DOCS_VERSION="v0.20.0"
+          curl -sSLo terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/${TERRAFORM_DOCS_VERSION}/terraform-docs-${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz"
+          tar -xzf terraform-docs.tar.gz
+          sudo mv terraform-docs /usr/local/bin/
+          rm terraform-docs.tar.gz
+          terraform-docs --version
+          echo "terraform-docs installed successfully"
+
+      - name: Install tfsec
+        if: steps.cache-binary-tools.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing tfsec..."
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          tfsec --version
+          echo "tfsec installed successfully"
+
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-packages-${{ runner.os }}-checkov-3.2.456-precommit-latest-v2
+          restore-keys: |
+            python-packages-${{ runner.os }}-checkov-
+            python-packages-${{ runner.os }}-
+
+      - name: Install Python packages
+        run: |
+          echo "Installing Python packages..."
+          pip install --upgrade pip
+          pip install checkov==3.2.456
+          pip install pre-commit
+          
+          # Verify installations
+          checkov --version
+          pre-commit --version
+          echo "Python packages installed successfully"
+
+      - name: Initialize TFLint
+        run: |
+          echo "Initializing TFLint..."
+          tflint --init
+          echo "TFLint initialized successfully"
+
+      - name: Setup Azure authentication
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          echo "Setting up Azure authentication environment variables..."
+          
+          if [ -n "${ARM_CLIENT_ID:-}" ]; then
+            echo "ARM_CLIENT_ID=${ARM_CLIENT_ID}" >> $GITHUB_ENV
+          fi
+          if [ -n "${ARM_CLIENT_SECRET:-}" ]; then
+            echo "ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}" >> $GITHUB_ENV  
+          fi
+          if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
+            echo "ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}" >> $GITHUB_ENV
+          fi
+          if [ -n "${ARM_TENANT_ID:-}" ]; then
+            echo "ARM_TENANT_ID=${ARM_TENANT_ID}" >> $GITHUB_ENV
+          fi
+          
+          echo "✅ Azure authentication environment configured"
+
+      - name: Install and configure pre-commit hooks
+        run: |
+          echo "Installing and configuring pre-commit hooks..."
+          
+          # Validate pre-commit configuration
+          pre-commit validate-config
+          
+          # Install hooks 
+          pre-commit install --install-hooks
+          
+          echo "Pre-commit hooks installed successfully"
+
+      - name: Initialize Terraform modules
+        run: |
+          echo "Initializing Terraform modules..."
+          export PATH="$HOME/.tfenv/bin:$PATH"
+          
+          # Initialize modules for validation and documentation
+          for dir in modules/*/; do
+            if [[ -d "$dir" && (-f "$dir/main.tf" || -f "$dir/variables.tf" || -f "$dir/outputs.tf") ]]; then
+              echo "Initializing module: $dir"
+              cd "$dir"
+              
+              # Initialize with backend=false to avoid remote state requirements
+              terraform init -backend=false -upgrade=false || {
+                echo "⚠️ Failed to initialize $dir (may require authentication)"
+              }
+              
+              # Clean up .terraform directory to save space
+              rm -rf .terraform/ 2>/dev/null || true
+              cd - > /dev/null
+            fi
+          done
+          
+          echo "Module initialization completed"
+
+      - name: Run pre-commit validation
+        env:
+          # Ensure all environment variables are available
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          echo "Running pre-commit validation on all files..."
+          export PATH="$HOME/.tfenv/bin:$PATH"
+          
+          # Set Checkov config file
+          export CHECKOV_CONFIG_FILE=.checkov.yaml
+          
+          echo "Environment check:"
+          echo "  Terraform: $(terraform --version | head -1)"
+          echo "  TFLint: $(tflint --version)"
+          echo "  Checkov: $(checkov --version)"
+          echo "  terraform-docs: $(terraform-docs --version)"
+          echo "  tfsec: $(tfsec --version)"
+          echo "  pre-commit: $(pre-commit --version)"
+          
+          # Run pre-commit on all files
+          echo "Starting pre-commit run..."
+          if pre-commit run --all-files --show-diff-on-failure --verbose; then
+            echo "✅ All pre-commit checks passed!"
+          else
+            echo "❌ Some pre-commit checks failed"
+            echo "This indicates issues that need to be resolved in the codebase"
+            exit 1
+          fi
+
+      - name: Environment summary
+        if: always()
+        run: |
+          echo ""
+          echo "=== Copilot Environment Setup Summary ==="
+          echo ""
+          echo "✅ Secrets validation: Complete"
+          echo "✅ System dependencies: $(jq --version), $(yq --version), $(shellcheck --version | head -1)"
+          echo "✅ Terraform: $(terraform --version | head -1)"  
+          echo "✅ TFLint: $(tflint --version)"
+          echo "✅ terraform-docs: $(terraform-docs --version)"
+          echo "✅ tfsec: $(tfsec --version)"
+          echo "✅ Checkov: $(checkov --version)"
+          echo "✅ pre-commit: $(pre-commit --version)"
+          echo ""
+          echo "The Copilot environment is ready for Terraform Azure module development!"
+          echo ""
+          echo "Available commands:"
+          echo "  • terraform fmt -recursive ."
+          echo "  • make validate-all"
+          echo "  • make terraform-test"  
+          echo "  • pre-commit run --all-files"
+          echo "  • make security-scan"
