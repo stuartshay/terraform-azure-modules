@@ -164,6 +164,66 @@ updates:
     assignees:
       - 'stuartshay'
 
+
+
+
+
+
+  # application-insights - Billing
+  - package-ecosystem: 'terraform'
+    directory: '/modules/application-insights-billing'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+
+
+
+
+
+
+
+
+  # application-insights - Function
+  - package-ecosystem: 'terraform'
+    directory: '/modules/application-insights-function'
+    registries:
+      - tfc-private
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'terraform'
+    assignees:
+      - 'stuartshay'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   # application-insights - Network
   - package-ecosystem: 'terraform'
     directory: '/modules/application-insights-network'
