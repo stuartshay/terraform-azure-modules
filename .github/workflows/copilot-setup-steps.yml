@@ -132,7 +132,7 @@ jobs:
           # Install yq (YAML processor)
           YQ_VERSION="v4.47.1"
           YQ_BINARY="yq_linux_amd64"
-          wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY} -O /tmp/yq
+          wget "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}" -O /tmp/yq
           chmod +x /tmp/yq
           sudo mv /tmp/yq /usr/bin/yq
 
@@ -145,7 +145,7 @@ jobs:
           # Install tfenv
           git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
           export PATH="$HOME/.tfenv/bin:$PATH"
-          echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> $GITHUB_ENV
+          echo "export PATH=\"$HOME/.tfenv/bin:\$PATH\"" >> "$GITHUB_ENV"
 
           # Install Terraform version from .terraform-version
           tfenv install
@@ -165,18 +165,10 @@ jobs:
           if [ -n "${TF_API_TOKEN:-}" ] && [ -n "${TF_CLOUD_ORGANIZATION:-}" ]; then
             # Create Terraform CLI configuration
             mkdir -p ~/.terraform.d
-            cat > ~/.terraform.d/credentials.tfrc.json << EOF
-          {
-            "credentials": {
-              "app.terraform.io": {
-                "token": "${TF_API_TOKEN}"
-              }
-            }
-          }
-          EOF
+            printf '{\n  "credentials": {\n    "app.terraform.io": {\n      "token": "%s"\n    }\n  }\n}\n' "${TF_API_TOKEN}" > ~/.terraform.d/credentials.tfrc.json
 
             # Export environment variables for other tools
-            echo "TF_TOKEN_app_terraform_io=${TF_API_TOKEN}" >> $GITHUB_ENV
+            echo "TF_TOKEN_app_terraform_io=${TF_API_TOKEN}" >> "$GITHUB_ENV"
 
             # Verify authentication
             echo "Verifying Terraform Cloud authentication..."
@@ -272,16 +264,16 @@ jobs:
           echo "Setting up Azure authentication environment variables..."
 
           if [ -n "${ARM_CLIENT_ID:-}" ]; then
-            echo "ARM_CLIENT_ID=${ARM_CLIENT_ID}" >> $GITHUB_ENV
+            echo "ARM_CLIENT_ID=${ARM_CLIENT_ID}" >> "$GITHUB_ENV"
           fi
           if [ -n "${ARM_CLIENT_SECRET:-}" ]; then
-            echo "ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}" >> $GITHUB_ENV
+            echo "ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}" >> "$GITHUB_ENV"
           fi
           if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
-            echo "ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}" >> $GITHUB_ENV
+            echo "ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}" >> "$GITHUB_ENV"
           fi
           if [ -n "${ARM_TENANT_ID:-}" ]; then
-            echo "ARM_TENANT_ID=${ARM_TENANT_ID}" >> $GITHUB_ENV
+            echo "ARM_TENANT_ID=${ARM_TENANT_ID}" >> "$GITHUB_ENV"
           fi
 
           echo "✅ Azure authentication environment configured"
@@ -304,10 +296,10 @@ jobs:
           export PATH="$HOME/.tfenv/bin:$PATH"
 
           # Initialize modules for validation and documentation
-          for dir in modules/*/; do
-            if [[ -d "$dir" && (-f "$dir/main.tf" || -f "$dir/variables.tf" || -f "$dir/outputs.tf") ]]; then
+          for dir in "modules/"*/; do
+            if [[ -d "$dir" && ( -f "$dir/main.tf" || -f "$dir/variables.tf" || -f "$dir/outputs.tf" ) ]]; then
               echo "Initializing module: $dir"
-              cd "$dir"
+              cd "$dir" || exit 1
 
               # Initialize with backend=false to avoid remote state requirements
               terraform init -backend=false -upgrade=false || {
@@ -316,7 +308,7 @@ jobs:
 
               # Clean up .terraform directory to save space
               rm -rf .terraform/ 2>/dev/null || true
-              cd - > /dev/null
+              cd - > /dev/null || exit 1
             fi
           done
 
