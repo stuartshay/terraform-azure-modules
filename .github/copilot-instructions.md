@@ -168,7 +168,7 @@ make ci-validate
 ### Key Configuration Files
 - **`.terraform-version`**: Terraform version (1.13.1)  
 - **`.tflint.hcl`**: TFLint rules and Azure provider configuration
-- **`.checkov.yaml`**: Checkov security scanning configuration (version 3.2.456)
+- **`.checkov.yaml`**: Checkov security scanning configuration (see file for version)
 - **`.pre-commit-config.yaml`**: Pre-commit hooks configuration
 - **`Makefile`**: Development workflow automation
 
