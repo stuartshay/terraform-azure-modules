@@ -207,3 +207,86 @@ az monitor metrics list --resource <app-insights-resource-id>
 
 # Test alert rules
 az monitor metrics alert show --name <alert-name> --resource-group <resource-group>
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.42.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.1 |
+| <a name="requirement_required_version"></a> [required\_version](#requirement\_required\_version) | >= 1.13.1 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.42.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.1 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_function_monitoring"></a> [function\_monitoring](#module\_function\_monitoring) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [azurerm_application_insights.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
+| [azurerm_linux_function_app.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
+| [azurerm_log_analytics_workspace.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) | resource |
+| [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_service_plan.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
+| [azurerm_storage_account.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
+| [random_string.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_app_service_cpu_alert_severity"></a> [app\_service\_cpu\_alert\_severity](#input\_app\_service\_cpu\_alert\_severity) | Severity level for App Service Plan CPU alerts (0-4) | `number` | `2` | no |
+| <a name="input_app_service_memory_alert_severity"></a> [app\_service\_memory\_alert\_severity](#input\_app\_service\_memory\_alert\_severity) | Severity level for App Service Plan memory alerts (0-4) | `number` | `2` | no |
+| <a name="input_cold_start_alert_severity"></a> [cold\_start\_alert\_severity](#input\_cold\_start\_alert\_severity) | Severity level for cold start alerts (0-4) | `number` | `3` | no |
+| <a name="input_cold_start_threshold"></a> [cold\_start\_threshold](#input\_cold\_start\_threshold) | Cold start count threshold for alerting | `number` | `5` | no |
+| <a name="input_cpu_threshold_percent"></a> [cpu\_threshold\_percent](#input\_cpu\_threshold\_percent) | App Service Plan CPU usage threshold percentage | `number` | `80` | no |
+| <a name="input_dashboard_display_name"></a> [dashboard\_display\_name](#input\_dashboard\_display\_name) | Display name for the monitoring dashboard | `string` | `null` | no |
+| <a name="input_dashboard_time_range"></a> [dashboard\_time\_range](#input\_dashboard\_time\_range) | Time range for dashboard queries in days | `number` | `7` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | The environment (e.g., dev, staging, prod) | `string` | `"dev"` | no |
+| <a name="input_exception_alert_severity"></a> [exception\_alert\_severity](#input\_exception\_alert\_severity) | Severity level for exception alerts (0-4) | `number` | `1` | no |
+| <a name="input_exception_rate_threshold"></a> [exception\_rate\_threshold](#input\_exception\_rate\_threshold) | Exception rate threshold for alerting | `number` | `10` | no |
+| <a name="input_function_activity_alert_severity"></a> [function\_activity\_alert\_severity](#input\_function\_activity\_alert\_severity) | Severity level for function low activity alerts (0-4) | `number` | `3` | no |
+| <a name="input_function_app_names"></a> [function\_app\_names](#input\_function\_app\_names) | List of Function App names to create and monitor | `list(string)` | <pre>[<br/>  "func-api",<br/>  "func-processor",<br/>  "func-scheduler"<br/>]</pre> | no |
+| <a name="input_function_duration_alert_severity"></a> [function\_duration\_alert\_severity](#input\_function\_duration\_alert\_severity) | Severity level for function duration alerts (0-4) | `number` | `2` | no |
+| <a name="input_function_duration_threshold_ms"></a> [function\_duration\_threshold\_ms](#input\_function\_duration\_threshold\_ms) | Function execution duration threshold in milliseconds | `number` | `30000` | no |
+| <a name="input_function_failure_alert_severity"></a> [function\_failure\_alert\_severity](#input\_function\_failure\_alert\_severity) | Severity level for function failure alerts (0-4) | `number` | `1` | no |
+| <a name="input_function_failure_rate_threshold"></a> [function\_failure\_rate\_threshold](#input\_function\_failure\_rate\_threshold) | Function failure rate threshold percentage | `number` | `5` | no |
+| <a name="input_function_min_invocations_threshold"></a> [function\_min\_invocations\_threshold](#input\_function\_min\_invocations\_threshold) | Minimum function invocations threshold for low activity alerts | `number` | `10` | no |
+| <a name="input_location"></a> [location](#input\_location) | The Azure region where resources will be created | `string` | `"East US"` | no |
+| <a name="input_memory_threshold_percent"></a> [memory\_threshold\_percent](#input\_memory\_threshold\_percent) | App Service Plan memory usage threshold percentage | `number` | `85` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the resources | `map(string)` | <pre>{<br/>  "Environment": "dev",<br/>  "ManagedBy": "terraform",<br/>  "Project": "function-monitoring"<br/>}</pre> | no |
+| <a name="input_workload"></a> [workload](#input\_workload) | The name of the workload | `string` | `"example"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_app_service_plan_id"></a> [app\_service\_plan\_id](#output\_app\_service\_plan\_id) | The ID of the App Service Plan |
+| <a name="output_app_service_plan_name"></a> [app\_service\_plan\_name](#output\_app\_service\_plan\_name) | The name of the App Service Plan |
+| <a name="output_application_insights_connection_string"></a> [application\_insights\_connection\_string](#output\_application\_insights\_connection\_string) | The connection string of the Application Insights instance |
+| <a name="output_application_insights_id"></a> [application\_insights\_id](#output\_application\_insights\_id) | The ID of the Application Insights instance |
+| <a name="output_application_insights_instrumentation_key"></a> [application\_insights\_instrumentation\_key](#output\_application\_insights\_instrumentation\_key) | The instrumentation key of the Application Insights instance |
+| <a name="output_application_insights_name"></a> [application\_insights\_name](#output\_application\_insights\_name) | The name of the Application Insights instance |
+| <a name="output_function_app_ids"></a> [function\_app\_ids](#output\_function\_app\_ids) | The IDs of the created Function Apps |
+| <a name="output_function_app_names"></a> [function\_app\_names](#output\_function\_app\_names) | The names of the created Function Apps |
+| <a name="output_function_monitoring_alert_ids"></a> [function\_monitoring\_alert\_ids](#output\_function\_monitoring\_alert\_ids) | The IDs of the function monitoring alerts |
+| <a name="output_function_monitoring_dashboard_id"></a> [function\_monitoring\_dashboard\_id](#output\_function\_monitoring\_dashboard\_id) | The ID of the function monitoring dashboard |
+| <a name="output_function_monitoring_dashboard_url"></a> [function\_monitoring\_dashboard\_url](#output\_function\_monitoring\_dashboard\_url) | The URL of the function monitoring dashboard |
+| <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id) | The ID of the Log Analytics workspace |
+| <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name) | The name of the Log Analytics workspace |
+| <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id) | The ID of the resource group |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the resource group |
+| <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | The ID of the storage account |
+| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | The name of the storage account |
+<!-- END_TF_DOCS -->

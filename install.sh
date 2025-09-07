@@ -1,4 +1,4 @@
-make terraform-test-module MODULE=application-insights-function#!/usr/bin/env bash
+#!/usr/bin/env bash
 # Terraform Azure Modules - Development Environment Setup
 # This script installs tools needed for Terraform module development, testing, and validation
 set -e
