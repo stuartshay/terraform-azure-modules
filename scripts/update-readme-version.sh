@@ -79,7 +79,7 @@ update_module_version() {
     local version="$2"
     local file="$3"
     local updated=false
-    
+
     # Use precise patterns to target specific modules
     case "$module" in
         "app-service-plan-function")
@@ -211,7 +211,7 @@ update_module_version() {
             fi
             ;;
     esac
-    
+
     echo "$updated"
 }
 
@@ -223,7 +223,7 @@ result=$(update_module_version "$MODULE_NAME" "$NEW_VERSION" "$README_FILE")
 
 if [ "$result" = "true" ]; then
     success "Successfully updated version for module '$MODULE_NAME' to '$NEW_VERSION'"
-    
+
     # Show the diff
     log "Changes made:"
     if command -v git >/dev/null 2>&1; then
@@ -233,7 +233,7 @@ if [ "$result" = "true" ]; then
     fi
 else
     warn "No changes were made. The module '$MODULE_NAME' may not exist in $README_FILE or the version was already '$NEW_VERSION'"
-    
+
     # Restore from backup if no changes were made
     mv "${README_FILE}.backup" "$README_FILE"
     exit 1

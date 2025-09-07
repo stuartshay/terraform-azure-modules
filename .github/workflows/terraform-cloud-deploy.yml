@@ -443,7 +443,8 @@ jobs:
           fi
 
           # Extract version from tag (remove module-name-v prefix)
-          VERSION=$(echo "$LATEST_TAG" | sed "s/^${MODULE_NAME}-v//")
+          PREFIX="${MODULE_NAME}-v"
+          VERSION=${LATEST_TAG#"$PREFIX"}
 
           echo "📋 Module: $MODULE_NAME"
           echo "🏷️ Latest tag: $LATEST_TAG"
@@ -477,8 +478,8 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }} in README.md"
-          title: "📝 Update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }}"
+          commit-message: 'docs: update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }} in README.md'
+          title: '📝 Update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }}'
           body: |
             ## 📝 Automated README.md Version Update
 
@@ -503,7 +504,7 @@ jobs:
 
             ---
             *This PR was automatically created by the Terraform Cloud deployment workflow.*
-          branch: "docs/update-${{ github.event.inputs.module_name }}-version-${{ steps.get_version.outputs.version }}"
+          branch: 'docs/update-${{ github.event.inputs.module_name }}-version-${{ steps.get_version.outputs.version }}'
           branch-suffix: timestamp
           delete-branch: true
           labels: |
