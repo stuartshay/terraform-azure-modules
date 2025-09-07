@@ -25,7 +25,7 @@ pre-commit install
 **CRITICAL ENVIRONMENT SETUP:**
 - **tfenv and Terraform**: Version 1.13.1 (specified in `.terraform-version`)
 - **PATH requirement**: Add `export PATH="$HOME/.tfenv/bin:$PATH"` to your shell profile
-- **Essential tools**: tfsec, checkov (3.2.456), pre-commit, jq, yq
+- **Essential tools**: tfsec, checkov (3.2.5), pre-commit, jq, yq
 
 ### Core Development Commands
 
