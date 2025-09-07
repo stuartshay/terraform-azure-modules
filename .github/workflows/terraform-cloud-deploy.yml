@@ -18,6 +18,8 @@ on:
           - service-bus
           - container-instances
           - application-insights
+          - application-insights-billing
+          - application-insights-function
           - application-insights-network
         default: 'app-service-plan-function'
       major_version:
@@ -80,7 +82,7 @@ jobs:
       - name: Validate inputs
         run: |
           # Validate module name
-            if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-plan-web|app-service-plan-function|function-app|monitoring|networking|storage-account|private-endpoint|service-bus|container-instances|application-insights|application-insights-network)$ ]]; then
+            if [[ ! "${{ github.event.inputs.module_name }}" =~ ^(app-service-plan-web|app-service-plan-function|function-app|monitoring|networking|storage-account|private-endpoint|service-bus|container-instances|application-insights|application-insights-billing|application-insights-function|application-insights-network)$ ]]; then
               echo "❌ Invalid module name: ${{ github.event.inputs.module_name }}"
               exit 1
             fi

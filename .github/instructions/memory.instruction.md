@@ -25,9 +25,18 @@ applyTo: '**'
 
 # User Memory
 
+
 ## User Preferences
 
+
 ## Project Context
+
+## install.sh .env Auto-loading (Sept 2025)
+- install.sh now automatically loads and exports all variables from .env at the start of the script using set -a; source .env; set +a.
+- Rationale: Ensures Azure/Terraform credentials and other environment variables are available for all tools, tests, and development workflows without requiring manual export.
+- Implementation: Added load_dotenv() function, called before any tool installation or test commands. Prints a message if .env is missing or loaded.
+- Edge cases: Safe if .env is missing or empty; does not error. Users are advised to re-run the script or manually re-source .env if they update credentials.
+- Summary output and next steps now document that .env is auto-loaded.
 
 ## Container-instances Volume/Volume_Mounts Implementation (Sept 2025)
 - User requested full implementation of AzureRM container group volumes and volume_mounts in the container-instances module.
