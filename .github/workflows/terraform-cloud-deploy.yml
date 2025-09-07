@@ -417,7 +417,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run on master branch and when not a dry run and when deployment was successful
     if: |
-      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
       github.event.inputs.dry_run != 'true' &&
       needs.validate-and-deploy.result == 'success'
 
