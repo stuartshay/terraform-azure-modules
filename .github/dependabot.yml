@@ -164,11 +164,6 @@ updates:
     assignees:
       - 'stuartshay'
 
-
-
-
-
-
   # application-insights - Billing
   - package-ecosystem: 'terraform'
     directory: '/modules/application-insights-billing'
@@ -185,14 +180,6 @@ updates:
       - 'terraform'
     assignees:
       - 'stuartshay'
-
-
-
-
-
-
-
-
 
   # application-insights - Function
   - package-ecosystem: 'terraform'
