@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+make terraform-test-module MODULE=application-insights-function#!/usr/bin/env bash
 # Terraform Azure Modules - Development Environment Setup
 # This script installs tools needed for Terraform module development, testing, and validation
 set -e
@@ -731,10 +731,29 @@ EOF
   fi
 }
 
+
+# Function to load .env and export variables
+load_dotenv() {
+  DOTENV_FILE=".env"
+  if [ -f "$DOTENV_FILE" ]; then
+    echo "Loading environment variables from $DOTENV_FILE..."
+    set -a
+    # shellcheck disable=SC1090
+    source "$DOTENV_FILE"
+    set +a
+    echo "* Environment variables from $DOTENV_FILE loaded and exported."
+  else
+    echo "Warning: $DOTENV_FILE file not found. Environment variables will not be loaded."
+  fi
+}
+
 # Main installation sequence
 echo "=== Terraform Azure Modules - Development Environment Setup ==="
 echo "This script will install tools needed for Terraform module development, testing, and validation"
 echo ""
+
+# Load .env variables early so they are available for all tools and tests
+load_dotenv
 
 echo "=== Installing Core Utilities ==="
 install_jq
@@ -802,6 +821,7 @@ echo "=== Setting up Pre-commit Hooks ==="
 setup_precommit_hooks
 echo ""
 
+
 echo "=== Installation Summary ==="
 echo "Core Utilities:"
 echo "  jq version: $(jq --version 2>/dev/null || echo 'Not found')"
@@ -842,6 +862,10 @@ echo "2. Set up infracost API key: infracost auth login"
 echo "3. Initialize tflint plugins: tflint --init"
 echo "4. Test pre-commit hooks: pre-commit run --all-files"
 echo "5. Start developing your Terraform modules!"
+echo ""
+echo ">> Environment Variables:"
+echo "* Environment variables from .env are now automatically loaded and exported for this session."
+echo "  - If you update .env, re-run this script or manually run: set -a; source .env; set +a"
 echo ""
 echo ">> Available Commands:"
 echo "  terraform fmt -recursive          # Format all Terraform files"
