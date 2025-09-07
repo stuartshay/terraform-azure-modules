@@ -166,7 +166,7 @@ update_module_version() {
             ;;
         "application-insights")
             # Match the application-insights module
-            if sed -i.tmp '/azure-policy-cloud\/application-insights[^-]/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/application-insights\([^-]\|$\)/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
