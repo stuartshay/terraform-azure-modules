@@ -65,22 +65,25 @@ resource "azurerm_consumption_budget_resource_group" "monthly" {
     }
   }
 
-  filter {
-    dynamic "dimension" {
-      for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
-      content {
-        name     = "ResourceType"
-        operator = "In"
-        values   = var.cost_filter_resource_types
+  dynamic "filter" {
+    for_each = length(var.cost_filter_resource_types) > 0 || length(var.cost_filter_tags) > 0 ? [1] : []
+    content {
+      dynamic "dimension" {
+        for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
+        content {
+          name     = "ResourceType"
+          operator = "In"
+          values   = var.cost_filter_resource_types
+        }
       }
-    }
 
-    dynamic "tag" {
-      for_each = var.cost_filter_tags
-      content {
-        name     = tag.key
-        operator = "In"
-        values   = tag.value
+      dynamic "tag" {
+        for_each = var.cost_filter_tags
+        content {
+          name     = tag.key
+          operator = "In"
+          values   = tag.value
+        }
       }
     }
   }
@@ -113,22 +116,25 @@ resource "azurerm_consumption_budget_resource_group" "quarterly" {
     }
   }
 
-  filter {
-    dynamic "dimension" {
-      for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
-      content {
-        name     = "ResourceType"
-        operator = "In"
-        values   = var.cost_filter_resource_types
+  dynamic "filter" {
+    for_each = length(var.cost_filter_resource_types) > 0 || length(var.cost_filter_tags) > 0 ? [1] : []
+    content {
+      dynamic "dimension" {
+        for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
+        content {
+          name     = "ResourceType"
+          operator = "In"
+          values   = var.cost_filter_resource_types
+        }
       }
-    }
 
-    dynamic "tag" {
-      for_each = var.cost_filter_tags
-      content {
-        name     = tag.key
-        operator = "In"
-        values   = tag.value
+      dynamic "tag" {
+        for_each = var.cost_filter_tags
+        content {
+          name     = tag.key
+          operator = "In"
+          values   = tag.value
+        }
       }
     }
   }
@@ -161,22 +167,25 @@ resource "azurerm_consumption_budget_resource_group" "annual" {
     }
   }
 
-  filter {
-    dynamic "dimension" {
-      for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
-      content {
-        name     = "ResourceType"
-        operator = "In"
-        values   = var.cost_filter_resource_types
+  dynamic "filter" {
+    for_each = length(var.cost_filter_resource_types) > 0 || length(var.cost_filter_tags) > 0 ? [1] : []
+    content {
+      dynamic "dimension" {
+        for_each = length(var.cost_filter_resource_types) > 0 ? [1] : []
+        content {
+          name     = "ResourceType"
+          operator = "In"
+          values   = var.cost_filter_resource_types
+        }
       }
-    }
 
-    dynamic "tag" {
-      for_each = var.cost_filter_tags
-      content {
-        name     = tag.key
-        operator = "In"
-        values   = tag.value
+      dynamic "tag" {
+        for_each = var.cost_filter_tags
+        content {
+          name     = tag.key
+          operator = "In"
+          values   = tag.value
+        }
       }
     }
   }

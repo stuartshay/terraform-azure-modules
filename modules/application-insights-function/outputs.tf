@@ -115,9 +115,9 @@ output "monitored_function_apps" {
   description = "Information about monitored Function Apps"
   value = var.function_app_names != null ? {
     for name in var.function_app_names : name => {
-      id       = data.azurerm_function_app.functions[name].id
-      name     = data.azurerm_function_app.functions[name].name
-      location = data.azurerm_function_app.functions[name].location
+      id       = data.azurerm_linux_function_app.functions[name].id
+      name     = data.azurerm_linux_function_app.functions[name].name
+      location = data.azurerm_linux_function_app.functions[name].location
     }
   } : {}
 }

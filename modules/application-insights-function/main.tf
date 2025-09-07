@@ -26,7 +26,7 @@ data "azurerm_log_analytics_workspace" "main" {
 }
 
 # Data sources to get Function Apps in the resource group
-data "azurerm_function_app" "functions" {
+data "azurerm_linux_function_app" "functions" {
   for_each = var.function_app_names != null ? toset(var.function_app_names) : toset([])
 
   name                = each.value
