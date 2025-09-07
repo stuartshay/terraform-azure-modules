@@ -60,7 +60,12 @@ resource "azurerm_storage_account" "example" {
   location                 = azurerm_resource_group.example.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags                     = var.tags
+
+  # Security settings
+  public_network_access_enabled   = false
+  allow_nested_items_to_be_public = false
+
+  tags = var.tags
 }
 
 # App Service Plan
@@ -84,6 +89,10 @@ resource "azurerm_linux_function_app" "example" {
   storage_account_name       = azurerm_storage_account.example.name
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
   service_plan_id            = azurerm_service_plan.example.id
+
+  # Security settings
+  https_only                    = true
+  public_network_access_enabled = false
 
   app_settings = {
     APPINSIGHTS_INSTRUMENTATIONKEY        = azurerm_application_insights.example.instrumentation_key

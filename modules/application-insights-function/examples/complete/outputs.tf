@@ -73,17 +73,17 @@ output "storage_account_id" {
 }
 
 # Monitoring module outputs
-output "function_monitoring_alert_ids" {
-  description = "The IDs of the function monitoring alerts"
-  value       = module.function_monitoring.alert_ids
+output "function_monitoring_alert_summary" {
+  description = "Summary of configured alerts"
+  value       = module.function_monitoring.alert_summary
 }
 
 output "function_monitoring_dashboard_id" {
   description = "The ID of the function monitoring dashboard"
-  value       = module.function_monitoring.dashboard_id
+  value       = module.function_monitoring.function_dashboard_id
 }
 
-output "function_monitoring_dashboard_url" {
-  description = "The URL of the function monitoring dashboard"
-  value       = module.function_monitoring.dashboard_url
+output "function_monitoring_configuration" {
+  description = "Summary of Function App monitoring configuration"
+  value       = module.function_monitoring.function_monitoring_configuration
 }

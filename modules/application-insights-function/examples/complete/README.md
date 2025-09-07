@@ -221,8 +221,8 @@ az monitor metrics alert show --name <alert-name> --resource-group <resource-gro
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.42.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.1 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.43.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.7.2 |
 
 ## Modules
 
@@ -280,9 +280,9 @@ az monitor metrics alert show --name <alert-name> --resource-group <resource-gro
 | <a name="output_application_insights_name"></a> [application\_insights\_name](#output\_application\_insights\_name) | The name of the Application Insights instance |
 | <a name="output_function_app_ids"></a> [function\_app\_ids](#output\_function\_app\_ids) | The IDs of the created Function Apps |
 | <a name="output_function_app_names"></a> [function\_app\_names](#output\_function\_app\_names) | The names of the created Function Apps |
-| <a name="output_function_monitoring_alert_ids"></a> [function\_monitoring\_alert\_ids](#output\_function\_monitoring\_alert\_ids) | The IDs of the function monitoring alerts |
+| <a name="output_function_monitoring_alert_summary"></a> [function\_monitoring\_alert\_summary](#output\_function\_monitoring\_alert\_summary) | Summary of configured alerts |
+| <a name="output_function_monitoring_configuration"></a> [function\_monitoring\_configuration](#output\_function\_monitoring\_configuration) | Summary of Function App monitoring configuration |
 | <a name="output_function_monitoring_dashboard_id"></a> [function\_monitoring\_dashboard\_id](#output\_function\_monitoring\_dashboard\_id) | The ID of the function monitoring dashboard |
-| <a name="output_function_monitoring_dashboard_url"></a> [function\_monitoring\_dashboard\_url](#output\_function\_monitoring\_dashboard\_url) | The URL of the function monitoring dashboard |
 | <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id) | The ID of the Log Analytics workspace |
 | <a name="output_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#output\_log\_analytics\_workspace\_name) | The name of the Log Analytics workspace |
 | <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id) | The ID of the resource group |
