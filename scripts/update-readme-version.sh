@@ -73,6 +73,22 @@ log "Updating version for module '$MODULE_NAME' to '$NEW_VERSION' in $README_FIL
 cp "$README_FILE" "${README_FILE}.backup"
 log "Created backup: ${README_FILE}.backup"
 
+
+# Helper function to run sed update and check for changes
+run_sed_update() {
+    local sed_pattern="$1"
+    local version="$2"
+    local file="$3"
+    local updated=false
+    if sed -i.tmp "$sed_pattern" "$file" 2>/dev/null; then
+        if ! cmp -s "$file" "$file.tmp"; then
+            updated=true
+        fi
+        rm -f "$file.tmp"
+    fi
+    echo "$updated"
+}
+
 # Function to update version for a specific module
 update_module_version() {
     local module="$1"
@@ -83,132 +99,47 @@ update_module_version() {
     # Use precise patterns to target specific modules
     case "$module" in
         "app-service-plan-function")
-            # Match the app-service-plan-function module specifically
-            if sed -i.tmp '/azure-policy-cloud\/app-service-plan-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/app-service-plan-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "app-service-plan-web")
-            # Match the app-service-plan-web module (uses "app_service" as module name in README)
-            # Only update sections with azure-policy-cloud and app-service-plan-web specifically
-            if sed -i.tmp '/azure-policy-cloud\/app-service-plan-web/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/app-service-plan-web/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "function-app")
-            # Match the function-app module
-            if sed -i.tmp '/azure-policy-cloud\/function-app/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/function-app/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "container-instances")
-            # Match the container-instances module
-            if sed -i.tmp '/azure-policy-cloud\/container-instances/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/container-instances/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "networking")
-            # Match the networking module
-            if sed -i.tmp '/azure-policy-cloud\/networking/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/networking/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "private-endpoint")
-            # Match the private-endpoint module
-            if sed -i.tmp '/azure-policy-cloud\/private-endpoint/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/private-endpoint/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "storage-account")
-            # Match the storage-account module
-            if sed -i.tmp '/azure-policy-cloud\/storage-account/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/storage-account/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "service-bus")
-            # Match the service-bus module
-            if sed -i.tmp '/azure-policy-cloud\/service-bus/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/service-bus/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "monitoring")
-            # Match the monitoring module
-            if sed -i.tmp '/azure-policy-cloud\/monitoring/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/monitoring/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "application-insights")
-            # Match the application-insights module
-            if sed -i.tmp '/azure-policy-cloud\/application-insights\([^-]\|$\)/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/application-insights\([^-]\|$\)/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "application-insights-billing")
-            # Match the application-insights-billing module
-            if sed -i.tmp '/azure-policy-cloud\/application-insights-billing/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/application-insights-billing/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "application-insights-function")
-            # Match the application-insights-function module
-            if sed -i.tmp '/azure-policy-cloud\/application-insights-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/application-insights-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         "application-insights-network")
-            # Match the application-insights-network module
-            if sed -i.tmp '/azure-policy-cloud\/application-insights-network/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/application-insights-network/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
         *)
             warn "Unknown module '$module'. Attempting generic update..."
-            # Generic fallback - try to match any module with the same name
-            if sed -i.tmp '/azure-policy-cloud\/'"$module"'/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
-                if ! cmp -s "$file" "$file.tmp"; then
-                    updated=true
-                fi
-                rm -f "$file.tmp"
-            fi
+            updated=$(run_sed_update '/azure-policy-cloud\/'"$module"'/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$version" "$file")
             ;;
     esac
 

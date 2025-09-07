@@ -415,7 +415,7 @@ jobs:
     name: Update README.md Version
     needs: validate-and-deploy
     runs-on: ubuntu-latest
-    # Only run on master branch and when not a dry run and when deployment was successful
+    # Only run on the repository's default branch and when not a dry run and when deployment was successful
     if: |
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
       github.event.inputs.dry_run != 'true' &&
