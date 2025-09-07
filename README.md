@@ -40,7 +40,7 @@ Azure Function App resources including Storage Account, App Service Plan, and Fu
 ```hcl
 module "app-service-plan-function" {
   source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
-  version = "1.0.0"
+  version = "1.1.82"
 
   resource_group_name = "rg-example"
   location           = "East US"
@@ -844,7 +844,7 @@ module "app_service" {
 
 module "function_app" {
   source  = "app.terraform.io/azure-policy-cloud/app-service-plan-function/azurerm"
-  version = "1.0.0"
+  version = "1.1.82"
   # configuration...
 }
 
