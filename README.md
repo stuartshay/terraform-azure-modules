@@ -558,10 +558,106 @@ module "application_insights" {
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/application-insights-billing/azurerm/)
 
+Comprehensive billing monitoring, budgets, and cost alerts for Azure resources within a Resource Group. Provides budget tracking, cost anomaly detection, and detailed billing dashboards to help manage and optimize Azure spending.
+
+- **Path**: `modules/application-insights-billing`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Budget Management**: Monthly, quarterly, and annual budgets with configurable alert thresholds
+- **Cost Alerts**: Daily spending threshold alerts and cost anomaly detection
+- **Billing Dashboard**: Interactive cost visualization with trends and breakdowns
+- **Flexible Configuration**: All thresholds and settings are configurable with optional features
+- **Log Analytics Integration**: Advanced cost queries and anomaly detection
+- **Cost Filtering**: Monitor specific resource types and tags
+
+#### Quick Start
+
+```hcl
+module "app_insights_billing" {
+  source  = "app.terraform.io/azure-policy-cloud/application-insights-billing/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  resource_group_name       = "rg-myapp-prod-eus-001"
+  location                 = "East US"
+  application_insights_name = "appi-myapp-prod-eus-001"
+
+  # Budget configuration
+  monthly_budget_amount   = 500
+  quarterly_budget_amount = 1500
+  annual_budget_amount    = 6000
+
+  # Notification emails for budget alerts
+  budget_notification_emails = [
+    "admin@company.com",
+    "finance@company.com"
+  ]
+
+  workload    = "myapp"
+  environment = "prod"
+
+  tags = {
+    Environment = "Production"
+    Project     = "MyApp"
+    CostCenter  = "Engineering"
+  }
+}
+```
 
 ### Application Insights Function Module
 
 [![Terraform Registry](https://img.shields.io/badge/Terraform-Registry-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://app.terraform.io/app/azure-policy-cloud/registry/modules/private/azure-policy-cloud/application-insights-function/azurerm/)
+
+Comprehensive monitoring, alerting, and dashboards for Azure Function Apps and App Service Plans within a Resource Group. Provides performance monitoring, failure detection, and operational insights specifically tailored for serverless function workloads.
+
+- **Path**: `modules/application-insights-function`
+- **Provider**: `azurerm`
+- **Version**: `>= 4.42`
+
+#### Features
+
+- **Function App Monitoring**: Execution duration tracking, failure rate monitoring, and invocation count alerts
+- **App Service Plan Monitoring**: CPU and memory usage alerts with resource utilization tracking
+- **Advanced Analytics**: Cold start detection, dependency performance tracking, and exception analysis
+- **Interactive Dashboard**: Function invocation trends, execution duration visualization, and real-time metrics
+- **Flexible Configuration**: Configurable alert thresholds and selective monitoring of specific Function Apps
+
+#### Quick Start
+
+```hcl
+module "app_insights_function" {
+  source  = "app.terraform.io/azure-policy-cloud/application-insights-function/azurerm"
+  version = "1.0.0"
+
+  # Required variables
+  resource_group_name       = "rg-myapp-prod-eus-001"
+  location                 = "East US"
+  application_insights_name = "appi-myapp-prod-eus-001"
+
+  # Function Apps to monitor
+  function_app_names = [
+    "func-myapp-api-prod-eus-001",
+    "func-myapp-worker-prod-eus-001"
+  ]
+
+  # App Service Plans to monitor
+  app_service_plan_names = [
+    "asp-myapp-functions-prod-001"
+  ]
+
+  workload    = "myapp"
+  environment = "prod"
+
+  tags = {
+    Environment = "Production"
+    Project     = "MyApp"
+    Team        = "Platform"
+  }
+}
+```
 
 
 
