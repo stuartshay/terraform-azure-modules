@@ -410,3 +410,128 @@ jobs:
           rm -rf /tmp/terraform-module-*
           rm -f /tmp/terraform-*.tar.gz
           echo "🧹 Cleanup completed"
+
+  update-readme:
+    name: Update README.md Version
+    needs: validate-and-deploy
+    runs-on: ubuntu-latest
+    # Only run on master branch and when not a dry run and when deployment was successful
+    if: |
+      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') &&
+      github.event.inputs.dry_run != 'true' &&
+      needs.validate-and-deploy.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Use a personal access token to allow creating PRs
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get latest module version
+        id: get_version
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+
+          # Get the latest tag for this module
+          LATEST_TAG=$(git tag --sort=-version:refname | grep "^${MODULE_NAME}-v" | head -1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "❌ No tags found for module $MODULE_NAME"
+            exit 1
+          fi
+
+          # Extract version from tag (remove module-name-v prefix)
+          VERSION=$(echo "$LATEST_TAG" | sed "s/^${MODULE_NAME}-v//")
+
+          echo "📋 Module: $MODULE_NAME"
+          echo "🏷️ Latest tag: $LATEST_TAG"
+          echo "📦 Version: $VERSION"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Update README.md
+        id: update_readme
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          echo "📝 Updating README.md for module $MODULE_NAME to version $VERSION"
+
+          # Make script executable and run it
+          chmod +x ./scripts/update-readme-version.sh
+
+          if ./scripts/update-readme-version.sh "$MODULE_NAME" "$VERSION"; then
+            echo "✅ README.md updated successfully"
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "⚠️ No updates were made to README.md"
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            exit 0  # Don't fail the job, just skip PR creation
+          fi
+
+      - name: Create Pull Request
+        if: steps.update_readme.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }} in README.md"
+          title: "📝 Update ${{ github.event.inputs.module_name }} version to ${{ steps.get_version.outputs.version }}"
+          body: |
+            ## 📝 Automated README.md Version Update
+
+            This pull request automatically updates the version string for the `${{ github.event.inputs.module_name }}` module in the README.md Quick Start section.
+
+            ### Changes Made
+            - **Module**: `${{ github.event.inputs.module_name }}`
+            - **New Version**: `${{ steps.get_version.outputs.version }}`
+            - **Git Tag**: `${{ steps.get_version.outputs.tag }}`
+            - **Deployment Run**: #${{ github.run_number }}
+
+            ### Details
+            This update was triggered by the successful deployment of `${{ github.event.inputs.module_name }}` version `${{ steps.get_version.outputs.version }}` to Terraform Cloud on the master branch.
+
+            The following Quick Start sections have been updated:
+            - Module-specific Quick Start example
+            - Published Modules section (if applicable)
+
+            ### Related
+            - Terraform Cloud Deployment: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Module Tag: [${{ steps.get_version.outputs.tag }}](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.tag }})
+
+            ---
+            *This PR was automatically created by the Terraform Cloud deployment workflow.*
+          branch: "docs/update-${{ github.event.inputs.module_name }}-version-${{ steps.get_version.outputs.version }}"
+          branch-suffix: timestamp
+          delete-branch: true
+          labels: |
+            documentation
+            automated
+            version-update
+          reviewers: |
+            stuartshay
+          draft: false
+
+      - name: Summary
+        if: always()
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module_name }}"
+          VERSION="${{ steps.get_version.outputs.version }}"
+          UPDATED="${{ steps.update_readme.outputs.updated }}"
+
+          echo "🎉 README Update Summary"
+          echo "======================"
+          echo "Module: $MODULE_NAME"
+          echo "Version: $VERSION"
+          echo "Updated: $UPDATED"
+
+          if [ "$UPDATED" = "true" ]; then
+            echo ""
+            echo "✅ A pull request has been created to update the README.md with the new version."
+            echo "📋 The PR includes updates to the Quick Start section for the deployed module."
+          else
+            echo ""
+            echo "ℹ️ No updates were needed for the README.md file."
+          fi
