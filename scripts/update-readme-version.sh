@@ -80,11 +80,11 @@ update_module_version() {
     local file="$3"
     local updated=false
     
-    # Different patterns to match based on module name
+    # Use precise patterns to target specific modules
     case "$module" in
         "app-service-plan-function")
             # Match the app-service-plan-function module specifically
-            if sed -i.tmp '/module "app-service-plan-function" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/app-service-plan-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -93,7 +93,8 @@ update_module_version() {
             ;;
         "app-service-plan-web")
             # Match the app-service-plan-web module (uses "app_service" as module name in README)
-            if sed -i.tmp '/module "app_service" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            # Only update sections with azure-policy-cloud and app-service-plan-web specifically
+            if sed -i.tmp '/azure-policy-cloud\/app-service-plan-web/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -102,7 +103,7 @@ update_module_version() {
             ;;
         "function-app")
             # Match the function-app module
-            if sed -i.tmp '/module "function_app" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/function-app/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -111,7 +112,7 @@ update_module_version() {
             ;;
         "container-instances")
             # Match the container-instances module
-            if sed -i.tmp '/module "container_instances" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/container-instances/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -120,7 +121,7 @@ update_module_version() {
             ;;
         "networking")
             # Match the networking module
-            if sed -i.tmp '/module "networking" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/networking/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -129,7 +130,7 @@ update_module_version() {
             ;;
         "private-endpoint")
             # Match the private-endpoint module
-            if sed -i.tmp '/module "private_endpoint" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/private-endpoint/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -138,7 +139,7 @@ update_module_version() {
             ;;
         "storage-account")
             # Match the storage-account module
-            if sed -i.tmp '/module "storage_account" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/storage-account/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -147,7 +148,7 @@ update_module_version() {
             ;;
         "service-bus")
             # Match the service-bus module
-            if sed -i.tmp '/module "service_bus" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/service-bus/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -156,7 +157,7 @@ update_module_version() {
             ;;
         "monitoring")
             # Match the monitoring module
-            if sed -i.tmp '/module "monitoring" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/monitoring/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -165,7 +166,7 @@ update_module_version() {
             ;;
         "application-insights")
             # Match the application-insights module
-            if sed -i.tmp '/module "application_insights" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/application-insights[^-]/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -174,7 +175,7 @@ update_module_version() {
             ;;
         "application-insights-billing")
             # Match the application-insights-billing module
-            if sed -i.tmp '/module "app_insights_billing" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/application-insights-billing/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -183,7 +184,7 @@ update_module_version() {
             ;;
         "application-insights-function")
             # Match the application-insights-function module
-            if sed -i.tmp '/module "app_insights_function" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/application-insights-function/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -191,8 +192,8 @@ update_module_version() {
             fi
             ;;
         "application-insights-network")
-            # Match the application-insights-network module (uses "app_insights_monitoring" in README)
-            if sed -i.tmp '/module "app_insights_monitoring" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            # Match the application-insights-network module
+            if sed -i.tmp '/azure-policy-cloud\/application-insights-network/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
@@ -202,7 +203,7 @@ update_module_version() {
         *)
             warn "Unknown module '$module'. Attempting generic update..."
             # Generic fallback - try to match any module with the same name
-            if sed -i.tmp '/module "'"$module"'" {/,/}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
+            if sed -i.tmp '/azure-policy-cloud\/'"$module"'/,/^}/ s/version = "[^"]*"/version = "'"$version"'"/' "$file" 2>/dev/null; then
                 if ! cmp -s "$file" "$file.tmp"; then
                     updated=true
                 fi
