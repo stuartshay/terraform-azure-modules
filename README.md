@@ -921,6 +921,30 @@ module "app_service" {
 
 This approach ensures clear separation between stable production releases and development versions while maintaining semantic versioning compliance.
 
+## Development
+
+### GitHub Copilot Environment
+
+The repository includes a dedicated GitHub Copilot setup workflow that configures the complete development environment before firewall restrictions are enabled.
+
+See [Copilot Setup Guide](docs/COPILOT_SETUP.md) for detailed information on:
+- Required repository secrets (Terraform Cloud, Azure credentials)
+- Automated tool installation (Terraform, TFLint, Checkov, etc.)
+- Pre-commit hook configuration
+- Environment validation and testing
+
+### Local Development
+
+1. **Environment Setup**: Run `./install.sh` to install all necessary tools
+2. **Authentication**: Configure Terraform Cloud and Azure credentials
+3. **Pre-commit Hooks**: Install with `pre-commit install`
+4. **Validation**: Run `make validate-all` to check all modules
+
+For comprehensive development documentation, see:
+- [Installation Guide](INSTALL.md)
+- [Pre-commit Testing](docs/PRE_COMMIT_TESTING.md)
+- [Terraform Testing Guide](docs/TERRAFORM_TESTING.md)
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
