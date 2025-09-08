@@ -226,7 +226,7 @@ For more troubleshooting, see the main module documentation.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.41.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.43.0 |
 
 ## Modules
 
