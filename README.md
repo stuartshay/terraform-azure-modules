@@ -181,7 +181,7 @@ Enterprise-grade Azure Container Instances (ACI) module supporting multi-contain
 ```hcl
 module "container_instances" {
   source  = "app.terraform.io/azure-policy-cloud/container-instances/azurerm"
-  version = "1.0.0"
+  version = "1.1.83"
 
   resource_group_name = "rg-example"
   location           = "East US"
